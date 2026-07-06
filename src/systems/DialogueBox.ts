@@ -20,6 +20,7 @@ export class DialogueBox {
   private scene: Phaser.Scene;
   private container: Phaser.GameObjects.Container;
   private portrait: Phaser.GameObjects.Sprite;
+  private portraitGlow!: Phaser.GameObjects.Image;
   private nameText: Phaser.GameObjects.Text;
   private bodyText: Phaser.GameObjects.Text;
   private nextHint: Phaser.GameObjects.Text;
@@ -42,6 +43,7 @@ export class DialogueBox {
     bg.lineStyle(2, 0x9d7bff, 0.8);
     bg.strokeRoundedRect(-W / 2, -H / 2, W, H, 10);
 
+    this.portraitGlow = scene.add.image(-W / 2 + 56, 0, 'glow-violet').setScale(3.2).setAlpha(0.35);
     this.portrait = scene.add.sprite(-W / 2 + 56, 0, 'iris', '0').setScale(3.4);
     this.nameText = scene.add.text(-W / 2 + 108, -H / 2 + 14, '', {
       fontFamily: FONT,
@@ -62,7 +64,7 @@ export class DialogueBox {
     scene.tweens.add({ targets: this.nextHint, y: H / 2 - 14, duration: 480, yoyo: true, repeat: -1 });
 
     this.container = scene.add
-      .container(x, y, [bg, this.portrait, this.nameText, this.bodyText, this.nextHint])
+      .container(x, y, [bg, this.portraitGlow, this.portrait, this.nameText, this.bodyText, this.nextHint])
       .setDepth(950)
       .setScrollFactor(0)
       .setVisible(false);
@@ -90,6 +92,8 @@ export class DialogueBox {
     const line = this.lines[this.lineIndex];
     const who = line.who;
     this.portrait.setVisible(who !== null);
+    this.portraitGlow.setVisible(who !== null);
+    this.portraitGlow.setAlpha(who === 'morfeo' ? 0.5 : 0.35);
     if (who === 'iris') this.portrait.setTexture('iris', '0').setScale(3.4);
     if (who === 'morfeo') this.portrait.setTexture('morfeo', '0').setScale(3.4);
     this.nameText.setText(who ? NAMES[who] : '');

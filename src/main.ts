@@ -2,6 +2,9 @@ import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from './config';
 import { Boot } from './scenes/Boot';
 import { MainMenu } from './scenes/MainMenu';
+import { Intro } from './scenes/Intro';
+import { Hub } from './scenes/Hub';
+import { DreamExam, DreamFall, DreamForest, Ending } from './scenes/stubs';
 import { Gallery } from './scenes/Gallery';
 import { AudioManager } from './systems/AudioManager';
 import { SaveManager } from './systems/SaveManager';
@@ -30,5 +33,5 @@ new Phaser.Game({
     arcade: { gravity: { x: 0, y: 0 }, debug: false },
   },
   input: { activePointers: 3 },
-  scene: [Boot, MainMenu, Gallery],
+  scene: [Boot, MainMenu, Intro, Hub, DreamExam, DreamFall, DreamForest, Ending, Gallery],
 });
