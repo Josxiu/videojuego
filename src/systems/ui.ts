@@ -51,6 +51,51 @@ export function addMuteButton(scene: Phaser.Scene): void {
   });
 }
 
+/**
+ * Botón de pausa con overlay (seguir / salir del sueño).
+ * Devuelve un objeto para consultar si el juego está pausado.
+ */
+export function addPauseOverlay(scene: Phaser.Scene, onExit: () => void): { paused: () => boolean } {
+  let paused = false;
+  const items: Phaser.GameObjects.GameObject[] = [];
+
+  const btn = scene.add
+    .text(GAME_WIDTH - 64, 24, '⏸', { fontFamily: FONT, fontSize: '22px' })
+    .setOrigin(0.5)
+    .setDepth(980)
+    .setScrollFactor(0)
+    .setAlpha(0.8)
+    .setInteractive({ useHandCursor: true });
+
+  const close = () => {
+    paused = false;
+    items.forEach((i) => i.destroy());
+    items.length = 0;
+  };
+
+  const open = () => {
+    if (paused) return;
+    paused = true;
+    items.push(
+      scene.add
+        .rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x0d0a1e, 0.75)
+        .setDepth(985)
+        .setScrollFactor(0),
+      scene.add
+        .text(GAME_WIDTH / 2, 190, '⏸ PAUSA', textStyle(30, '#cfc4ff'))
+        .setOrigin(0.5)
+        .setDepth(986)
+        .setScrollFactor(0),
+      makeTextButton(scene, GAME_WIDTH / 2, 280, 'seguir', close, 20).setDepth(986),
+      makeTextButton(scene, GAME_WIDTH / 2, 350, 'salir del sueño', onExit, 20).setDepth(986),
+    );
+  };
+
+  btn.on('pointerdown', open);
+  scene.input.keyboard?.on('keydown-ESC', () => (paused ? close() : open()));
+  return { paused: () => paused };
+}
+
 /** Campo de estrellas de fondo que titilan. */
 export function addStarfield(scene: Phaser.Scene, count = 70, depth = -10): void {
   for (let i = 0; i < count; i++) {

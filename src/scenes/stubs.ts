@@ -12,15 +12,6 @@ function buildStub(scene: Phaser.Scene, title: string): void {
   makeTextButton(scene, GAME_WIDTH / 2, GAME_HEIGHT / 2 + 60, 'volver', () => fadeToScene(scene, 'Hub'));
 }
 
-export class DreamExam extends Phaser.Scene {
-  constructor() {
-    super('DreamExam');
-  }
-  create(): void {
-    buildStub(this, 'EL EXAMEN INFINITO');
-  }
-}
-
 export class DreamFall extends Phaser.Scene {
   constructor() {
     super('DreamFall');

@@ -4,7 +4,8 @@ import { Boot } from './scenes/Boot';
 import { MainMenu } from './scenes/MainMenu';
 import { Intro } from './scenes/Intro';
 import { Hub } from './scenes/Hub';
-import { DreamExam, DreamFall, DreamForest, Ending } from './scenes/stubs';
+import { DreamExam } from './scenes/DreamExam';
+import { DreamFall, DreamForest, Ending } from './scenes/stubs';
 import { Gallery } from './scenes/Gallery';
 import { AudioManager } from './systems/AudioManager';
 import { SaveManager } from './systems/SaveManager';
@@ -17,7 +18,7 @@ const wakeAudio = () => {
 window.addEventListener('pointerdown', wakeAudio);
 window.addEventListener('keydown', wakeAudio);
 
-new Phaser.Game({
+const game = new Phaser.Game({
   type: Phaser.AUTO,
   parent: 'game',
   width: GAME_WIDTH,
@@ -35,3 +36,6 @@ new Phaser.Game({
   input: { activePointers: 3 },
   scene: [Boot, MainMenu, Intro, Hub, DreamExam, DreamFall, DreamForest, Ending, Gallery],
 });
+
+// Referencia para pruebas automatizadas
+(window as unknown as { __game: Phaser.Game }).__game = game;
