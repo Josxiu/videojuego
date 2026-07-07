@@ -84,7 +84,7 @@ export class DreamExam extends Phaser.Scene {
     this.buildCourse();
     this.buildHud();
 
-    this.dialogue = new DialogueBox(this);
+    this.dialogue = new DialogueBox(this, 0xff8c42);
     this.inp = new InputManager(this);
     this.inp.addTapAndSwipe(
       () => this.tryJump(),

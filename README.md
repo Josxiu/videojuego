@@ -15,8 +15,12 @@ distinto, con su propio género, mecánicas y estilo de pixel art.
 | 🏫 **El Examen Infinito** | runner cómico | salta y deslízate llegando tarde al examen |
 | 🌌 **La Caída Sin Fin** | arcade vertical | esquiva restos de sueños mientras caes |
 | 🌲 **El Bosque de los Recuerdos** | exploración/puzzle | enciende los ecos de memoria en orden |
+| 👁 **La Persecución** (pesadilla final) | sigilo/escape · roguelike | escóndete de la Sombra; si te atrapa, el sueño se reorganiza |
 
-Coleccionable: **luciérnagas de memoria** repartidas por los tres sueños.
+Coleccionable: **luciérnagas de memoria** repartidas por los sueños.
+Con las 3 llaves, la Puerta del Despertar aún no abre: aparece una cuarta puerta
+oscura — la pesadilla — con una estética completamente distinta (mundo de siluetas
+sin color) y un elemento roguelike: cada captura reorganiza los escondites.
 
 ## Jugar
 
@@ -51,3 +55,11 @@ npm run test:smoke # smoke test con Playwright (requiere npm run dev activo)
 El workflow `.github/workflows/deploy.yml` publica el juego en **GitHub Pages** en
 cada push. Solo hay que activarlo una vez en el repo:
 *Settings → Pages → Source: GitHub Actions*.
+
+## Ideas para futuros sueños
+
+- 🎭 **El Teatro de los Nervios** — juego de ritmo/QTE: actuar en una obra sin conocer el guion.
+- ✏️ **La Ciudad del Escritorio** — plataformas siendo diminuta: saltar entre lápices, libros y tazas gigantes.
+- 📚 **La Biblioteca Infinita** — laberinto 100% roguelike generado en cada visita, con palabras que cobran vida.
+- 🪞 **El Espejo** — puzzle controlando dos Iris espejadas a la vez.
+- 🌊 **El Océano de Almohadas** — nado suave en un mundo pastel con gravedad de agua.

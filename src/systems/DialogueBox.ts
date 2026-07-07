@@ -2,14 +2,14 @@ import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT, FONT, DEPTH_DIALOGUE } from '../config';
 import { AudioManager } from './AudioManager';
 
-export type Speaker = 'iris' | 'morfeo' | null; // null = narración
+export type Speaker = 'iris' | 'morfeo' | 'shadow' | null; // null = narración
 
 export interface Line {
   who: Speaker;
   text: string;
 }
 
-const NAMES: Record<string, string> = { iris: 'IRIS', morfeo: 'MORFEO' };
+const NAMES: Record<string, string> = { iris: 'IRIS', morfeo: 'MORFEO', shadow: '???' };
 
 /**
  * Caja de diálogo con retrato y efecto máquina de escribir.
@@ -30,7 +30,7 @@ export class DialogueBox {
   private typing?: Phaser.Time.TimerEvent;
   private onDone?: () => void;
 
-  constructor(scene: Phaser.Scene) {
+  constructor(scene: Phaser.Scene, accent = 0x9d7bff) {
     this.scene = scene;
     const W = 760;
     const H = 128;
@@ -40,10 +40,10 @@ export class DialogueBox {
     const bg = scene.add.graphics();
     bg.fillStyle(0x0d0a1e, 0.94);
     bg.fillRoundedRect(-W / 2, -H / 2, W, H, 10);
-    bg.lineStyle(2, 0x9d7bff, 0.8);
+    bg.lineStyle(2, accent, 0.8);
     bg.strokeRoundedRect(-W / 2, -H / 2, W, H, 10);
 
-    this.portraitGlow = scene.add.image(-W / 2 + 56, 0, 'glow-violet').setScale(3.2).setAlpha(0.35);
+    this.portraitGlow = scene.add.image(-W / 2 + 56, 0, 'glow-violet').setScale(3.2).setAlpha(0.35).setTint(accent);
     this.portrait = scene.add.sprite(-W / 2 + 56, 0, 'iris', '0').setScale(3.4);
     this.nameText = scene.add.text(-W / 2 + 108, -H / 2 + 14, '', {
       fontFamily: FONT,
@@ -59,7 +59,11 @@ export class DialogueBox {
       lineSpacing: 5,
     });
     this.nextHint = scene.add
-      .text(W / 2 - 26, H / 2 - 20, '▼', { fontFamily: FONT, fontSize: '15px', color: '#9d7bff' })
+      .text(W / 2 - 26, H / 2 - 20, '▼', {
+        fontFamily: FONT,
+        fontSize: '15px',
+        color: '#' + accent.toString(16).padStart(6, '0'),
+      })
       .setOrigin(0.5);
     scene.tweens.add({ targets: this.nextHint, y: H / 2 - 14, duration: 480, yoyo: true, repeat: -1 });
 
@@ -94,12 +98,14 @@ export class DialogueBox {
     this.portrait.setVisible(who !== null);
     this.portraitGlow.setVisible(who !== null);
     this.portraitGlow.setAlpha(who === 'morfeo' ? 0.5 : 0.35);
+    this.portrait.clearTint();
     if (who === 'iris') this.portrait.setTexture('iris', '0').setScale(3.4);
     if (who === 'morfeo') this.portrait.setTexture('morfeo', '0').setScale(3.4);
+    if (who === 'shadow') this.portrait.setTexture('iris', '0').setScale(2.6).setTint(0x2a2a3a);
     this.nameText.setText(who ? NAMES[who] : '');
     this.bodyText.setText('');
     this.bodyText.setX(who ? -760 / 2 + 108 : -760 / 2 + 32);
-    this.nameText.setColor(who === 'morfeo' ? '#86f7ff' : '#ffb3c6');
+    this.nameText.setColor(who === 'morfeo' ? '#86f7ff' : who === 'shadow' ? '#ff6b6b' : '#ffb3c6');
     this.charIndex = 0;
     this.nextHint.setVisible(false);
     this.typing?.remove();

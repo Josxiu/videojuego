@@ -517,6 +517,91 @@ const BED_MAP = [
   '................................................',
 ];
 
+
+// ── La Sombra (pesadilla, 26x18): masa negra con ojos rojos ──
+const SHADOW: Palette = {
+  B: '#0a0a12',
+  b: '#1a1a26',
+  R: '#ff3b3b',
+  r: '#8c1f1f',
+};
+
+const SHADOW_0 = [
+  '..........................',
+  '......BB......BB..........',
+  '.....BBBB....BBBB.........',
+  '....BBBBBBBBBBBBBB........',
+  '...BBBBBBBBBBBBBBBB.......',
+  '..BBBBBBBBBBBBBBBBBB......',
+  '..BBBRRBBBBBBRRBBBBBB.....',
+  '.BBBBRRBBBBBBRRBBBBBBB....',
+  '.BBBBBBBBBBBBBBBBBBBBBB...',
+  'BBBBBBBBbBBBBBBBBBBBBBBB..',
+  'BBBBBBBBBBBBBBBBBBBBBBBBB.',
+  'BBBBBBBBBBBBBBBBBBBBBBBBBB',
+  '.BBBBBBBBBBBBbBBBBBBBBBBB.',
+  '.BBBBBBBBBBBBBBBBBBBBBBB..',
+  '..BBBBBBBBBBBBBBBBBBBB....',
+  '...BBBB.BBBBB..BBBB.BB....',
+  '....BB...BBB....BB...B....',
+  '.....B....B......B........',
+];
+
+const SHADOW_1 = [
+  '..........................',
+  '.....BB......BB...........',
+  '....BBBB....BBBB..........',
+  '....BBBBBBBBBBBBBB........',
+  '...BBBBBBBBBBBBBBBB.......',
+  '..BBBBBBBBBBBBBBBBBB......',
+  '..BBBrRBBBBBBrRBBBBBB.....',
+  '.BBBBRRBBBBBBRRBBBBBBB....',
+  '.BBBBBBBBBBBBBBBBBBBBBB...',
+  'BBBBBBBBBBBBBbBBBBBBBBBB..',
+  'BBBBBBBBBBBBBBBBBBBBBBBBB.',
+  'BBBBBBBBBBBBBBBBBBBBBBBBBB',
+  '.BBBBBBBBbBBBBBBBBBBBBBBB.',
+  '.BBBBBBBBBBBBBBBBBBBBBBB..',
+  '..BBBBBBBBBBBBBBBBBBBB....',
+  '...BB.BBBBB..BBBBB.BBB....',
+  '....B...BB....BBB...B.....',
+  '........B......B..........',
+];
+
+// ── Armario silueta (18x28) para esconderse ──
+const WARDROBE: Palette = { B: '#0d0d16', b: '#1c1c2a', K: '#34344a' };
+
+const WARDROBE_MAP = [
+  '.BBBBBBBBBBBBBBBB.',
+  'BBbbbbbbbbbbbbbbBB',
+  'BBbBBBBBBbBBBBBbBB',
+  'BBbBBBBBBbBBBBBbBB',
+  'BBbBBBBBBbBBBBBbBB',
+  'BBbBBBKBBbBBKBBbBB',
+  'BBbBBBKBBbBBKBBbBB',
+  'BBbBBBBBBbBBBBBbBB',
+  'BBbBBBBBBbBBBBBbBB',
+  'BBbBBBBBBbBBBBBbBB',
+  'BBbBBBBBBbBBBBBbBB',
+  'BBbBBBBBBbBBBBBbBB',
+  'BBbBBBBBBbBBBBBbBB',
+  'BBbBBBBBBbBBBBBbBB',
+  'BBbBBBBBBbBBBBBbBB',
+  'BBbBBBBBBbBBBBBbBB',
+  'BBbBBBBBBbBBBBBbBB',
+  'BBbBBBBBBbBBBBBbBB',
+  'BBbBBBBBBbBBBBBbBB',
+  'BBbBBBBBBbBBBBBbBB',
+  'BBbBBBBBBbBBBBBbBB',
+  'BBbBBBBBBbBBBBBbBB',
+  'BBbbbbbbbbbbbbbbBB',
+  'BBBBBBBBBBBBBBBBBB',
+  'BBBBBBBBBBBBBBBBBB',
+  '.BBB..........BBB.',
+  '.BBB..........BBB.',
+  '..................',
+];
+
 /** Registra todas las texturas y animaciones. Llamar una vez en Boot. */
 export function registerAllSprites(scene: Phaser.Scene): void {
   // Personajes
@@ -544,8 +629,13 @@ export function registerAllSprites(scene: Phaser.Scene): void {
   makeTexture(scene, 'tree', TREE_MAP, TREE);
   makeTexture(scene, 'lantern', LANTERN_MAP, LANTERN);
 
+  // Pesadilla: la persecución
+  makeSheet(scene, 'shadow', [SHADOW_0, SHADOW_1], SHADOW);
+  makeTexture(scene, 'wardrobe', WARDROBE_MAP, WARDROBE);
+
   // Brillos y partículas
   makeGlow(scene, 'glow-gold', 12, '#ffd166');
+  makeGlow(scene, 'glow-red', 12, '#ff3b3b');
   makeGlow(scene, 'glow-cyan', 12, '#86f7ff');
   makeGlow(scene, 'glow-violet', 16, '#9d7bff');
   makeGlow(scene, 'glow-white', 8, '#ffffff');
@@ -587,6 +677,15 @@ export function registerAllSprites(scene: Phaser.Scene): void {
         { key: 'iris-fall', frame: '1' },
       ],
       frameRate: 5,
+      repeat: -1,
+    });
+    anims.create({
+      key: 'shadow-idle',
+      frames: [
+        { key: 'shadow', frame: '0' },
+        { key: 'shadow', frame: '1' },
+      ],
+      frameRate: 2.2,
       repeat: -1,
     });
     anims.create({

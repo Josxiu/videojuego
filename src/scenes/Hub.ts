@@ -8,12 +8,12 @@ import { InputManager } from '../systems/InputManager';
 import { DialogueBox, Line } from '../systems/DialogueBox';
 import { addMuteButton, fadeIn, fadeToScene } from '../systems/ui';
 
-const WORLD_W = 1800;
+const WORLD_W = 1860;
 const FLOOR_Y = 470;
 
 interface DoorSpot {
   x: number;
-  dream: DreamId | 'wake';
+  dream: DreamId | 'chase' | 'wake';
   sprite: Phaser.GameObjects.Image;
   label: string;
 }
@@ -95,7 +95,8 @@ export class Hub extends Phaser.Scene {
     this.addDoor(620, 'exam', 0xffb020, `${t('exam.title')}`);
     this.addDoor(950, 'fall', 0x8f7bff, `${t('fall.title')}`);
     this.addDoor(1280, 'forest', 0x7fd8a0, `${t('forest.title')}`);
-    this.addWakeDoor(1640);
+    if (SaveManager.keyCount() >= 3 && !SaveManager.data.nightmareDone) this.addNightmareDoor(1470);
+    this.addWakeDoor(1700);
 
     // Morfeo
     this.morfeo = this.add.sprite(300, FLOOR_Y, 'morfeo').setOrigin(0.5, 1).setScale(PIXEL_SCALE);
@@ -121,6 +122,29 @@ export class Hub extends Phaser.Scene {
       this.inp.addButton(90, GAME_HEIGHT - 80, 40, '◀', 'left');
       this.inp.addButton(200, GAME_HEIGHT - 80, 40, '▶', 'right');
       this.inp.addButton(GAME_WIDTH - 100, GAME_HEIGHT - 80, 44, '✦', 'interact');
+    }
+
+    // Aviso único cuando aparece la puerta de la pesadilla
+    if (
+      SaveManager.data.metMorfeo &&
+      SaveManager.keyCount() >= 3 &&
+      !SaveManager.data.nightmareDone &&
+      !SaveManager.data.nightmareIntroSeen
+    ) {
+      this.time.delayedCall(700, () => {
+        AudioManager.sfx('screech');
+        this.cameras.main.shake(300, 0.006);
+        this.dialogue.say(
+          [
+            { who: 'morfeo', text: t('hub.nightmare.appear.1') },
+            { who: 'morfeo', text: t('hub.nightmare.appear.2') },
+          ],
+          () => {
+            SaveManager.data.nightmareIntroSeen = true;
+            SaveManager.save();
+          },
+        );
+      });
     }
 
     // Primer encuentro con Morfeo
@@ -169,8 +193,23 @@ export class Hub extends Phaser.Scene {
     this.doors.push({ x, dream, sprite: door, label });
   }
 
+  private addNightmareDoor(x: number): void {
+    const glow = this.add.image(x, FLOOR_Y - 60, 'glow-red').setScale(6).setAlpha(0.18);
+    this.tweens.add({ targets: glow, alpha: 0.4, duration: 700, yoyo: true, repeat: -1 });
+    const door = this.add.image(x, FLOOR_Y, 'door').setOrigin(0.5, 1).setScale(PIXEL_SCALE).setTint(0x2a2a35);
+    this.tweens.add({ targets: door, alpha: 0.75, duration: 900, yoyo: true, repeat: -1 });
+    this.add
+      .text(x, FLOOR_Y - 120, '???', textStyle(14, '#ff6b6b', { align: 'center' }))
+      .setOrigin(0.5);
+    // Ojos rojos asomando por la rendija
+    const eyeL = this.add.image(x - 8, FLOOR_Y - 52, 'glow-red').setScale(0.5).setAlpha(0.6);
+    const eyeR = this.add.image(x + 8, FLOOR_Y - 52, 'glow-red').setScale(0.5).setAlpha(0.6);
+    this.tweens.add({ targets: [eyeL, eyeR], alpha: 0.1, duration: 1300, yoyo: true, repeat: -1 });
+    this.doors.push({ x, dream: 'chase', sprite: door, label: '???' });
+  }
+
   private addWakeDoor(x: number): void {
-    const ready = SaveManager.keyCount() >= 3;
+    const ready = SaveManager.keyCount() >= 3 && SaveManager.data.nightmareDone;
     const glow = this.add.image(x, FLOOR_Y - 70, 'glow-gold').setScale(ready ? 9 : 5).setAlpha(ready ? 0.25 : 0.08);
     this.tweens.add({ targets: glow, alpha: ready ? 0.45 : 0.15, duration: 1200, yoyo: true, repeat: -1 });
     const door = this.add
@@ -247,9 +286,12 @@ export class Hub extends Phaser.Scene {
       0: ['hub.morfeo.zero.1'],
       1: ['hub.morfeo.one.1', 'hub.morfeo.one.2'],
       2: ['hub.morfeo.two.1', 'hub.morfeo.two.2'],
-      3: ['hub.morfeo.three.1', 'hub.morfeo.three.2'],
+      3: ['hub.morfeo.three.1', 'hub.morfeo.night.1'],
     };
-    const pool = pools[keys];
+    let pool = pools[keys];
+    if (keys >= 3 && SaveManager.data.nightmareDone) {
+      pool = ['hub.morfeo.done.1', 'hub.morfeo.three.2'];
+    }
     const lines: Line[] = [{ who: 'morfeo', text: t(pool[this.morfeoTalkIndex % pool.length]) }];
     const ff = SaveManager.fireflyCount();
     if (ff > 0 && this.morfeoTalkIndex % 3 === 2) {
@@ -261,16 +303,23 @@ export class Hub extends Phaser.Scene {
 
   private enterDoor(door: DoorSpot): void {
     if (door.dream === 'wake') {
-      if (SaveManager.keyCount() >= 3) {
+      if (SaveManager.keyCount() >= 3 && SaveManager.data.nightmareDone) {
         AudioManager.sfx('door');
         fadeToScene(this, 'Ending', undefined, 800);
+      } else if (SaveManager.keyCount() >= 3) {
+        this.dialogue.say([{ who: null, text: t('hub.wakeDoorNightmare') }]);
       } else {
         this.dialogue.say([{ who: null, text: t('hub.wakeDoorLocked') }]);
       }
       return;
     }
     AudioManager.sfx('door');
-    const target = { exam: 'DreamExam', fall: 'DreamFall', forest: 'DreamForest' }[door.dream];
+    const target = {
+      exam: 'DreamExam',
+      fall: 'DreamFall',
+      forest: 'DreamForest',
+      chase: 'DreamChase',
+    }[door.dream];
     fadeToScene(this, target, undefined, 600);
   }
 }

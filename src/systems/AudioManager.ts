@@ -14,7 +14,7 @@ interface Track {
   bassWave?: Wave;
 }
 
-export type MusicId = 'menu' | 'hub' | 'exam' | 'fall' | 'forest' | 'ending';
+export type MusicId = 'menu' | 'hub' | 'exam' | 'fall' | 'forest' | 'chase' | 'ending';
 export type SfxId =
   | 'jump'
   | 'hit'
@@ -26,6 +26,9 @@ export type SfxId =
   | 'ring'
   | 'text'
   | 'slide'
+  | 'screech'
+  | 'heartbeat'
+  | 'hide'
   | 'win';
 
 const NOTE_INDEX: Record<string, number> = {
@@ -75,6 +78,14 @@ const TRACKS: Record<MusicId, Track> = {
              'C5', null, null, null, 'G4', null, 'A4', null, null, null, 'B4', null, null, null, null, null],
     bass: ['E2', null, null, null, null, null, null, null, 'C2', null, null, null, null, null, null, null,
            'A1', null, null, null, null, null, null, null, 'B1', null, null, null, null, null, null, null],
+  },
+  chase: {
+    // Dron grave y disonante, sin melodía: la pesadilla no canta
+    bpm: 56, wave: 'sine', volume: 0.3,
+    melody: [null, null, null, null, null, null, 'A#2', null, null, null, null, null, null, null, null, null,
+             null, null, null, null, 'B2', null, null, null, null, null, null, null, null, null, null, null],
+    bass: ['E1', null, null, null, null, null, null, null, 'F1', null, null, null, null, null, null, null,
+           'E1', null, null, null, null, null, null, null, 'D#1', null, null, null, null, null, null, null],
   },
   ending: {
     bpm: 88, wave: 'triangle', volume: 0.22,
@@ -239,6 +250,17 @@ class AudioManagerClass {
         break;
       case 'text':
         this.tone(700, t, 0.03, 'square', 0.03);
+        break;
+      case 'screech':
+        this.tone(1300, t, 0.55, 'sawtooth', 0.12, undefined, 180);
+        this.noise(t, 0.5, 0.1, 3200);
+        break;
+      case 'heartbeat':
+        this.tone(62, t, 0.1, 'sine', 0.22, undefined, 40);
+        this.tone(56, t + 0.16, 0.12, 'sine', 0.18, undefined, 36);
+        break;
+      case 'hide':
+        this.noise(t, 0.16, 0.07, 600);
         break;
     }
   }

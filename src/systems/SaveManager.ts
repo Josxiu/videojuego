@@ -5,6 +5,8 @@ export interface SaveData {
   fireflies: Record<DreamId, number>;
   introSeen: boolean;
   metMorfeo: boolean;
+  nightmareIntroSeen: boolean;
+  nightmareDone: boolean;
   endingSeen: boolean;
   muted: boolean;
 }
@@ -19,6 +21,8 @@ const fresh = (): SaveData => ({
   fireflies: { exam: 0, fall: 0, forest: 0 },
   introSeen: false,
   metMorfeo: false,
+  nightmareIntroSeen: false,
+  nightmareDone: false,
   endingSeen: false,
   muted: false,
 });
@@ -30,7 +34,17 @@ class SaveManagerClass {
   load(): void {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) this.data = { ...fresh(), ...JSON.parse(raw) };
+      if (raw) {
+        // Fusión profunda para que los guardados viejos ganen los campos nuevos
+        const parsed = JSON.parse(raw) as Partial<SaveData>;
+        const base = fresh();
+        this.data = {
+          ...base,
+          ...parsed,
+          keys: { ...base.keys, ...(parsed.keys ?? {}) },
+          fireflies: { ...base.fireflies, ...(parsed.fireflies ?? {}) },
+        };
+      }
     } catch {
       this.data = fresh();
     }

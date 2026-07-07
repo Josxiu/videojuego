@@ -7,6 +7,7 @@ import { Hub } from './scenes/Hub';
 import { DreamExam } from './scenes/DreamExam';
 import { DreamFall } from './scenes/DreamFall';
 import { DreamForest } from './scenes/DreamForest';
+import { DreamChase } from './scenes/DreamChase';
 import { Ending } from './scenes/Ending';
 import { Gallery } from './scenes/Gallery';
 import { AudioManager } from './systems/AudioManager';
@@ -36,7 +37,7 @@ const game = new Phaser.Game({
     arcade: { gravity: { x: 0, y: 0 }, debug: false },
   },
   input: { activePointers: 3 },
-  scene: [Boot, MainMenu, Intro, Hub, DreamExam, DreamFall, DreamForest, Ending, Gallery],
+  scene: [Boot, MainMenu, Intro, Hub, DreamExam, DreamFall, DreamForest, DreamChase, Ending, Gallery],
 });
 
 // Referencia para pruebas automatizadas

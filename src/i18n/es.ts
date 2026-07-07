@@ -97,6 +97,35 @@ export const es = {
   'forest.keyGet': '¡LLAVE DEL DESPERTAR OBTENIDA!',
   'forest.lanternHint': 'Los faroles recuerdan el orden de la historia: patio, ciudad, mensaje.',
 
+  // ── Pesadilla: La Persecución ──
+  'chase.title': 'PESADILLA',
+  'chase.name': 'LA PERSECUCIÓN',
+  'chase.intro.1': 'Este sueño es distinto. Aquí no hay colores. Solo algo que te sigue.',
+  'chase.intro.2': 'Las piernas pesan. Correr no basta. Cuando venga... escóndete.',
+  'chase.hint': '◀ ▶ moverte · ✦ esconderte en los armarios',
+  'chase.hintKeys': '← → para moverte · E para esconderte',
+  'chase.surge': '¡VIENE!',
+  'chase.hidden': 'contén la respiración...',
+  'chase.caught.1': 'La sombra te alcanza... y el sueño se reordena.',
+  'chase.caught.2': 'Los armarios ya no están donde estaban. Los sueños nunca se repiten.',
+  'chase.caught.3': 'Otra vez. La pesadilla aprende. Tú también.',
+  'chase.door': 'La puerta está cerrada. Y ella viene...',
+  'chase.turn': 'voltear a verla',
+  'chase.reveal.1': 'Iris deja de correr. Respira. Se da la vuelta.',
+  'chase.reveal.2': 'La sombra se detiene. Se encoge. Tiembla.',
+  'chase.reveal.3': '...¿Una niña?',
+  'chase.reveal.4': 'Soy tú. La parte de ti que lleva semanas pidiendo parar. Corriste tanto... que me volví esto.',
+  'chase.reveal.5': 'Ya no voy a huir de ti. Ven. Vamos a descansar juntas.',
+  'chase.reveal.6': 'El abrazo deshace la pesadilla como humo.',
+  'chase.done': 'LA PESADILLA SE DISUELVE',
+
+  // Hub: la puerta de la pesadilla
+  'hub.nightmare.appear.1': '¿Sientes eso? Con las tres llaves, tu miedo ya no tiene dónde esconderse. Por eso abrió su propia puerta.',
+  'hub.nightmare.appear.2': 'Ahí dentro no puedo acompañarte. Solo recuerda: lo que te persigue no quiere alcanzarte. Quiere que te detengas.',
+  'hub.wakeDoorNightmare': 'Las llaves vibran... pero algo te persigue todavía. La puerta oscura espera.',
+  'hub.morfeo.night.1': 'Correr no sirve ahí dentro; esconderse sí. Y al final... no corras.',
+  'hub.morfeo.done.1': 'Abrazaste lo que te perseguía. Pocos humanos hacen eso, ¿sabes? Ahora sí: la puerta grande.',
+
   // ── Final ──
   'ending.1': 'Las tres llaves giran solas en la cerradura.',
   'ending.2': '¿Lista? Del otro lado hay ruido, tareas, café frío...',

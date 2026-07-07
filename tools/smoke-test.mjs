@@ -63,7 +63,7 @@ await check('menú → intro → hub', async (page) => {
 });
 
 // 2. Cada escena carga sin errores
-for (const scene of ['Hub', 'DreamExam', 'DreamFall', 'DreamForest', 'Ending', 'Gallery']) {
+for (const scene of ['Hub', 'DreamExam', 'DreamFall', 'DreamForest', 'DreamChase', 'Ending', 'Gallery']) {
   await check(`escena ${scene}`, async (page) => {
     await page.goto(`${BASE}?scene=${scene}`);
     await waitScene(page, scene);

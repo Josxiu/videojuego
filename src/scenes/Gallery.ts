@@ -32,6 +32,9 @@ export class Gallery extends Phaser.Scene {
       ['clock', undefined],
       ['window', undefined],
       ['tree', undefined],
+      ['shadow', '0'],
+      ['shadow', '1'],
+      ['wardrobe', undefined],
       ['lantern', undefined],
       ['glow-gold', undefined],
     ];
@@ -55,5 +58,6 @@ export class Gallery extends Phaser.Scene {
     this.add.sprite(80, 480, 'iris').play('iris-walk').setScale(3);
     this.add.sprite(160, 480, 'iris-fall').play('iris-falling').setScale(3);
     this.add.sprite(280, 480, 'morfeo').play('morfeo-idle').setScale(3);
+    this.add.sprite(400, 480, 'shadow').play('shadow-idle').setScale(3);
   }
 }

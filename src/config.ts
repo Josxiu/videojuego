@@ -20,6 +20,7 @@ export const AMBIENT = {
   exam: { bg: 0xffe9b3, accent: 0xff8c42, floor: 0x8a5a2b },
   fall: { bg: 0x0d0a2e, accent: 0x7f6bff, floor: 0x1a1450 },
   forest: { bg: 0x0f1a22, accent: 0xffd166, floor: 0x16242e },
+  chase: { bg: 0x9a9aad, accent: 0xb33939, floor: 0x0a0a12 },
   menu: { bg: 0x0d0a1e, accent: 0xcfc4ff, floor: 0x0d0a1e },
 } as const;
 

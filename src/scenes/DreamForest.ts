@@ -90,7 +90,7 @@ export class DreamForest extends Phaser.Scene {
       .setScrollFactor(0)
       .setDepth(DEPTH_HUD);
 
-    this.dialogue = new DialogueBox(this);
+    this.dialogue = new DialogueBox(this, 0xffd166);
     this.inp = new InputManager(this);
     if (this.inp.isTouch) {
       this.inp.addJoystick();
