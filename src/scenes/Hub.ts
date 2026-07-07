@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { GAME_WIDTH, GAME_HEIGHT, PIXEL_SCALE, textStyle, DreamId } from '../config';
+import { GAME_WIDTH, GAME_HEIGHT, PIXEL_SCALE, textStyle, DreamId, DEPTH_HUD } from '../config';
 import { t } from '../i18n';
 import type { TextKey } from '../i18n';
 import { SaveManager } from '../systems/SaveManager';
@@ -111,7 +111,7 @@ export class Hub extends Phaser.Scene {
     this.prompt = this.add
       .text(0, 0, '', textStyle(14, '#ffd166', { backgroundColor: '#0d0a1ecc', padding: { x: 8, y: 4 } }))
       .setOrigin(0.5)
-      .setDepth(500)
+      .setDepth(DEPTH_HUD)
       .setVisible(false);
     this.addHud();
     addMuteButton(this);
@@ -186,18 +186,18 @@ export class Hub extends Phaser.Scene {
 
   private addHud(): void {
     const keys = SaveManager.keyCount();
-    this.add.image(28, 28, 'key').setScale(2).setScrollFactor(0).setDepth(500);
+    this.add.image(28, 28, 'key').setScale(2).setScrollFactor(0).setDepth(DEPTH_HUD);
     this.add
       .text(48, 28, `${keys}/3`, textStyle(16, '#ffd75e'))
       .setOrigin(0, 0.5)
       .setScrollFactor(0)
-      .setDepth(500);
-    this.add.image(120, 28, 'glow-gold').setScale(1).setScrollFactor(0).setDepth(500);
+      .setDepth(DEPTH_HUD);
+    this.add.image(120, 28, 'glow-gold').setScale(1).setScrollFactor(0).setDepth(DEPTH_HUD);
     this.add
       .text(138, 28, `${SaveManager.fireflyCount()}`, textStyle(16, '#ffd166'))
       .setOrigin(0, 0.5)
       .setScrollFactor(0)
-      .setDepth(500);
+      .setDepth(DEPTH_HUD);
   }
 
   update(): void {

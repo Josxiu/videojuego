@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { GAME_WIDTH, GAME_HEIGHT, PIXEL_SCALE, textStyle } from '../config';
+import { GAME_WIDTH, GAME_HEIGHT, PIXEL_SCALE, textStyle, DEPTH_HUD } from '../config';
 import { t } from '../i18n';
 import type { TextKey } from '../i18n';
 import { SaveManager } from '../systems/SaveManager';
@@ -80,15 +80,15 @@ export class DreamForest extends Phaser.Scene {
     this.prompt = this.add
       .text(0, 0, '', textStyle(14, '#ffd166', { backgroundColor: '#0f1a22cc', padding: { x: 8, y: 4 } }))
       .setOrigin(0.5)
-      .setDepth(900)
+      .setDepth(DEPTH_HUD)
       .setScrollFactor(0)
       .setVisible(false);
-    this.add.image(24, 26, 'glow-gold').setScale(1).setScrollFactor(0).setDepth(900);
+    this.add.image(24, 26, 'glow-gold').setScale(1).setScrollFactor(0).setDepth(DEPTH_HUD);
     this.ffText = this.add
       .text(42, 26, '0/6', textStyle(15, '#ffd166'))
       .setOrigin(0, 0.5)
       .setScrollFactor(0)
-      .setDepth(900);
+      .setDepth(DEPTH_HUD);
 
     this.dialogue = new DialogueBox(this);
     this.inp = new InputManager(this);
@@ -123,7 +123,7 @@ export class DreamForest extends Phaser.Scene {
       .text(GAME_WIDTH / 2, 90, text, textStyle(15, '#cfc4ff', { align: 'center', backgroundColor: '#0f1a22dd', padding: { x: 12, y: 6 } }))
       .setOrigin(0.5)
       .setScrollFactor(0)
-      .setDepth(900);
+      .setDepth(DEPTH_HUD);
     this.tweens.add({ targets: hint, alpha: 0, delay: 3200, duration: 500, onComplete: () => hint.destroy() });
   }
 
@@ -369,7 +369,7 @@ export class DreamForest extends Phaser.Scene {
       .text(GAME_WIDTH / 2, 150, t('forest.keyGet'), textStyle(24, '#ffd166', { fontStyle: 'bold', backgroundColor: '#0f1a22ee', padding: { x: 14, y: 8 } }))
       .setOrigin(0.5)
       .setScrollFactor(0)
-      .setDepth(900);
+      .setDepth(DEPTH_HUD);
     SaveManager.giveKey('forest');
     SaveManager.recordFireflies('forest', this.fireflies);
     AudioManager.sfx('key');

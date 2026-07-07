@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { GAME_WIDTH, GAME_HEIGHT, PIXEL_SCALE, textStyle } from '../config';
+import { GAME_WIDTH, GAME_HEIGHT, PIXEL_SCALE, textStyle, DEPTH_HUD } from '../config';
 import { t } from '../i18n';
 import { SaveManager } from '../systems/SaveManager';
 import { AudioManager } from '../systems/AudioManager';
@@ -172,22 +172,21 @@ export class DreamExam extends Phaser.Scene {
       this.spawns.push({ worldX, type, y, id: id++ });
     };
 
-    // Patrón de cada tramo: [offset, tipo] — pensado para alternar saltar/deslizar
+    // Patrón de cada tramo: [offset, tipo] — alterna saltar/deslizar con aire
+    // suficiente entre obstáculos (el salto dura ~0.85 s en el aire)
     const seg1: [number, ObType][] = [
-      [600, 'coffee'], [1050, 'paper'], [1500, 'locker'], [1900, 'coffee'], [2200, 'bell'],
+      [600, 'coffee'], [1050, 'paper'], [1500, 'locker'], [1950, 'coffee'], [2300, 'bell'],
     ];
     const seg2: [number, ObType][] = [
-      [2650, 'locker'], [2980, 'paper'], [3300, 'coffee'], [3560, 'bell'], [3860, 'locker'],
-      [4150, 'paper'], [4420, 'coffee'],
+      [2750, 'locker'], [3200, 'paper'], [3650, 'coffee'], [4090, 'bell'], [4530, 'locker'],
     ];
     const seg3: [number, ObType][] = [
-      [4950, 'bell'], [5200, 'locker'], [5450, 'paper'], [5700, 'coffee'], [5920, 'locker'],
-      [6150, 'bell'], [6400, 'coffee'], [6650, 'paper'],
+      [5000, 'bell'], [5490, 'locker'], [5980, 'paper'], [6460, 'coffee'], [6800, 'bell'],
     ];
     [...seg1, ...seg2, ...seg3].forEach(([x, type]) => add(x, type));
 
     // Luciérnagas de memoria: en arcos de salto o pasillos seguros
-    [800, 1700, 3100, 3700, 5320, 6500].forEach((x) => add(x, 'firefly', GROUND_Y - 150));
+    [820, 1720, 2980, 3870, 5240, 6230].forEach((x) => add(x, 'firefly', GROUND_Y - 150));
   }
 
   private buildHud(): void {
@@ -195,28 +194,28 @@ export class DreamExam extends Phaser.Scene {
     this.add
       .rectangle(GAME_WIDTH / 2, 26, 420, 12, 0x0d0a1e, 0.35)
       .setScrollFactor(0)
-      .setDepth(500)
+      .setDepth(DEPTH_HUD)
       .setStrokeStyle(2, 0x8a5a2b);
     this.progressFill = this.add
       .rectangle(GAME_WIDTH / 2 - 208, 26, 414, 8, 0xff8c42)
       .setOrigin(0, 0.5)
       .setScale(0.005, 1)
       .setScrollFactor(0)
-      .setDepth(501);
-    this.add.text(GAME_WIDTH / 2 + 224, 26, '🏫', textStyle(16)).setOrigin(0.5).setScrollFactor(0).setDepth(501);
+      .setDepth(DEPTH_HUD);
+    this.add.text(GAME_WIDTH / 2 + 224, 26, '🏫', textStyle(16)).setOrigin(0.5).setScrollFactor(0).setDepth(DEPTH_HUD);
 
-    this.add.image(24, 26, 'glow-gold').setScale(1).setScrollFactor(0).setDepth(500);
+    this.add.image(24, 26, 'glow-gold').setScale(1).setScrollFactor(0).setDepth(DEPTH_HUD);
     this.ffText = this.add
       .text(42, 26, '0/6', textStyle(15, '#8a5a2b'))
       .setOrigin(0, 0.5)
       .setScrollFactor(0)
-      .setDepth(500);
+      .setDepth(DEPTH_HUD);
 
     this.toast = this.add
       .text(GAME_WIDTH / 2, 120, '', textStyle(18, '#8a5a2b', { align: 'center', backgroundColor: '#fff3d0dd', padding: { x: 12, y: 6 } }))
       .setOrigin(0.5)
       .setScrollFactor(0)
-      .setDepth(500)
+      .setDepth(DEPTH_HUD)
       .setVisible(false);
   }
 
@@ -348,7 +347,7 @@ export class DreamExam extends Phaser.Scene {
       let rect: Phaser.Geom.Rectangle;
       switch (s.type) {
         case 'locker':
-          rect = new Phaser.Geom.Rectangle(sx - 17, GROUND_Y - 62, 34, 62);
+          rect = new Phaser.Geom.Rectangle(sx - 14, GROUND_Y - 58, 28, 58);
           break;
         case 'coffee':
           rect = new Phaser.Geom.Rectangle(sx - 18, GROUND_Y - 10, 36, 10);
@@ -357,7 +356,7 @@ export class DreamExam extends Phaser.Scene {
           rect = new Phaser.Geom.Rectangle(sx - 12, GROUND_Y - 130, 24, 26);
           break;
         case 'bell':
-          rect = new Phaser.Geom.Rectangle(sx - 18, GROUND_Y - 146, 36, 38);
+          rect = new Phaser.Geom.Rectangle(sx - 15, GROUND_Y - 142, 30, 32);
           break;
         case 'firefly':
           rect = new Phaser.Geom.Rectangle(sx - 20, (s.sprite.y ?? s.y) - 20, 40, 40);
@@ -403,7 +402,7 @@ export class DreamExam extends Phaser.Scene {
       if (this.dist >= segStart && !this.sectionShown.has(i)) {
         this.sectionShown.add(i);
         this.checkpoint = segStart;
-        this.speed = 330 + i * 45;
+        this.speed = 330 + i * 32;
         AudioManager.sfx('ring');
         this.showToast(i === 1 ? t('exam.section2') : t('exam.section3'), 1800);
       }
@@ -447,7 +446,7 @@ export class DreamExam extends Phaser.Scene {
       .text(GAME_WIDTH / 2, 150, t('exam.keyGet'), textStyle(24, '#8a5a2b', { fontStyle: 'bold', backgroundColor: '#fff3d0ee', padding: { x: 14, y: 8 } }))
       .setOrigin(0.5)
       .setScrollFactor(0)
-      .setDepth(500);
+      .setDepth(DEPTH_HUD);
     SaveManager.giveKey('exam');
     SaveManager.recordFireflies('exam', this.fireflies.size);
     AudioManager.sfx('win');

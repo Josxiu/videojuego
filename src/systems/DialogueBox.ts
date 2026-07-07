@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { GAME_WIDTH, GAME_HEIGHT, FONT } from '../config';
+import { GAME_WIDTH, GAME_HEIGHT, FONT, DEPTH_DIALOGUE } from '../config';
 import { AudioManager } from './AudioManager';
 
 export type Speaker = 'iris' | 'morfeo' | null; // null = narración
@@ -65,7 +65,7 @@ export class DialogueBox {
 
     this.container = scene.add
       .container(x, y, [bg, this.portraitGlow, this.portrait, this.nameText, this.bodyText, this.nextHint])
-      .setDepth(950)
+      .setDepth(DEPTH_DIALOGUE)
       .setScrollFactor(0)
       .setVisible(false);
 

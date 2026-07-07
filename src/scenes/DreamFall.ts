@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { GAME_WIDTH, GAME_HEIGHT, PIXEL_SCALE, textStyle } from '../config';
+import { GAME_WIDTH, GAME_HEIGHT, PIXEL_SCALE, textStyle, DEPTH_HUD } from '../config';
 import { t } from '../i18n';
 import { SaveManager } from '../systems/SaveManager';
 import { AudioManager } from '../systems/AudioManager';
@@ -177,23 +177,23 @@ export class DreamFall extends Phaser.Scene {
       .text(GAME_WIDTH / 2, 26, '0 m', textStyle(18, '#cfc4ff'))
       .setOrigin(0.5)
       .setScrollFactor(0)
-      .setDepth(500);
+      .setDepth(DEPTH_HUD);
     for (let i = 0; i < 3; i++) {
       this.hearts.push(
-        this.add.image(26 + i * 30, 26, 'heart').setScale(2.4).setScrollFactor(0).setDepth(500),
+        this.add.image(26 + i * 30, 26, 'heart').setScale(2.4).setScrollFactor(0).setDepth(DEPTH_HUD),
       );
     }
-    this.add.image(26, 60, 'glow-gold').setScale(0.9).setScrollFactor(0).setDepth(500);
+    this.add.image(26, 60, 'glow-gold').setScale(0.9).setScrollFactor(0).setDepth(DEPTH_HUD);
     this.ffText = this.add
       .text(44, 60, '0/8', textStyle(15, '#ffd166'))
       .setOrigin(0, 0.5)
       .setScrollFactor(0)
-      .setDepth(500);
+      .setDepth(DEPTH_HUD);
     this.toast = this.add
       .text(GAME_WIDTH / 2, 110, '', textStyle(17, '#cfc4ff', { align: 'center', backgroundColor: '#0d0a2ecc', padding: { x: 12, y: 6 } }))
       .setOrigin(0.5)
       .setScrollFactor(0)
-      .setDepth(500)
+      .setDepth(DEPTH_HUD)
       .setVisible(false);
   }
 
@@ -394,7 +394,7 @@ export class DreamFall extends Phaser.Scene {
       .text(GAME_WIDTH / 2, 150, t('fall.keyGet'), textStyle(24, '#cfc4ff', { fontStyle: 'bold', backgroundColor: '#241a55ee', padding: { x: 14, y: 8 } }))
       .setOrigin(0.5)
       .setScrollFactor(0)
-      .setDepth(500);
+      .setDepth(DEPTH_HUD);
     SaveManager.giveKey('fall');
     SaveManager.recordFireflies('fall', this.fireflies.size);
     AudioManager.sfx('win');

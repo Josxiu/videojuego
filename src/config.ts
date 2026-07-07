@@ -5,6 +5,11 @@ export const GAME_HEIGHT = 540;
 // Los sprites se dibujan a tamaño diminuto y se escalan para conservar el look pixel
 export const PIXEL_SCALE = 3;
 
+// Capas de dibujado: el mundo usa depth <= ~1200 (orden por Y), la UI va encima
+export const DEPTH_HUD = 1800; // HUD, prompts, controles táctiles
+export const DEPTH_DIALOGUE = 2000; // cajas de diálogo
+export const DEPTH_OVERLAY = 2200; // pausa, tarjetas de título, fundidos
+
 export type DreamId = 'exam' | 'fall' | 'forest';
 
 export const DREAMS: DreamId[] = ['exam', 'fall', 'forest'];

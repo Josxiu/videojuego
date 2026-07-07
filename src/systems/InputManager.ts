@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { GAME_WIDTH, GAME_HEIGHT, FONT } from '../config';
+import { GAME_WIDTH, GAME_HEIGHT, FONT, DEPTH_HUD } from '../config';
 
 export type Action = 'left' | 'right' | 'up' | 'down' | 'jump' | 'interact';
 
@@ -93,19 +93,19 @@ export class InputManager {
     const zone = s.add
       .circle(x, y, radius * 1.35, 0xffffff, 0.001)
       .setScrollFactor(0)
-      .setDepth(900)
+      .setDepth(DEPTH_HUD)
       .setInteractive();
     const circle = s.add
       .circle(x, y, radius, 0xffffff, 0.10)
       .setScrollFactor(0)
-      .setDepth(900)
+      .setDepth(DEPTH_HUD)
       .setStrokeStyle(2, 0xffffff, 0.35);
     s.add
       .text(x, y, label, { fontFamily: FONT, fontSize: `${Math.round(radius * 0.8)}px`, color: '#ffffff' })
       .setOrigin(0.5)
       .setAlpha(0.8)
       .setScrollFactor(0)
-      .setDepth(901);
+      .setDepth(DEPTH_HUD + 1);
     zone.on('pointerdown', () => {
       this.touchState[action] = true;
       circle.setFillStyle(0xffffff, 0.28);
@@ -127,12 +127,12 @@ export class InputManager {
     this.joyBase = s.add
       .circle(bx, by, R, 0xffffff, 0.08)
       .setScrollFactor(0)
-      .setDepth(900)
+      .setDepth(DEPTH_HUD)
       .setStrokeStyle(2, 0xffffff, 0.3);
     this.joyThumb = s.add
       .circle(bx, by, 26, 0xffffff, 0.22)
       .setScrollFactor(0)
-      .setDepth(901);
+      .setDepth(DEPTH_HUD + 1);
 
     s.input.on('pointerdown', (p: Phaser.Input.Pointer) => {
       // Solo la mitad izquierda de la pantalla controla el joystick
