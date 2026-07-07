@@ -12,15 +12,6 @@ function buildStub(scene: Phaser.Scene, title: string): void {
   makeTextButton(scene, GAME_WIDTH / 2, GAME_HEIGHT / 2 + 60, 'volver', () => fadeToScene(scene, 'Hub'));
 }
 
-export class DreamForest extends Phaser.Scene {
-  constructor() {
-    super('DreamForest');
-  }
-  create(): void {
-    buildStub(this, 'EL BOSQUE DE LOS RECUERDOS');
-  }
-}
-
 export class Ending extends Phaser.Scene {
   constructor() {
     super('Ending');
