@@ -52,9 +52,13 @@ npm run test:smoke # smoke test con Playwright (requiere npm run dev activo)
 
 ### Publicación
 
-El workflow `.github/workflows/deploy.yml` publica el juego en **GitHub Pages** en
-cada push. Solo hay que activarlo una vez en el repo:
-*Settings → Pages → Source: GitHub Actions*.
+El workflow `.github/workflows/deploy.yml` compila el juego y lo publica en
+**GitHub Pages** en cada push.
+
+> **Importante:** en *Settings → Pages → Build and deployment → Source* hay que elegir
+> **"GitHub Actions"**, NO "Deploy from a branch". Con "Deploy from a branch" GitHub
+> sirve el código fuente sin compilar (el `index.html` apunta a `/src/main.ts`, que solo
+> existe en desarrollo) y la página se ve en blanco/azul oscuro sin cargar el juego.
 
 ## Ideas para futuros sueños
 
