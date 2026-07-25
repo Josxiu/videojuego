@@ -1,26 +1,31 @@
 # 🌙 Duermevela
 
-*Un juego sobre no poder despertar.*
+*Los sueños de este edificio no son todos tuyos.*
 
-Iris, una estudiante agotada tras semanas sin dormir bien, se queda dormida la noche
-antes de un día importante… y queda atrapada en **El Entresueño**, el pasillo entre
-sus propios sueños. Con la ayuda de **Morfeo** —un gato de humo que habla— debe
-cruzar tres puertas y recuperar las **Llaves del Despertar**. Cada sueño es un mundo
-distinto, con su propio género, mecánicas y estilo de pixel art.
+Iris lleva once días durmiendo con audífonos para no oír a sus vecinos. La noche que
+se le acaba la batería, oye el edificio Girasol entero respirando —cuarenta personas
+dormidas, cuarenta sueños subiendo por los ductos— y se duerme con todos encima.
+
+Despierta en **El Entresueño**, el cruce por donde pasan los sueños del edificio. Se
+le pegaron tres que no son suyos, y su cuerpo no la deja volver mientras los cargue.
+**Morfeo**, gato de administración de sueños del turno nocturno, se lo explica sin
+demasiada paciencia: entra, devuelve lo que te llevaste, sal.
+
+Cada puerta es la mente de un vecino concreto, con sus reglas, su estética y su
+mecánica. Y dentro de un sueño ajeno, la rara eres tú.
 
 ## Los sueños
 
-| Sueño | Género | Mecánica |
+| Sueño | De quién | Mecánica |
 |---|---|---|
-| 🏫 **El Examen Infinito** | runner cómico | salta y deslízate llegando tarde al examen |
-| 🌌 **La Caída Sin Fin** | arcade vertical | esquiva restos de sueños mientras caes |
-| 🌲 **El Bosque de los Recuerdos** | exploración/puzzle | enciende los ecos de memoria en orden |
-| 👁 **La Persecución** (pesadilla final) | sigilo/escape · roguelike | escóndete de la Sombra; si te atrapa, el sueño se reorganiza |
+| 🏫 **El Examen Infinito** | **Don Élmer**, el conserje | Lleva 40 años soñando un examen que nunca presentó. El pasillo pregunta sobre su vida y respondes **saltando** (respuesta de arriba) o **corriendo por el suelo** (la de abajo). Fallar estira el pasillo. |
+| 🌌 **La Caída Sin Fin** | **Nadia**, del 5º | Siete meses sin desempacar, siete meses cayendo. Las puertas flotantes **se cruzan** y cambian el cielo entero: el de cartón, el mojado, el sin señal. |
+| 🌲 **El Patio de Atrás** | **Doña Chuy**, del 4B | 81 años soñando el patio de su infancia. No está perdida: busca a quien enseñarle a regar. Enciende los ecos en el orden de su vida. |
+| 👁 **La Persecución** | **Tomás**, del 2A, 7 años | Su pesadilla se abrió sola. La Sombra **aprende**: los escondites donde te atrapó quedan vigilados. Y tiene forma de algo que reconocerás. |
 
-Coleccionable: **luciérnagas de memoria** repartidas por los sueños.
-Con las 3 llaves, la Puerta del Despertar aún no abre: aparece una cuarta puerta
-oscura — la pesadilla — con una estética completamente distinta (mundo de siluetas
-sin color) y un elemento roguelike: cada captura reorganiza los escondites.
+Coleccionable: **luciérnagas**, restos de sueños que nadie reclamó.
+Al devolver los tres fragmentos tu puerta todavía no abre: falta un cuarto sueño
+por reclamar, y ese lleva mucho más tiempo ahí.
 
 ## Jugar
 
@@ -36,12 +41,22 @@ Funciona en el navegador de **PC y celular** (en horizontal).
 npm install
 npm run dev        # servidor local en http://localhost:5173
 npm run build      # build de producción en dist/
+npm run lint       # ESLint + Prettier
+npm test           # tests unitarios (Vitest)
 npm run test:smoke # smoke test con Playwright (requiere npm run dev activo)
+npm run check      # lint + tests + build, todo junto
 ```
 
 ### Cómo está hecho
 
 - **Phaser 3 + TypeScript + Vite**, sin backend.
+- **Post-procesado por mundo**: un único shader configurable por uniformes
+  (`src/gfx/postfx/`) da a cada sueño su «cámara» — scanlines, aberración cromática,
+  grano, viñeta, ondulación, desaturación. Degrada solo si no hay WebGL.
+- **Contenido como datos**: preguntas del examen y cielos de la caída viven en
+  `src/data/`; ampliarlos no toca la lógica de las escenas.
+- **Tipografía**: Silkscreen y Pixelify Sans auto-alojadas (OFL, ver
+  `public/fonts/LICENSE.md`).
 - **Pixel art en runtime**: los sprites están definidos como mapas de texto en
   `src/gfx/sprites.ts` (una letra = un color) y se convierten en texturas al arrancar.
   No hay archivos de imagen en el repo.
@@ -61,6 +76,8 @@ El workflow `.github/workflows/deploy.yml` compila el juego y lo publica en
 > existe en desarrollo) y la página se ve en blanco/azul oscuro sin cargar el juego.
 
 ## Ideas para futuros sueños
+
+Quedan treinta y seis puertas en el edificio:
 
 - 🎭 **El Teatro de los Nervios** — juego de ritmo/QTE: actuar en una obra sin conocer el guion.
 - ✏️ **La Ciudad del Escritorio** — plataformas siendo diminuta: saltar entre lápices, libros y tazas gigantes.
