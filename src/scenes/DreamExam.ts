@@ -1,5 +1,13 @@
 import Phaser from 'phaser';
-import { GAME_WIDTH, GAME_HEIGHT, PIXEL_SCALE, textStyle, DEPTH_HUD } from '../config';
+import {
+  GAME_WIDTH,
+  GAME_HEIGHT,
+  PIXEL_SCALE,
+  textStyle,
+  DEPTH_HUD,
+  hex,
+  palette,
+} from '../config';
 import { t } from '../i18n';
 import { applyWorldFX } from '../gfx/postfx';
 import { SaveManager } from '../systems/SaveManager';
@@ -106,10 +114,16 @@ export class DreamExam extends Phaser.Scene {
     this.pause = addPauseOverlay(this, () => fadeToScene(this, 'Hub'));
 
     showTitleCard(this, t('exam.title'), t('exam.name'), () => {
-      this.dialogue.say([{ who: null, text: t('exam.intro.1') }], () => {
-        this.showToast(this.inp.isTouch ? t('exam.hint') : t('exam.hintKeys'), 2600);
-        this.running = true;
-      });
+      this.dialogue.say(
+        [
+          { who: null, text: t('exam.intro.1') },
+          { who: null, text: t('exam.intro.2') },
+        ],
+        () => {
+          this.showToast(this.inp.isTouch ? t('exam.hint') : t('exam.hintKeys'), 2600);
+          this.running = true;
+        },
+      );
     });
   }
 
@@ -538,6 +552,19 @@ export class DreamExam extends Phaser.Scene {
           padding: { x: 14, y: 8 },
         }),
       )
+      .setOrigin(0.5)
+      .setScrollFactor(0)
+      .setDepth(DEPTH_HUD);
+    // El objeto concreto que se devuelve: la historia vive en los detalles
+    this.add
+      .text(GAME_WIDTH / 2, 190, t('exam.fragment'), {
+        ...textStyle(14, hex(palette('exam').ink), {
+          align: 'center',
+          wordWrap: { width: 560 },
+        }),
+        backgroundColor: hex(palette('exam').paper) + 'ee',
+        padding: { x: 12, y: 8 },
+      })
       .setOrigin(0.5)
       .setScrollFactor(0)
       .setDepth(DEPTH_HUD);

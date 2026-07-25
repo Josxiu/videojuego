@@ -1,5 +1,13 @@
 import Phaser from 'phaser';
-import { GAME_WIDTH, GAME_HEIGHT, PIXEL_SCALE, textStyle, DreamId, DEPTH_HUD } from '../config';
+import {
+  GAME_WIDTH,
+  GAME_HEIGHT,
+  PIXEL_SCALE,
+  textStyle,
+  DreamId,
+  DEPTH_HUD,
+  titleStyle,
+} from '../config';
 import { t } from '../i18n';
 import { applyWorldFX } from '../gfx/postfx';
 import type { TextKey } from '../i18n';
@@ -279,7 +287,7 @@ export class Hub extends Phaser.Scene {
     const keys = SaveManager.keyCount();
     this.add.image(28, 28, 'key').setScale(2).setScrollFactor(0).setDepth(DEPTH_HUD);
     this.add
-      .text(48, 28, `${keys}/3`, textStyle(16, '#ffd75e'))
+      .text(48, 28, `${keys}/3`, titleStyle(13, '#ffd75e'))
       .setOrigin(0, 0.5)
       .setScrollFactor(0)
       .setDepth(DEPTH_HUD);

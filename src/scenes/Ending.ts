@@ -76,6 +76,11 @@ export class Ending extends Phaser.Scene {
           { who: 'morfeo', text: t('ending.2') },
           { who: 'iris', text: t('ending.3') },
           { who: 'morfeo', text: t('ending.4') },
+          { who: null, text: t('ending.5') },
+          { who: 'morfeo', text: t('ending.6') },
+          { who: 'morfeo', text: t('ending.7') },
+          { who: 'iris', text: t('ending.8') },
+          { who: 'morfeo', text: t('ending.9') },
         ],
         () => this.throughTheDoor(),
       );
@@ -128,7 +133,7 @@ export class Ending extends Phaser.Scene {
 
     this.tweens.add({ targets: white, fillAlpha: 0, duration: 1500 });
 
-    const lines: TextKey[] = ['ending.5', 'ending.6', 'ending.7', 'ending.8'];
+    const lines: TextKey[] = ['ending.10', 'ending.11', 'ending.12', 'ending.13', 'ending.14'];
     let i = 0;
     const showNext = () => {
       if (i >= lines.length) {

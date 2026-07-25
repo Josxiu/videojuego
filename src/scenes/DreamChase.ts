@@ -562,10 +562,11 @@ export class DreamChase extends Phaser.Scene {
 
             this.dialogue.say(
               [
-                { who: 'iris', text: t('chase.reveal.3') },
-                { who: 'shadow', text: t('chase.reveal.4') },
+                { who: null, text: t('chase.reveal.3') },
+                { who: null, text: t('chase.reveal.4') },
                 { who: 'iris', text: t('chase.reveal.5') },
                 { who: null, text: t('chase.reveal.6') },
+                { who: null, text: t('chase.reveal.7') },
               ],
               () => this.hug(child),
             );

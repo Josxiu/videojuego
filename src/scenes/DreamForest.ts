@@ -1,5 +1,13 @@
 import Phaser from 'phaser';
-import { GAME_WIDTH, GAME_HEIGHT, PIXEL_SCALE, textStyle, DEPTH_HUD } from '../config';
+import {
+  GAME_WIDTH,
+  GAME_HEIGHT,
+  PIXEL_SCALE,
+  textStyle,
+  DEPTH_HUD,
+  hex,
+  palette,
+} from '../config';
 import { t } from '../i18n';
 import { applyWorldFX } from '../gfx/postfx';
 import type { TextKey } from '../i18n';
@@ -121,10 +129,16 @@ export class DreamForest extends Phaser.Scene {
     this.pause = addPauseOverlay(this, () => fadeToScene(this, 'Hub'));
 
     showTitleCard(this, t('forest.title'), t('forest.name'), () => {
-      this.dialogue.say([{ who: null, text: t('forest.intro.1') }], () => {
-        this.showHint(this.inp.isTouch ? t('forest.hint') : t('forest.hintKeys'));
-        this.started = true;
-      });
+      this.dialogue.say(
+        [
+          { who: null, text: t('forest.intro.1') },
+          { who: null, text: t('forest.intro.2') },
+        ],
+        () => {
+          this.showHint(this.inp.isTouch ? t('forest.hint') : t('forest.hintKeys'));
+          this.started = true;
+        },
+      );
     });
   }
 
@@ -466,6 +480,18 @@ export class DreamForest extends Phaser.Scene {
           padding: { x: 14, y: 8 },
         }),
       )
+      .setOrigin(0.5)
+      .setScrollFactor(0)
+      .setDepth(DEPTH_HUD);
+    this.add
+      .text(GAME_WIDTH / 2, 190, t('forest.fragment'), {
+        ...textStyle(14, hex(palette('forest').ink), {
+          align: 'center',
+          wordWrap: { width: 560 },
+        }),
+        backgroundColor: hex(palette('forest').paper) + 'ee',
+        padding: { x: 12, y: 8 },
+      })
       .setOrigin(0.5)
       .setScrollFactor(0)
       .setDepth(DEPTH_HUD);

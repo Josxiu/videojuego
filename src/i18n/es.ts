@@ -1,159 +1,195 @@
 // Todos los textos del juego. Para agregar un idioma: copiar este archivo y traducir.
+//
+// Premisa: El Entresueño es el cruce por donde pasan los sueños de todos los que
+// duermen esta noche en el edificio Girasol. A Iris se le pegaron fragmentos de
+// sueños ajenos y no puede volver a su cuerpo mientras cargue con lo que no es suyo.
 export const es = {
   // ── Menú ──
   'menu.title': 'DUERMEVELA',
-  'menu.subtitle': 'un juego sobre no poder despertar',
-  'menu.play': 'Jugar',
-  'menu.continue': 'Continuar',
+  'menu.subtitle': 'los sueños de este edificio no son todos tuyos',
+  'menu.play': 'Dormir',
+  'menu.continue': 'Seguir soñando',
   'menu.reset': 'Borrar progreso',
   'menu.resetConfirm': '¿Seguro? Toca otra vez para borrar',
-  'menu.credits': 'hecho con sueño',
+  'menu.credits': 'edificio Girasol, 3:14 a. m.',
 
   // ── Intro ──
-  'intro.1': 'Iris llevaba tres semanas sin dormir bien.',
-  'intro.2': 'Exámenes. Trabajos. Café. Repetir.',
-  'intro.3': '— Solo voy a cerrar los ojos cinco minutos... —',
-  'intro.4': 'Esa noche, el sueño la atrapó.',
-  'intro.5': 'Literalmente.',
+  'intro.1': 'Edificio Girasol. Tercer piso. Tres y cuarto de la mañana.',
+  'intro.2': 'Iris lleva once días durmiendo con los audífonos puestos para no oír a los vecinos.',
+  'intro.3': 'Hoy se le acabó la batería.',
+  'intro.4':
+    'Y por primera vez oyó el edificio entero respirando: cuarenta personas dormidas, cuarenta sueños subiendo por los ductos.',
+  'intro.5': 'Se durmió con todos encima.',
   'intro.skip': 'tocar para continuar',
 
   // ── Hub: El Entresueño ──
   'hub.title': 'EL ENTRESUEÑO',
   'hub.interact': 'hablar',
   'hub.enter': 'entrar',
-  'hub.locked': 'La puerta está sellada... todavía.',
-  'hub.wakeDoorLocked': 'La Puerta del Despertar. Necesita tres llaves.',
-  'hub.wakeDoorReady': 'La Puerta del Despertar. Tus tres llaves vibran...',
+  'hub.locked': 'La puerta no es tuya. Todavía no te deja pasar.',
+  'hub.wakeDoorLocked':
+    'Tu puerta. Cerrada por dentro, con tres cosas ajenas atoradas en la cerradura.',
+  'hub.wakeDoorReady': 'Tu puerta. Ahora sí gira.',
 
   // Primer encuentro con Morfeo
-  'hub.meet.1': 'Miau. Digo... bienvenida, Iris.',
+  'hub.meet.1': 'No toques nada.',
   'hub.meet.2': '¿¡Un gato que habla!?',
-  'hub.meet.3': 'Un gato de HUMO que habla. Los detalles importan. Me llamo Morfeo.',
+  'hub.meet.3':
+    'Un gato que trabaja, que es peor. Morfeo, administración de sueños, turno nocturno.',
   'hub.meet.4':
-    'Esto es el Entresueño: el pasillo entre tus sueños. Y tengo malas noticias: tu mente no quiere despertar.',
-  'hub.meet.5': '¿Cómo que no quiere? ¡Mañana tengo un día importante!',
+    'Esto es el Entresueño: el tiro de luz por donde suben los sueños del edificio. Tú te dormiste con la ventana abierta, metafóricamente hablando.',
+  'hub.meet.5': '¿Y eso qué significa?',
   'hub.meet.6':
-    'Por eso mismo, sospecho. Mira: cada puerta guarda un sueño, y en el fondo de cada sueño hay una Llave del Despertar.',
-  'hub.meet.7': 'Tres llaves abren la puerta grande. Sin llaves... siesta eterna.',
-  'hub.meet.8': 'A mí la siesta eterna me suena bien, pero los humanos se ponen dramáticos.',
+    'Que se te pegaron tres sueños que no son tuyos. Del 5º, del 4B y del conserje. Y mientras los cargues, tu cuerpo no te deja volver: no reconoce lo que traes.',
+  'hub.meet.7':
+    'Entras, devuelves lo que te llevaste, sales. Sin improvisar. Sin conmoverte. Sobre todo, sin conmoverte.',
+  'hub.meet.8': '¿Y si me pierdo?',
   'hub.meet.9':
-    'Empecemos. Elige una puerta. Yo estaré aquí, supervisando. Acostado, pero supervisando.',
+    'Los sueños ajenos tienen reglas ajenas: aprende las suyas, no impongas las tuyas. Ah, y algo importante: allí dentro, la rara eres tú.',
 
   // Comentarios de Morfeo según progreso
-  'hub.morfeo.zero.1': '¿Consejo? Las puertas no se abren solas. Bueno, sí, pero primero entra tú.',
-  'hub.morfeo.one.1': 'Una llave. Nada mal para alguien que duerme abrazando sus apuntes.',
-  'hub.morfeo.one.2': 'Los sueños saben lo que te pesa, Iris. Por eso se sienten tan... tuyos.',
-  'hub.morfeo.two.1': 'Dos llaves. Casi puedo oler el desayuno del otro lado.',
+  'hub.morfeo.zero.1':
+    'Tres puertas. Tres desconocidos que duermen a diez metros de ti y de los que no sabes ni el nombre.',
+  'hub.morfeo.one.1': 'Uno devuelto. ¿Ves? No era tuyo y ya se te nota más ligera.',
+  'hub.morfeo.one.2':
+    'Cuidado con quedarte a mirar. Los sueños ajenos son cómodos justamente porque no duelen igual.',
+  'hub.morfeo.two.1': 'Dos. Vas rápido para alguien que no sabía nada de sus vecinos.',
   'hub.morfeo.two.2':
-    'La última puerta es distinta. Ahí guardas lo que no quieres mirar. Ve con calma.',
-  'hub.morfeo.three.1': 'Tres llaves. Te dije que supervisar acostado funcionaba.',
-  'hub.morfeo.three.2': 'La puerta grande te espera. Yo... voy a extrañar este pasillo.',
+    'La del 4B lleva meses sin bajar por el correo. Nadie en el edificio lo ha notado. Tú tampoco, hasta hoy.',
+  'hub.morfeo.three.1': 'Los tres devueltos. Impecable. Te tocaría despertar.',
+  'hub.morfeo.three.2': '«Tocaría». Fíjate en esa palabra. Yo me fijé.',
   'hub.morfeo.fireflies':
-    'Llevas {n} luciérnagas de memoria. Brillan más cuando las coleccionas. Como los recuerdos.',
+    'Llevas {n} luciérnagas. Son restos: pedacitos de sueño que nadie reclamó. El edificio está lleno.',
 
-  // ── Sueño 1: El Examen Infinito ──
-  'exam.title': 'SUEÑO I',
+  // ── Sueño de Don Élmer: El Examen Infinito ──
+  'exam.title': 'SUEÑO DEL CONSERJE',
   'exam.name': 'EL EXAMEN INFINITO',
-  'exam.intro.1': 'Llegas tarde. AL EXAMEN. Corre.',
+  'exam.intro.1':
+    'Don Élmer lleva treinta años barriendo esta escuela y cuarenta soñando que llega tarde al examen.',
+  'exam.intro.2': 'Nunca lo presentó: se salió en tercero para trabajar. El sueño no se enteró.',
   'exam.hint': 'toca: saltar · desliza abajo: agacharse',
   'exam.hintKeys': '↑ saltar · ↓ deslizarse',
   'exam.checkpoint': '¡Timbre! Sigue corriendo...',
-  'exam.section2': 'El pasillo se estira. Típico.',
-  'exam.section3': '¡El aula está cerca! ¡CORRE!',
-  'exam.win.1': '*JADEO* ...llegué... ¡llegué al examen!',
-  'exam.win.2': 'La hoja está... ¿en blanco?',
-  'exam.win.3': 'En los sueños nunca hay preguntas. Solo la prisa. Injusto, ¿verdad?',
-  'exam.win.4': '¡Y mira lo que dejó el profesor sobre el pupitre!',
-  'exam.keyGet': '¡LLAVE DEL DESPERTAR OBTENIDA!',
-  'exam.fail': 'Tropiezas... pero el sueño te levanta de nuevo.',
+  'exam.section2': 'El pasillo se estira. En su sueño siempre se estira.',
+  'exam.section3': '¡El aula está cerca!',
+  'exam.win.1': '*JADEO* ...llegué. Llegué al examen.',
+  'exam.win.2': 'La hoja está en blanco. Las dos caras.',
+  'exam.win.3':
+    'Claro que sí. Nunca supo qué le iban a preguntar: por eso lleva cuarenta años corriendo hacia una hoja vacía.',
+  'exam.win.4': 'Entonces no hay examen que aprobar. Solo hay que devolverle esto.',
+  'exam.keyGet': 'DEVUELTO: EL GIS DE DON ÉLMER',
+  'exam.fragment':
+    'Un gis gastado hasta el tamaño de una uña. Lo guardó treinta años en el bolsillo del overol.',
+  'exam.fail': 'Tropiezas. El pasillo se alarga un poco más, burlón.',
 
-  // ── Sueño 2: La Caída Sin Fin ──
-  'fall.title': 'SUEÑO II',
+  // ── Sueño de Nadia: La Caída Sin Fin ──
+  'fall.title': 'SUEÑO DEL 5º',
   'fall.name': 'LA CAÍDA SIN FIN',
-  'fall.intro.1': 'El suelo desaparece. Estás cayendo. Otra vez ese sueño...',
+  'fall.intro.1': 'Nadia se mudó hace siete meses. Sigue durmiendo entre cajas sin abrir.',
+  'fall.intro.2': 'Todas las noches sueña que se cae. Nunca sueña que llega.',
   'fall.hint': 'arrastra el dedo para moverte',
   'fall.hintKeys': '← → para moverte',
   'fall.ring': 'El viento te sostiene un momento...',
   'fall.depth': '{n} m',
-  'fall.win.1': '...¿Un colchón de nubes? Podría ser peor.',
-  'fall.win.2': 'Caer no siempre es malo. A veces es la única forma de soltar.',
-  'fall.win.3': 'Y mira: el cielo te dejó un regalo entre las plumas.',
-  'fall.keyGet': '¡LLAVE DEL DESPERTAR OBTENIDA!',
-  'fall.fail': 'El cielo te recoge y te deja caer de nuevo...',
+  'fall.win.1': '...¿nubes? Esperaba concreto.',
+  'fall.win.2': 'Ella también. Por eso lleva siete meses cayendo: quien no desempaca, no aterriza.',
+  'fall.win.3': 'Estaba en el fondo, entre las plumas. Lo que se trajo y no ha usado ni una vez.',
+  'fall.keyGet': 'DEVUELTO: LA LLAVE DE LA OTRA CASA',
+  'fall.fragment':
+    'Una llave de una puerta que ya no existe, en una ciudad a la que no piensa volver.',
+  'fall.fail': 'El cielo te recoge y te suelta otra vez. A ella le hace lo mismo cada noche.',
 
-  // ── Sueño 3: El Bosque de los Recuerdos ──
-  'forest.title': 'SUEÑO III',
-  'forest.name': 'EL BOSQUE DE LOS RECUERDOS',
-  'forest.intro.1': 'Niebla. Árboles quietos. Aquí tu mente guarda lo que no quiere mirar.',
+  // ── Sueño de la señora del 4B: El Patio de Atrás ──
+  'forest.title': 'SUEÑO DEL 4B',
+  'forest.name': 'EL PATIO DE ATRÁS',
+  'forest.intro.1': 'Doña Chuy tiene ochenta y un años y sueña siempre el mismo patio.',
+  'forest.intro.2': 'El de la casa donde creció. Lleva semanas sin encontrar el camino de vuelta.',
   'forest.hint': 'muévete con el joystick · toca ✦ para activar ecos',
   'forest.hintKeys': 'WASD/flechas para moverte · E para activar ecos',
-  'forest.echoLocked': 'El eco parpadea... aún no es su turno.',
-  'forest.echoWrong': 'Los recuerdos se desordenan. La niebla suspira.',
-  'forest.gateOpen': 'La niebla se abre un poco...',
+  'forest.echoLocked': 'Ese recuerdo va después. Ella los ordena así, no como tú quieras.',
+  'forest.echoWrong': 'Los recuerdos se desordenan. La niebla se cierra un poco.',
+  'forest.gateOpen': 'La niebla se abre. Vas por buen camino.',
   // Los tres ecos de memoria (en orden)
   'forest.memory.1':
-    'ECO I — La abuela regando iris en el patio. «Se llaman como tú, mija. Florecen aunque nadie las mire.»',
+    'ECO I — Una niña riega macetas con un bote de leche agujerado. Su madre le grita que no encharque. Ella encharca.',
   'forest.memory.2':
-    'ECO II — La mudanza a la ciudad. El patio quedó atrás. «Cuando termine el semestre, la visito», dijiste.',
+    'ECO II — La misma niña, más alta, le enseña a regar a su hijo. El bote es el mismo. El agujero también.',
   'forest.memory.3':
-    'ECO III — El mensaje sin responder: «Te espero el domingo con pan de dulce. — Abuela». Fue hace un mes.',
-  'forest.heart.1': 'Por eso no quieres despertar, ¿verdad?',
-  'forest.heart.2': 'Despertar es volver a un mundo donde el domingo ya pasó.',
+    'ECO III — Una mujer de ochenta y uno riega una maceta en un balcón del 4B. Sola. El bote es el mismo.',
+  'forest.heart.1': 'No está perdida, Iris. Sabe perfectamente dónde está.',
+  'forest.heart.2': '¿Entonces qué busca?',
   'forest.heart.3':
-    'Pero mira este bosque, Iris. Tu abuela sigue aquí. En cada recuerdo que enciendes.',
+    'A alguien a quien enseñarle. El patio lo recuerda entero; lo que le falta es alguien al lado.',
   'forest.heart.4':
-    'Despertar no es olvidar. Es llevarla contigo. Y responder ese mensaje: aún hay domingos.',
-  'forest.win.1': 'El bosque entero se enciende de luciérnagas.',
-  'forest.keyGet': '¡LLAVE DEL DESPERTAR OBTENIDA!',
-  'forest.lanternHint': 'Los faroles recuerdan el orden de la historia: patio, ciudad, mensaje.',
+    'Vive cuatro puertas abajo de la tuya. Cuando despiertes te vas a acordar de esto, y va a ser incómodo.',
+  'forest.win.1': 'El patio entero se enciende. Ella encuentra el camino.',
+  'forest.keyGet': 'DEVUELTO: EL CAMINO DE VUELTA',
+  'forest.fragment': 'Un bote de leche con un agujero, que usó de regadera durante setenta años.',
+  'forest.lanternHint':
+    'Los faroles guardan el orden de su vida: la niña, la madre, la mujer sola.',
 
-  // ── Pesadilla: La Persecución ──
-  'chase.title': 'PESADILLA',
+  // ── Pesadilla de Tomás: La Persecución ──
+  'chase.title': 'PESADILLA DEL 2A',
   'chase.name': 'LA PERSECUCIÓN',
-  'chase.intro.1': 'Este sueño es distinto. Aquí no hay colores. Solo algo que te sigue.',
-  'chase.intro.2': 'Las piernas pesan. Correr no basta. Cuando venga... escóndete.',
+  'chase.intro.1':
+    'Este sueño no estaba en la lista. Es de Tomás, siete años, el que llora de madrugada.',
+  'chase.intro.2': 'Y aquí las reglas cambian: aquí tú no vienes a devolver nada.',
   'chase.hint': '◀ ▶ moverte · ✦ esconderte en los armarios',
   'chase.hintKeys': '← → para moverte · E para esconderte',
   'chase.surge': '¡VIENE!',
   'chase.hidden': 'contén la respiración...',
-  'chase.caught.1': 'La sombra te alcanza... y el sueño se reordena.',
-  'chase.caught.2': 'Los armarios ya no están donde estaban. Los sueños nunca se repiten.',
-  'chase.caught.3': 'Otra vez. La pesadilla aprende. Tú también.',
-  'chase.door': 'La puerta está cerrada. Y ella viene...',
-  'chase.turn': 'voltear a verla',
-  'chase.reveal.1': 'Iris deja de correr. Respira. Se da la vuelta.',
-  'chase.reveal.2': 'La sombra se detiene. Se encoge. Tiembla.',
-  'chase.reveal.3': '...¿Una niña?',
-  'chase.reveal.4':
-    'Soy tú. La parte de ti que lleva semanas pidiendo parar. Corriste tanto... que me volví esto.',
-  'chase.reveal.5': 'Ya no voy a huir de ti. Ven. Vamos a descansar juntas.',
-  'chase.reveal.6': 'El abrazo deshace la pesadilla como humo.',
+  'chase.caught.1':
+    'Te alcanza. El cuarto se reacomoda: en las pesadillas de un niño, los muebles nunca están dos veces en el mismo sitio.',
+  'chase.caught.2':
+    'Otra vez. Los armarios cambiaron de lugar. Él también los ve cambiar cada noche.',
+  'chase.caught.3': 'Ya sabe dónde te escondes. Aprende rápido para tener siete años.',
+  'chase.door': 'La puerta no abre. Nunca abre: es su sueño, no el tuyo.',
+  'chase.turn': 'dejar de esconderse',
+  'chase.reveal.1': 'Iris deja de correr. Se da la vuelta. Levanta las manos.',
+  'chase.reveal.2': 'La sombra se detiene a dos metros. Tiembla más que ella.',
+  'chase.reveal.3': 'Y entonces entiende de qué tiene forma la sombra.',
+  'chase.reveal.4': 'De ella. De una desconocida enorme entrando de noche al cuarto de un niño.',
+  'chase.reveal.5': 'La monstrua era yo. Llevo toda la noche huyendo de mí misma vista por él.',
+  'chase.reveal.6':
+    'Iris se sienta en el suelo para ser más pequeña. Espera. Es lo único que sirve.',
+  'chase.reveal.7':
+    'La sombra se acerca, la olfatea y se deshace. Al fondo, un niño duerme sin apretar los ojos.',
   'chase.done': 'LA PESADILLA SE DISUELVE',
 
   // Hub: la puerta de la pesadilla
-  'hub.nightmare.appear.1':
-    '¿Sientes eso? Con las tres llaves, tu miedo ya no tiene dónde esconderse. Por eso abrió su propia puerta.',
+  'hub.nightmare.appear.1': 'Espera. Esa puerta no estaba.',
   'hub.nightmare.appear.2':
-    'Ahí dentro no puedo acompañarte. Solo recuerda: lo que te persigue no quiere alcanzarte. Quiere que te detengas.',
+    'Es el 2A. El niño. Su pesadilla se abrió sola porque hay alguien merodeando el edificio por dentro... o sea, tú.',
   'hub.wakeDoorNightmare':
-    'Las llaves vibran... pero algo te persigue todavía. La puerta oscura espera.',
-  'hub.morfeo.night.1': 'Correr no sirve ahí dentro; esconderse sí. Y al final... no corras.',
+    'Tu puerta gira a medias. Algo la traba desde el otro lado: alguien está soñando contigo.',
+  'hub.morfeo.night.1':
+    'Ahí dentro no eres visita: eres lo que da miedo. Cuando entiendas eso, sabrás qué hacer.',
   'hub.morfeo.done.1':
-    'Abrazaste lo que te perseguía. Pocos humanos hacen eso, ¿sabes? Ahora sí: la puerta grande.',
+    'Te dejaste ver por un niño de siete años y sobreviviste. Administrativamente, eso no lo había visto nunca.',
 
   // ── Final ──
-  'ending.1': 'Las tres llaves giran solas en la cerradura.',
-  'ending.2': '¿Lista? Del otro lado hay ruido, tareas, café frío...',
-  'ending.3': '...y también domingos. Vamos, Morfeo.',
-  'ending.4': '¿"Vamos"? Miau. Está bien. Pero yo no madrugo.',
-  'ending.5': 'Iris abrió los ojos.',
-  'ending.6': 'Por primera vez en semanas, había dormido de verdad.',
+  'ending.1': 'Las tres cosas ajenas ya no traban la cerradura. Tu puerta gira.',
+  'ending.2': 'Un momento. Falta una.',
+  'ending.3': '¿Cómo que falta una? Devolví las tres.',
+  'ending.4':
+    'Las tres ajenas. Queda una que lleva aquí mucho más tiempo y que nadie ha venido a reclamar.',
+  'ending.5': 'Al fondo del Entresueño, donde no miraste, hay un sueño tuyo cubierto de polvo.',
+  'ending.6':
+    'Lo dejaste aquí hace años, cuando decidiste que era más práctico soñar lo que otros esperaban de ti.',
   'ending.7':
-    'En su teléfono, un mensaje enviado: «Abuela: este domingo sí voy. Guárdame pan de dulce.»',
-  'ending.8': 'Y sobre la almohada... una huella de gato hecha de humo.',
-  'ending.thanks': 'FIN DEL PROTOTIPO — gracias por jugar',
-  'ending.stats': 'luciérnagas de memoria: {n} / {total}',
-  'ending.continue': '...continuará',
+    'Este tiro de luz está lleno de sueños que la gente abandona. Yo solo los barro. Es un trabajo bastante triste, si te soy sincero.',
+  'ending.8': '¿Y si me lo llevo?',
+  'ending.9':
+    'Entonces vas a despertar cargando algo. Otra vez. Pero por primera vez va a ser tuyo.',
+  'ending.10': 'Iris abrió los ojos a las 6:40.',
+  'ending.11':
+    'Once días de audífonos y hoy oyó el edificio: el conserje arrastrando el bote, la del 5º moviendo cajas, alguien regando en el 4B.',
+  'ending.12': 'A las 7:05 bajó por el correo. Se detuvo en el cuarto piso, puerta B, y tocó.',
+  'ending.13': 'Abrió una señora de ochenta y uno con un bote de leche en la mano.',
+  'ending.14': '— Buenos días. Soy la del 3. Vengo a que me enseñe a no encharcar.',
+  'ending.thanks': 'FIN DEL PROTOTIPO',
+  'ending.stats': 'luciérnagas: {n} / {total}',
+  'ending.continue': 'quedan treinta y seis puertas en este edificio',
 
   // ── UI general ──
   'ui.pause': 'PAUSA',
@@ -161,7 +197,7 @@ export const es = {
   'ui.exitDream': 'salir del sueño',
   'ui.retry': 'reintentar',
   'ui.tapToContinue': 'toca para continuar',
-  'ui.keyCount': 'llaves',
+  'ui.keyCount': 'devueltos',
   'ui.mute': 'sonido',
 } as const;
 

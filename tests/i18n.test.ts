@@ -25,10 +25,17 @@ describe('i18n', () => {
     expect(empty).toEqual([]);
   });
 
-  it('usa comillas tipográficas y acentos correctos (muestra)', () => {
-    // El juego es en español: verificamos que no se hayan colado textos sin acentuar
-    // en las claves más visibles.
-    expect(es['menu.subtitle']).toMatch(/despertar/);
+  it('conserva los acentos en las claves más visibles', () => {
+    // El juego es en español: si alguien edita estos textos sin acentos, se nota.
     expect(es['hub.title']).toBe('EL ENTRESUEÑO');
+    expect(es['menu.subtitle']).toMatch(/sueños/);
+  });
+
+  it('el guion cubre a los cuatro vecinos por su nombre', () => {
+    // La historia depende de que cada sueño tenga un dueño concreto, no genérico.
+    const todo = Object.values(es).join(' ');
+    for (const nombre of ['Élmer', 'Nadia', 'Chuy', 'Tomás']) {
+      expect(todo).toContain(nombre);
+    }
   });
 });
