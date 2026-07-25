@@ -15,13 +15,15 @@ import { AudioManager } from '../systems/AudioManager';
 import { InputManager } from '../systems/InputManager';
 import { DialogueBox } from '../systems/DialogueBox';
 import { fadeIn, fadeToScene, showTitleCard, addPauseOverlay } from '../systems/ui';
+import { EXAM_QUESTIONS, QUESTION_POSITIONS } from '../data/examQuestions';
+import { impact, pop, floatingText } from '../systems/Juice';
 
 const GROUND_Y = 452;
 const PLAYER_X = 190;
 const COURSE_LEN = 7000; // distancia total del sueño
 const SEGMENTS = [0, 2400, 4700]; // checkpoints
 
-type ObType = 'locker' | 'coffee' | 'paper' | 'bell' | 'firefly';
+type ObType = 'locker' | 'coffee' | 'paper' | 'bell' | 'firefly' | 'gate';
 
 interface Spawn {
   worldX: number;
@@ -30,7 +32,14 @@ interface Spawn {
   id: number;
   sprite?: Phaser.GameObjects.Image;
   taken?: boolean;
+  /** Solo para 'gate': índice de la pregunta que plantea. */
+  question?: number;
+  /** Objetos de texto/marco de la compuerta, para poder retirarlos juntos. */
+  parts?: Phaser.GameObjects.GameObject[];
 }
+
+/** Altura que separa la respuesta de arriba de la de abajo. */
+const GATE_SPLIT_Y = GROUND_Y - 96;
 
 /** Sueño 1: auto-runner por una escuela surrealista. */
 export class DreamExam extends Phaser.Scene {
@@ -56,6 +65,7 @@ export class DreamExam extends Phaser.Scene {
   private invuln = 0;
   private spawns: Spawn[] = [];
   private fireflies = new Set<number>();
+  private correctAnswers = 0;
   private sectionShown = new Set<number>();
 
   constructor() {
@@ -140,6 +150,7 @@ export class DreamExam extends Phaser.Scene {
     this.spawns = [];
     this.fireflies.clear();
     this.sectionShown.clear();
+    this.correctAnswers = 0;
   }
 
   /** Texturas de patrón (pared con ventanas, piso) generadas al vuelo. */
@@ -199,33 +210,31 @@ export class DreamExam extends Phaser.Scene {
       this.spawns.push({ worldX, type, y, id: id++ });
     };
 
-    // Patrón de cada tramo: [offset, tipo] — alterna saltar/deslizar con aire
-    // suficiente entre obstáculos (el salto dura ~0.85 s en el aire)
-    const seg1: [number, ObType][] = [
+    // El recorrido alterna obstáculos y preguntas, dejando aire suficiente
+    // entre cada cosa (el salto dura ~0.85 s en el aire).
+    const obstacles: [number, ObType][] = [
       [600, 'coffee'],
-      [1050, 'paper'],
-      [1500, 'locker'],
-      [1950, 'coffee'],
-      [2300, 'bell'],
+      [900, 'paper'],
+      [1700, 'locker'],
+      [2050, 'coffee'],
+      [2950, 'bell'],
+      [3350, 'locker'],
+      [4350, 'coffee'],
+      [4750, 'paper'],
+      [5700, 'locker'],
+      [6000, 'bell'],
+      [6800, 'coffee'],
     ];
-    const seg2: [number, ObType][] = [
-      [2750, 'locker'],
-      [3200, 'paper'],
-      [3650, 'coffee'],
-      [4090, 'bell'],
-      [4530, 'locker'],
-    ];
-    const seg3: [number, ObType][] = [
-      [5000, 'bell'],
-      [5490, 'locker'],
-      [5980, 'paper'],
-      [6460, 'coffee'],
-      [6800, 'bell'],
-    ];
-    [...seg1, ...seg2, ...seg3].forEach(([x, type]) => add(x, type));
+    obstacles.forEach(([x, type]) => add(x, type));
 
-    // Luciérnagas de memoria: en arcos de salto o pasillos seguros
-    [820, 1720, 2980, 3870, 5240, 6230].forEach((x) => add(x, 'firefly', GROUND_Y - 150));
+    // Las preguntas del examen: dos compuertas, una arriba y otra abajo
+    QUESTION_POSITIONS.forEach((x, i) => {
+      if (i >= EXAM_QUESTIONS.length) return;
+      this.spawns.push({ worldX: x, y: 0, type: 'gate', id: id++, question: i });
+    });
+
+    // Luciérnagas en los huecos seguros
+    [780, 1900, 3150, 4550, 5900, 6600].forEach((x) => add(x, 'firefly', GROUND_Y - 150));
   }
 
   private buildHud(): void {
@@ -346,15 +355,25 @@ export class DreamExam extends Phaser.Scene {
       const screenX = s.worldX - this.dist + PLAYER_X;
       if (screenX < -120 || s.taken) {
         s.sprite?.setVisible(false);
+        s.parts?.forEach((p) => p.destroy());
+        s.parts = undefined;
         continue;
       }
       if (screenX > GAME_WIDTH + 120) {
         s.sprite?.setVisible(false);
         continue;
       }
-      if (!s.sprite) s.sprite = this.makeObstacleSprite(s);
+      if (!s.sprite) {
+        s.sprite = this.makeObstacleSprite(s);
+        if (s.type === 'gate') this.announceQuestion(s);
+      }
       s.sprite.setVisible(true);
       s.sprite.x = screenX;
+      if (s.type === 'gate') {
+        this.syncGateParts(s, screenX);
+        // Al llegar a la altura de Iris, la respuesta queda elegida
+        if (screenX <= PLAYER_X) this.resolveGate(s);
+      }
     }
   }
 
@@ -398,6 +417,9 @@ export class DreamExam extends Phaser.Scene {
         });
         return img;
       }
+      case 'gate': {
+        return this.makeGate(s);
+      }
       case 'firefly': {
         const img = this.add.image(0, s.y, 'glow-gold').setScale(1.5).setDepth(45);
         this.tweens.add({
@@ -413,6 +435,90 @@ export class DreamExam extends Phaser.Scene {
     }
   }
 
+  /**
+   * Una pregunta del examen: dos respuestas colgadas del pasillo, la de arriba
+   * se elige saltando y la de abajo pasando por debajo.
+   */
+  private makeGate(s: Spawn): Phaser.GameObjects.Image {
+    const q = EXAM_QUESTIONS[s.question ?? 0];
+    const ink = hex(palette('exam').ink);
+    const paper = hex(palette('exam').paper);
+
+    // El poste es el objeto "ancla" que el resto del código mueve
+    const post = this.add
+      .image(0, GROUND_Y, 'px')
+      .setOrigin(0.5, 1)
+      .setDisplaySize(4, GROUND_Y - 150)
+      .setTint(0x8a5a2b)
+      .setAlpha(0.45)
+      .setDepth(20);
+
+    const label = (text: string, y: number) =>
+      this.add
+        .text(0, y, text, {
+          ...textStyle(14, ink, { align: 'center' }),
+          backgroundColor: paper + 'e6',
+          padding: { x: 8, y: 5 },
+        })
+        .setOrigin(0.5)
+        .setDepth(42);
+
+    const upper = label(q.upper, GATE_SPLIT_Y - 52);
+    const lower = label(q.lower, GATE_SPLIT_Y + 46);
+    // Línea que separa ambas respuestas: cruzarla por arriba o por abajo decide
+    const divider = this.add
+      .image(0, GATE_SPLIT_Y, 'px')
+      .setDisplaySize(52, 3)
+      .setTint(0x8a5a2b)
+      .setAlpha(0.5)
+      .setDepth(41);
+
+    s.parts = [upper, lower, divider];
+    return post;
+  }
+
+  /** Mueve los textos de una compuerta junto con su poste. */
+  private syncGateParts(s: Spawn, screenX: number): void {
+    if (!s.parts) return;
+    for (const part of s.parts) {
+      (part as Phaser.GameObjects.Image | Phaser.GameObjects.Text).x = screenX;
+    }
+  }
+
+  /** Muestra el enunciado cuando la pregunta entra en pantalla. */
+  private announceQuestion(s: Spawn): void {
+    if (s.taken || s.question === undefined) return;
+    this.showToast(EXAM_QUESTIONS[s.question].text, 2400);
+    AudioManager.sfx('ring');
+  }
+
+  /** Resuelve una compuerta según por dónde pasó Iris. */
+  private resolveGate(s: Spawn): void {
+    if (s.question === undefined) return;
+    const q = EXAM_QUESTIONS[s.question];
+    // Saltar elige la respuesta de arriba; correr por el suelo, la de abajo.
+    // Se decide por estado y no por altura exacta para que no dependa de píxeles.
+    const chose: 'upper' | 'lower' = this.grounded ? 'lower' : 'upper';
+    s.taken = true;
+    s.parts?.forEach((p) => p.destroy());
+    s.parts = undefined;
+    s.sprite?.setVisible(false);
+
+    const ink = hex(palette('exam').ink);
+    if (chose === q.correct) {
+      this.correctAnswers += 1;
+      AudioManager.sfx('collect');
+      pop(this, PLAYER_X, this.iris.y - 40, 0xffd166, 4);
+      floatingText(this, PLAYER_X, this.iris.y - 70, t('exam.right'), textStyle(15, ink));
+    } else {
+      // Fallar no mata: el pasillo se estira, que es justo lo que pasa en su sueño
+      AudioManager.sfx('hit');
+      impact(this, 'soft');
+      this.dist = Math.max(this.dist - 260, this.checkpoint);
+      this.showToast(t('exam.wrong'), 1600);
+    }
+  }
+
   /** Cajas de colisión del jugador y del obstáculo. */
   private checkCollisions(): void {
     const px = PLAYER_X;
@@ -423,6 +529,8 @@ export class DreamExam extends Phaser.Scene {
 
     for (const s of this.spawns) {
       if (s.taken || !s.sprite || !s.sprite.visible) continue;
+      // Las compuertas de respuesta se resuelven por altura, no por choque
+      if (s.type === 'gate') continue;
       const sx = s.sprite.x;
       let rect: Phaser.Geom.Rectangle;
       switch (s.type) {
@@ -565,6 +673,16 @@ export class DreamExam extends Phaser.Scene {
         backgroundColor: hex(palette('exam').paper) + 'ee',
         padding: { x: 12, y: 8 },
       })
+      .setOrigin(0.5)
+      .setScrollFactor(0)
+      .setDepth(DEPTH_HUD);
+    this.add
+      .text(
+        GAME_WIDTH / 2,
+        228,
+        t('exam.score', { n: this.correctAnswers, total: EXAM_QUESTIONS.length }),
+        textStyle(15, hex(palette('exam').ink)),
+      )
       .setOrigin(0.5)
       .setScrollFactor(0)
       .setDepth(DEPTH_HUD);

@@ -47,6 +47,10 @@ export class DreamChase extends Phaser.Scene {
   private surgeTimer = 0; // segundos hasta el siguiente cambio de estado
   private heartbeatIn = 0;
   private shadowX = 0;
+  /** Escondites que la Sombra ya vigila (los aprendió al atrapar a Iris). */
+  private watched = new Set<number>();
+  /** Escondites usados en el intento actual; solo se aprenden si te atrapa. */
+  private usedThisRun = new Set<number>();
 
   constructor() {
     super('DreamChase');
@@ -164,6 +168,7 @@ export class DreamChase extends Phaser.Scene {
   }
 
   private resetRunState(): void {
+    // `watched` no se limpia aquí a propósito: es lo que la Sombra ha aprendido.
     this.hidden = false;
     this.fear = 0;
     this.surge = 'idle';
@@ -217,6 +222,28 @@ export class DreamChase extends Phaser.Scene {
         ctx.fillStyle = grd;
         ctx.fillRect(0, 0, size, size);
         tex.refresh();
+      }
+    }
+  }
+
+  /** ¿La Sombra ya vio a Iris esconderse en este armario? */
+  private isWatched(x: number): boolean {
+    for (const w of this.watched) {
+      if (Math.abs(w - x) < 50) return true;
+    }
+    return false;
+  }
+
+  /** Los armarios ya descubiertos se marcan con un ojo rojo. */
+  private markWatched(): void {
+    for (const w of this.wardrobes) {
+      if (this.isWatched(w.x)) {
+        w.img.setTint(0x5a2a2a);
+        this.add
+          .image(w.x, GROUND_Y - 96, 'glow-red')
+          .setScale(0.7)
+          .setAlpha(0.35)
+          .setDepth(41);
       }
     }
   }
@@ -400,9 +427,10 @@ export class DreamChase extends Phaser.Scene {
       .setAlpha(eyeAlpha)
       .setScale(eyesOn ? 1.1 : 0.7);
 
-    // ¿Te alcanzó?
-    if (this.phase === 'run' && this.surge === 'attack' && !this.hidden) {
-      if (Math.abs(this.shadowX - this.iris.x) < 46) this.caught();
+    // ¿Te alcanzó? Esconderse solo salva si la Sombra aún no vigila ese armario.
+    if (this.phase === 'run' && this.surge === 'attack') {
+      const safe = this.hidden && !this.isWatched(this.iris.x);
+      if (!safe && Math.abs(this.shadowX - this.iris.x) < 46) this.caught();
     }
   }
 
@@ -455,6 +483,8 @@ export class DreamChase extends Phaser.Scene {
     this.hidden = hidden;
     AudioManager.sfx('hide');
     if (hidden && atX !== undefined) {
+      // Se anota, pero no cuenta como aprendido hasta que la Sombra te atrape aquí
+      this.usedThisRun.add(Math.round(atX));
       this.iris.x = atX;
       this.iris.setAlpha(0.25);
       this.iris.play('iris-idle', true);
@@ -467,6 +497,8 @@ export class DreamChase extends Phaser.Scene {
   /** Atrapada: el sueño se reorganiza (roguelike) y vuelves a empezar. */
   private caught(): void {
     this.catches += 1;
+    // Lo que aprendió en este intento pasa a su memoria permanente
+    this.usedThisRun.forEach((x) => this.watched.add(x));
     AudioManager.sfx('screech');
     AudioManager.sfx('hit');
     this.cameras.main.shake(350, 0.02);
@@ -477,8 +509,13 @@ export class DreamChase extends Phaser.Scene {
     this.time.delayedCall(500, () => {
       this.dialogue.say([{ who: null, text: t(lineKey) }], () => {
         // Reorganización del sueño
+        // La memoria de la Sombra sobrevive a la reorganización: eso la hace aprender
+        const remembered = this.watched;
         this.resetRunState();
+        this.watched = remembered;
+        this.usedThisRun = new Set();
         this.buildLayout(this.catches);
+        this.markWatched();
         this.iris.setPosition(120, GROUND_Y).setAlpha(1);
         this.shadowX = -300;
         this.fear = 0;

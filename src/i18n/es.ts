@@ -81,6 +81,9 @@ export const es = {
   'exam.fragment':
     'Un gis gastado hasta el tamaño de una uña. Lo guardó treinta años en el bolsillo del overol.',
   'exam.fail': 'Tropiezas. El pasillo se alarga un poco más, burlón.',
+  'exam.wrong': 'Esa no. El pasillo se estira para darte otra oportunidad.',
+  'exam.right': '¡eso sí lo sabe!',
+  'exam.score': 'aciertos: {n}/{total}',
 
   // ── Sueño de Nadia: La Caída Sin Fin ──
   'fall.title': 'SUEÑO DEL 5º',

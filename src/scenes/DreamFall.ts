@@ -10,6 +10,9 @@ import {
 } from '../config';
 import { t } from '../i18n';
 import { applyWorldFX } from '../gfx/postfx';
+import type { DreamFXPipeline } from '../gfx/postfx';
+import { FALL_BIOMES, type FallBiome } from '../data/fallBiomes';
+import { pop, floatingText } from '../systems/Juice';
 import { SaveManager } from '../systems/SaveManager';
 import { AudioManager } from '../systems/AudioManager';
 import { InputManager } from '../systems/InputManager';
@@ -53,6 +56,10 @@ export class DreamFall extends Phaser.Scene {
   private slowUntil = 0;
   private spawns: Spawn[] = [];
   private fireflies = new Set<number>();
+  private biome: FallBiome = FALL_BIOMES[0];
+  private biomesSeen = new Set<string>();
+  private skyGrad!: Phaser.GameObjects.Graphics;
+  private fx?: DreamFXPipeline;
 
   constructor() {
     super('DreamFall');
@@ -61,16 +68,15 @@ export class DreamFall extends Phaser.Scene {
   create(): void {
     this.resetState();
     this.cameras.main.setBackgroundColor(0x0d0a2e);
-    applyWorldFX(this, 'fall');
+    this.fx = applyWorldFX(this, 'fall');
     fadeIn(this);
     AudioManager.playMusic('fall');
     this.makeTextures();
 
     // Cielo con dos capas de estrellas subiendo (sensación de caer)
     this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x0d0a2e);
-    const grad = this.add.graphics();
-    grad.fillGradientStyle(0x0d0a2e, 0x0d0a2e, 0x241a55, 0x241a55, 1);
-    grad.fillRect(0, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT / 2);
+    this.skyGrad = this.add.graphics();
+    this.paintSky();
     this.starsFar = this.add
       .tileSprite(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 'fall-stars')
       .setAlpha(0.5);
@@ -135,6 +141,8 @@ export class DreamFall extends Phaser.Scene {
     this.spawns = [];
     this.fireflies.clear();
     this.hearts = [];
+    this.biome = FALL_BIOMES[0];
+    this.biomesSeen = new Set([FALL_BIOMES[0].id]);
   }
 
   private makeTextures(): void {
@@ -169,6 +177,38 @@ export class DreamFall extends Phaser.Scene {
       g.generateTexture('cloud', 140, 64);
       g.destroy();
     }
+  }
+
+  /** Repinta el degradado del cielo con los colores del bioma actual. */
+  private paintSky(): void {
+    const b = this.biome;
+    this.skyGrad.clear();
+    this.skyGrad.fillGradientStyle(b.skyTop, b.skyTop, b.skyBottom, b.skyBottom, 1);
+    this.skyGrad.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+    this.cameras.main.setBackgroundColor(b.skyTop);
+  }
+
+  /**
+   * Atravesar una puerta cambia el cielo entero: color, polvo, obstáculos y
+   * post-procesado. La caída deja de ser un tubo y pasa a ser una ruta.
+   */
+  private enterBiome(next: FallBiome): void {
+    if (next.id === this.biome.id) return;
+    this.biome = next;
+    this.biomesSeen.add(next.id);
+    this.paintSky();
+    this.fx?.configure(next.fx);
+    this.starsFar.setTint(next.dust);
+    this.starsNear.setTint(next.dust);
+    // Los obstáculos ya en pantalla adoptan el color del cielo nuevo
+    for (const sp of this.spawns) {
+      if (sp.sprite && (sp.type === 'clock' || sp.type === 'door')) {
+        sp.sprite.setTint(next.obstacle);
+      }
+    }
+    AudioManager.sfx('door');
+    this.cameras.main.flash(320, 255, 255, 255);
+    floatingText(this, this.iris.x, this.iris.y - 60, next.name, textStyle(15, '#ffffff'));
   }
 
   /** Genera el recorrido: obstáculos procedurales + luciérnagas y anillos fijos. */
@@ -322,7 +362,7 @@ export class DreamFall extends Phaser.Scene {
           .image(s.x, 0, 'clock')
           .setScale(PIXEL_SCALE)
           .setDepth(40)
-          .setTint(0xb8a8ff);
+          .setTint(this.biome.obstacle);
         this.tweens.add({
           targets: img,
           angle: { from: -12, to: 12 },
@@ -337,7 +377,7 @@ export class DreamFall extends Phaser.Scene {
           .image(s.x, 0, 'door')
           .setScale(PIXEL_SCALE * 0.9)
           .setDepth(40)
-          .setTint(0x8f7bff)
+          .setTint(this.biome.obstacle)
           .setAngle(Phaser.Math.Between(-20, 20));
       case 'window':
         return this.add
@@ -401,6 +441,19 @@ export class DreamFall extends Phaser.Scene {
         this.slowUntil = time + 1700;
         AudioManager.sfx('ring');
         this.showToast(t('fall.ring'), 1200);
+      } else if (s.type === 'door') {
+        // Las puertas ya no golpean: se cruzan y cambian el cielo
+        s.taken = true;
+        pop(this, s.x, sy, 0xffffff, 5);
+        this.tweens.add({
+          targets: s.sprite,
+          scaleX: 0.1,
+          alpha: 0,
+          duration: 380,
+          onComplete: () => s.sprite?.setVisible(false),
+        });
+        const next = FALL_BIOMES[(s.id + this.biomesSeen.size) % FALL_BIOMES.length];
+        this.enterBiome(next);
       } else if (this.invuln <= 0) {
         this.hit();
         return;
