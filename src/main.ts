@@ -12,6 +12,7 @@ import { Ending } from './scenes/Ending';
 import { Gallery } from './scenes/Gallery';
 import { AudioManager } from './systems/AudioManager';
 import { SaveManager } from './systems/SaveManager';
+import { registerPostFX } from './gfx/postfx';
 
 // El audio del navegador solo puede arrancar tras un gesto del usuario
 const wakeAudio = () => {
@@ -50,6 +51,9 @@ const game = new Phaser.Game({
     Gallery,
   ],
 });
+
+// El post-procesado necesita el renderer ya creado
+game.events.once(Phaser.Core.Events.READY, () => registerPostFX(game));
 
 // Referencia para pruebas automatizadas
 (window as unknown as { __game: Phaser.Game }).__game = game;

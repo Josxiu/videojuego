@@ -91,6 +91,27 @@ await check('modo táctil (celular)', async (page) => {
   await ctx.close();
 });
 
+// 4. Sin WebGL: los shaders de post-procesado deben omitirse sin romper el juego
+await check('degradación sin WebGL (Canvas)', async (page) => {
+  await page.close();
+  const soft = await chromium.launch({
+    executablePath: process.env.CHROMIUM_PATH || undefined,
+    args: ['--disable-gpu', '--disable-webgl', '--disable-webgl2', '--disable-3d-apis'],
+  });
+  const sp = await soft.newPage({ viewport: { width: 960, height: 540 } });
+  const errs = [];
+  sp.on('pageerror', (e) => errs.push(String(e)));
+  for (const scene of ['Hub', 'DreamExam', 'DreamChase']) {
+    await sp.goto(`${BASE}?scene=${scene}`);
+    await sp.waitForFunction((s) => window.__game?.scene?.isActive(s), scene, { timeout: 25000 });
+    await sp.waitForTimeout(1500);
+  }
+  const isCanvas = await sp.evaluate(() => window.__game.renderer.type === 1);
+  await soft.close();
+  if (!isCanvas) throw new Error('se esperaba el renderer Canvas para esta prueba');
+  if (errs.length) throw new Error(errs.join(' | '));
+});
+
 let failed = 0;
 for (const [name, ok, detail] of results) {
   console.log(`${ok ? '✅' : '❌'} ${name}${ok ? '' : ' — ' + detail}`);

@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT, PIXEL_SCALE, textStyle, DreamId, DEPTH_HUD } from '../config';
 import { t } from '../i18n';
+import { applyWorldFX } from '../gfx/postfx';
 import type { TextKey } from '../i18n';
 import { SaveManager } from '../systems/SaveManager';
 import { AudioManager } from '../systems/AudioManager';
@@ -35,6 +36,7 @@ export class Hub extends Phaser.Scene {
   create(): void {
     this.doors = [];
     this.cameras.main.setBackgroundColor(0x141026);
+    applyWorldFX(this, 'hub');
     this.cameras.main.setBounds(0, 0, WORLD_W, GAME_HEIGHT);
     this.physics.world.setBounds(0, 0, WORLD_W, GAME_HEIGHT);
     fadeIn(this);

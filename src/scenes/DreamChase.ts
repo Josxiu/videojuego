@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT, PIXEL_SCALE, textStyle, DEPTH_HUD } from '../config';
 import { t } from '../i18n';
+import { applyWorldFX } from '../gfx/postfx';
 import type { TextKey } from '../i18n';
 import { SaveManager } from '../systems/SaveManager';
 import { AudioManager } from '../systems/AudioManager';
@@ -58,6 +59,7 @@ export class DreamChase extends Phaser.Scene {
     this.started = false;
 
     this.cameras.main.setBackgroundColor(0x9a9aad);
+    applyWorldFX(this, 'chase');
     this.cameras.main.setBounds(0, 0, WORLD_W, GAME_HEIGHT);
     fadeIn(this, 900);
     AudioManager.playMusic('chase');

@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT, PIXEL_SCALE, textStyle } from '../config';
 import { t } from '../i18n';
+import { applyWorldFX } from '../gfx/postfx';
 import type { TextKey } from '../i18n';
 import { SaveManager } from '../systems/SaveManager';
 import { AudioManager } from '../systems/AudioManager';
@@ -17,6 +18,7 @@ export class Ending extends Phaser.Scene {
 
   create(): void {
     this.cameras.main.setBackgroundColor(0x141026);
+    applyWorldFX(this, 'ending');
     addStarfield(this, 60);
     fadeIn(this, 800);
     AudioManager.playMusic('ending');

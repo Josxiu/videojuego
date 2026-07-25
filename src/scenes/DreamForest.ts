@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT, PIXEL_SCALE, textStyle, DEPTH_HUD } from '../config';
 import { t } from '../i18n';
+import { applyWorldFX } from '../gfx/postfx';
 import type { TextKey } from '../i18n';
 import { SaveManager } from '../systems/SaveManager';
 import { AudioManager } from '../systems/AudioManager';
@@ -51,6 +52,7 @@ export class DreamForest extends Phaser.Scene {
   create(): void {
     this.resetState();
     this.cameras.main.setBackgroundColor(0x0f1a22);
+    applyWorldFX(this, 'forest');
     this.cameras.main.setBounds(0, 0, WORLD_W, WORLD_H);
     fadeIn(this);
     AudioManager.playMusic('forest');

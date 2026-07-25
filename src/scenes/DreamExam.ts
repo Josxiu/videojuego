@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT, PIXEL_SCALE, textStyle, DEPTH_HUD } from '../config';
 import { t } from '../i18n';
+import { applyWorldFX } from '../gfx/postfx';
 import { SaveManager } from '../systems/SaveManager';
 import { AudioManager } from '../systems/AudioManager';
 import { InputManager } from '../systems/InputManager';
@@ -56,6 +57,7 @@ export class DreamExam extends Phaser.Scene {
   create(): void {
     this.resetState();
     this.cameras.main.setBackgroundColor(0xffe9b3);
+    applyWorldFX(this, 'exam');
     fadeIn(this);
     AudioManager.playMusic('exam');
     this.makePatternTextures();

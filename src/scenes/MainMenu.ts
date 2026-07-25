@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT, textStyle, titleStyle } from '../config';
 import { t } from '../i18n';
+import { applyWorldFX } from '../gfx/postfx';
 import { SaveManager } from '../systems/SaveManager';
 import { AudioManager } from '../systems/AudioManager';
 import { makeTextButton, addMuteButton, addStarfield, fadeIn, fadeToScene } from '../systems/ui';
@@ -15,6 +16,7 @@ export class MainMenu extends Phaser.Scene {
   create(): void {
     this.resetArmed = false;
     this.cameras.main.setBackgroundColor(0x0d0a1e);
+    applyWorldFX(this, 'menu');
     addStarfield(this);
     fadeIn(this);
     AudioManager.playMusic('menu');
