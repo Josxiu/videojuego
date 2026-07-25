@@ -36,7 +36,8 @@ export class DreamForest extends Phaser.Scene {
   private trees: { x: number; y: number }[] = [];
   private echoes: Echo[] = [];
   private nextEcho = 1;
-  private fireflySpots: { x: number; y: number; taken: boolean; img: Phaser.GameObjects.Image }[] = [];
+  private fireflySpots: { x: number; y: number; taken: boolean; img: Phaser.GameObjects.Image }[] =
+    [];
   private fireflies = 0;
   private keySprite?: Phaser.GameObjects.Image;
   private morfeo?: Phaser.GameObjects.Sprite;
@@ -59,7 +60,13 @@ export class DreamForest extends Phaser.Scene {
     const rnd = new Phaser.Math.RandomDataGenerator(['bosque']);
     for (let i = 0; i < 90; i++) {
       this.add
-        .ellipse(rnd.between(0, WORLD_W), rnd.between(0, WORLD_H), rnd.between(30, 90), rnd.between(14, 30), 0x16242e)
+        .ellipse(
+          rnd.between(0, WORLD_W),
+          rnd.between(0, WORLD_H),
+          rnd.between(30, 90),
+          rnd.between(14, 30),
+          0x16242e,
+        )
         .setDepth(1);
     }
 
@@ -68,17 +75,30 @@ export class DreamForest extends Phaser.Scene {
     this.placeFireflies(rnd);
 
     // Iris
-    this.iris = this.add.sprite(START.x, START.y, 'iris').setOrigin(0.5, 1).setScale(PIXEL_SCALE).setDepth(START.y);
+    this.iris = this.add
+      .sprite(START.x, START.y, 'iris')
+      .setOrigin(0.5, 1)
+      .setScale(PIXEL_SCALE)
+      .setDepth(START.y);
     this.iris.play('iris-idle');
     this.cameras.main.startFollow(this.iris, true, 0.1, 0.1);
 
     // Niebla: capa oscura que se borra alrededor de las luces
-    this.fog = this.add.renderTexture(0, 0, GAME_WIDTH, GAME_HEIGHT).setOrigin(0).setScrollFactor(0).setDepth(800);
+    this.fog = this.add
+      .renderTexture(0, 0, GAME_WIDTH, GAME_HEIGHT)
+      .setOrigin(0)
+      .setScrollFactor(0)
+      .setDepth(800);
     this.fogBrush = this.make.image({ key: 'glow-white', add: false }).setOrigin(0.5);
 
     // UI
     this.prompt = this.add
-      .text(0, 0, '', textStyle(14, '#ffd166', { backgroundColor: '#0f1a22cc', padding: { x: 8, y: 4 } }))
+      .text(
+        0,
+        0,
+        '',
+        textStyle(14, '#ffd166', { backgroundColor: '#0f1a22cc', padding: { x: 8, y: 4 } }),
+      )
       .setOrigin(0.5)
       .setDepth(DEPTH_HUD)
       .setScrollFactor(0)
@@ -120,11 +140,26 @@ export class DreamForest extends Phaser.Scene {
 
   private showHint(text: string): void {
     const hint = this.add
-      .text(GAME_WIDTH / 2, 90, text, textStyle(15, '#cfc4ff', { align: 'center', backgroundColor: '#0f1a22dd', padding: { x: 12, y: 6 } }))
+      .text(
+        GAME_WIDTH / 2,
+        90,
+        text,
+        textStyle(15, '#cfc4ff', {
+          align: 'center',
+          backgroundColor: '#0f1a22dd',
+          padding: { x: 12, y: 6 },
+        }),
+      )
       .setOrigin(0.5)
       .setScrollFactor(0)
       .setDepth(DEPTH_HUD);
-    this.tweens.add({ targets: hint, alpha: 0, delay: 3200, duration: 500, onComplete: () => hint.destroy() });
+    this.tweens.add({
+      targets: hint,
+      alpha: 0,
+      delay: 3200,
+      duration: 500,
+      onComplete: () => hint.destroy(),
+    });
   }
 
   private plantTrees(rnd: Phaser.Math.RandomDataGenerator): void {
@@ -164,20 +199,44 @@ export class DreamForest extends Phaser.Scene {
       [260, 880, 3], // el mensaje
     ];
     for (const [x, y, order] of spots) {
-      const glow = this.add.image(x, y - 14, 'glow-cyan').setScale(2.2).setAlpha(0.5).setDepth(y - 1);
-      const orb = this.add.image(x, y - 14, 'glow-white').setScale(0.9).setDepth(y);
+      const glow = this.add
+        .image(x, y - 14, 'glow-cyan')
+        .setScale(2.2)
+        .setAlpha(0.5)
+        .setDepth(y - 1);
+      const orb = this.add
+        .image(x, y - 14, 'glow-white')
+        .setScale(0.9)
+        .setDepth(y);
       const label = this.add
-        .text(x, y - 52, ['I', 'II', 'III'][order - 1], textStyle(18, '#86f7ff', { fontStyle: 'bold' }))
+        .text(
+          x,
+          y - 52,
+          ['I', 'II', 'III'][order - 1],
+          textStyle(18, '#86f7ff', { fontStyle: 'bold' }),
+        )
         .setOrigin(0.5)
         .setDepth(y);
-      this.tweens.add({ targets: [orb, glow], alpha: 0.25, duration: 900, yoyo: true, repeat: -1, delay: order * 200 });
+      this.tweens.add({
+        targets: [orb, glow],
+        alpha: 0.25,
+        duration: 900,
+        yoyo: true,
+        repeat: -1,
+        delay: order * 200,
+      });
       this.echoes.push({ x, y, order, active: false, orb, glow, label });
     }
   }
 
   private placeFireflies(rnd: Phaser.Math.RandomDataGenerator): void {
     const spots = [
-      [620, 760], [1080, 900], [1380, 640], [980, 420], [520, 480], [180, 560],
+      [620, 760],
+      [1080, 900],
+      [1380, 640],
+      [980, 420],
+      [520, 480],
+      [180, 560],
     ];
     for (const [x, y] of spots) {
       const img = this.add.image(x, y, 'glow-gold').setScale(1.3).setDepth(y);
@@ -266,7 +325,9 @@ export class DreamForest extends Phaser.Scene {
   private updateInteractions(): void {
     // Eco cercano
     const near = this.echoes.find(
-      (e) => !e.active && Phaser.Math.Distance.Between(this.iris.x, this.iris.y - 20, e.x, e.y - 14) < 60,
+      (e) =>
+        !e.active &&
+        Phaser.Math.Distance.Between(this.iris.x, this.iris.y - 20, e.x, e.y - 14) < 60,
     );
     if (near) {
       this.showPrompt(near.x, near.y - 80, '✦');
@@ -274,7 +335,15 @@ export class DreamForest extends Phaser.Scene {
       return;
     }
     // Llave final
-    if (this.keySprite && Phaser.Math.Distance.Between(this.iris.x, this.iris.y - 20, this.keySprite.x, this.keySprite.y) < 60) {
+    if (
+      this.keySprite &&
+      Phaser.Math.Distance.Between(
+        this.iris.x,
+        this.iris.y - 20,
+        this.keySprite.x,
+        this.keySprite.y,
+      ) < 60
+    ) {
       this.showPrompt(this.keySprite.x, this.keySprite.y - 60, t('hub.interact'));
       if (this.inp.justDown('interact')) this.takeKey();
       return;
@@ -284,7 +353,10 @@ export class DreamForest extends Phaser.Scene {
 
   private showPrompt(wx: number, wy: number, text: string): void {
     const cam = this.cameras.main;
-    this.prompt.setPosition(wx - cam.scrollX, wy - cam.scrollY).setText(text).setVisible(true);
+    this.prompt
+      .setPosition(wx - cam.scrollX, wy - cam.scrollY)
+      .setText(text)
+      .setVisible(true);
   }
 
   private activateEcho(echo: Echo): void {
@@ -304,7 +376,7 @@ export class DreamForest extends Phaser.Scene {
     echo.label.setColor('#ffd166');
     this.nextEcho += 1;
 
-    const memoryKey = (`forest.memory.${echo.order}`) as TextKey;
+    const memoryKey = `forest.memory.${echo.order}` as TextKey;
     this.dialogue.say([{ who: null, text: t(memoryKey) }], () => {
       if (this.nextEcho > 3) {
         this.time.delayedCall(400, () => this.heartMoment());
@@ -319,7 +391,12 @@ export class DreamForest extends Phaser.Scene {
     if (this.heartDone) return;
     this.heartDone = true;
 
-    this.morfeo = this.add.sprite(this.iris.x + 60, this.iris.y, 'morfeo').setOrigin(0.5, 1).setScale(PIXEL_SCALE).setDepth(this.iris.y).setAlpha(0);
+    this.morfeo = this.add
+      .sprite(this.iris.x + 60, this.iris.y, 'morfeo')
+      .setOrigin(0.5, 1)
+      .setScale(PIXEL_SCALE)
+      .setDepth(this.iris.y)
+      .setAlpha(0);
     this.morfeo.play('morfeo-idle');
     this.tweens.add({ targets: this.morfeo, alpha: 1, duration: 900 });
     AudioManager.sfx('meow');
@@ -353,8 +430,19 @@ export class DreamForest extends Phaser.Scene {
         const kx = 800;
         const ky = 200;
         this.keySprite = this.add.image(kx, ky, 'key').setScale(4).setDepth(ky);
-        this.add.image(kx, ky, 'glow-gold').setScale(5).setAlpha(0.5).setDepth(ky - 1);
-        this.tweens.add({ targets: this.keySprite, y: ky - 10, duration: 1200, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
+        this.add
+          .image(kx, ky, 'glow-gold')
+          .setScale(5)
+          .setAlpha(0.5)
+          .setDepth(ky - 1);
+        this.tweens.add({
+          targets: this.keySprite,
+          y: ky - 10,
+          duration: 1200,
+          yoyo: true,
+          repeat: -1,
+          ease: 'Sine.inOut',
+        });
         AudioManager.sfx('key');
         this.showHint('✦ una luz nueva brilla al norte del bosque...');
       },
@@ -366,7 +454,16 @@ export class DreamForest extends Phaser.Scene {
     this.keySprite.destroy();
     this.keySprite = undefined;
     this.add
-      .text(GAME_WIDTH / 2, 150, t('forest.keyGet'), textStyle(24, '#ffd166', { fontStyle: 'bold', backgroundColor: '#0f1a22ee', padding: { x: 14, y: 8 } }))
+      .text(
+        GAME_WIDTH / 2,
+        150,
+        t('forest.keyGet'),
+        textStyle(24, '#ffd166', {
+          fontStyle: 'bold',
+          backgroundColor: '#0f1a22ee',
+          padding: { x: 14, y: 8 },
+        }),
+      )
       .setOrigin(0.5)
       .setScrollFactor(0)
       .setDepth(DEPTH_HUD);

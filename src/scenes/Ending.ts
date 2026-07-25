@@ -22,9 +22,23 @@ export class Ending extends Phaser.Scene {
     AudioManager.playMusic('ending');
 
     // La gran puerta dorada
-    const glow = this.add.image(GAME_WIDTH / 2, 300, 'glow-gold').setScale(14).setAlpha(0.3);
-    this.tweens.add({ targets: glow, alpha: 0.5, scale: 16, duration: 1600, yoyo: true, repeat: -1 });
-    this.add.image(GAME_WIDTH / 2, 420, 'door').setOrigin(0.5, 1).setScale(PIXEL_SCALE * 1.6).setTint(0xffd166);
+    const glow = this.add
+      .image(GAME_WIDTH / 2, 300, 'glow-gold')
+      .setScale(14)
+      .setAlpha(0.3);
+    this.tweens.add({
+      targets: glow,
+      alpha: 0.5,
+      scale: 16,
+      duration: 1600,
+      yoyo: true,
+      repeat: -1,
+    });
+    this.add
+      .image(GAME_WIDTH / 2, 420, 'door')
+      .setOrigin(0.5, 1)
+      .setScale(PIXEL_SCALE * 1.6)
+      .setTint(0xffd166);
 
     // Las tres llaves orbitando la puerta
     for (let i = 0; i < 3; i++) {
@@ -41,9 +55,15 @@ export class Ending extends Phaser.Scene {
     }
 
     // Iris y Morfeo frente a la puerta
-    const iris = this.add.sprite(GAME_WIDTH / 2 - 60, 470, 'iris').setOrigin(0.5, 1).setScale(PIXEL_SCALE);
+    const iris = this.add
+      .sprite(GAME_WIDTH / 2 - 60, 470, 'iris')
+      .setOrigin(0.5, 1)
+      .setScale(PIXEL_SCALE);
     iris.play('iris-idle');
-    const morfeo = this.add.sprite(GAME_WIDTH / 2 + 70, 470, 'morfeo').setOrigin(0.5, 1).setScale(PIXEL_SCALE);
+    const morfeo = this.add
+      .sprite(GAME_WIDTH / 2 + 70, 470, 'morfeo')
+      .setOrigin(0.5, 1)
+      .setScale(PIXEL_SCALE);
     morfeo.play('morfeo-idle');
 
     this.dialogue = new DialogueBox(this);
@@ -80,14 +100,27 @@ export class Ending extends Phaser.Scene {
     this.cameras.main.setBackgroundColor(0xffe9d0);
     this.children.list
       .filter((c) => c !== white)
-      .forEach((c) => (c as Phaser.GameObjects.GameObject & { setVisible?: (v: boolean) => void }).setVisible?.(false));
+      .forEach((c) =>
+        (c as Phaser.GameObjects.GameObject & { setVisible?: (v: boolean) => void }).setVisible?.(
+          false,
+        ),
+      );
 
-    const bed = this.add.image(GAME_WIDTH / 2, 330, 'bed').setScale(3.4).setDepth(980).setAlpha(1);
+    const bed = this.add
+      .image(GAME_WIDTH / 2, 330, 'bed')
+      .setScale(3.4)
+      .setDepth(980)
+      .setAlpha(1);
     const sun = this.add.image(120, 100, 'glow-gold').setScale(9).setAlpha(0.5).setDepth(975);
     this.tweens.add({ targets: sun, alpha: 0.7, duration: 2000, yoyo: true, repeat: -1 });
 
     const lineText = this.add
-      .text(GAME_WIDTH / 2, 130, '', textStyle(20, '#7a4a2a', { align: 'center', wordWrap: { width: 720 } }))
+      .text(
+        GAME_WIDTH / 2,
+        130,
+        '',
+        textStyle(20, '#7a4a2a', { align: 'center', wordWrap: { width: 720 } }),
+      )
       .setOrigin(0.5)
       .setDepth(985);
 
@@ -119,7 +152,12 @@ export class Ending extends Phaser.Scene {
     SaveManager.save();
 
     this.add
-      .text(GAME_WIDTH / 2, 170, t('ending.thanks'), textStyle(26, '#7a4a2a', { fontStyle: 'bold' }))
+      .text(
+        GAME_WIDTH / 2,
+        170,
+        t('ending.thanks'),
+        textStyle(26, '#7a4a2a', { fontStyle: 'bold' }),
+      )
       .setOrigin(0.5)
       .setDepth(990)
       .setAlpha(0)
@@ -136,12 +174,24 @@ export class Ending extends Phaser.Scene {
       .setAlpha(0)
       .setData('fade', true);
     const cont = this.add
-      .text(GAME_WIDTH / 2, 280, t('ending.continue'), textStyle(19, '#9d7bff', { fontStyle: 'italic' }))
+      .text(
+        GAME_WIDTH / 2,
+        280,
+        t('ending.continue'),
+        textStyle(19, '#9d7bff', { fontStyle: 'italic' }),
+      )
       .setOrigin(0.5)
       .setDepth(990)
       .setAlpha(0)
       .setData('fade', true);
-    this.tweens.add({ targets: cont, alpha: { from: 0.4, to: 1 }, delay: 1600, duration: 900, yoyo: true, repeat: -1 });
+    this.tweens.add({
+      targets: cont,
+      alpha: { from: 0.4, to: 1 },
+      delay: 1600,
+      duration: 900,
+      yoyo: true,
+      repeat: -1,
+    });
 
     this.children.list
       .filter((c) => c.getData && c.getData('fade'))
@@ -150,7 +200,14 @@ export class Ending extends Phaser.Scene {
       );
 
     this.time.delayedCall(1500, () => {
-      makeTextButton(this, GAME_WIDTH / 2, 400, 'volver al menú', () => fadeToScene(this, 'MainMenu'), 20).setDepth(990);
+      makeTextButton(
+        this,
+        GAME_WIDTH / 2,
+        400,
+        'volver al menú',
+        () => fadeToScene(this, 'MainMenu'),
+        20,
+      ).setDepth(990);
     });
   }
 }

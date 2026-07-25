@@ -58,11 +58,21 @@ export class Hub extends Phaser.Scene {
     }
 
     // Piso: agua oscura que refleja estrellas
-    this.add.rectangle(WORLD_W / 2, (FLOOR_Y + GAME_HEIGHT) / 2 + 4, WORLD_W, GAME_HEIGHT - FLOOR_Y + 8, 0x1e1838);
+    this.add.rectangle(
+      WORLD_W / 2,
+      (FLOOR_Y + GAME_HEIGHT) / 2 + 4,
+      WORLD_W,
+      GAME_HEIGHT - FLOOR_Y + 8,
+      0x1e1838,
+    );
     this.add.rectangle(WORLD_W / 2, FLOOR_Y + 2, WORLD_W, 3, 0x4a3a80, 0.9);
     for (let i = 0; i < 70; i++) {
       const r = this.add
-        .image(Phaser.Math.Between(0, WORLD_W), Phaser.Math.Between(FLOOR_Y + 12, GAME_HEIGHT), 'px')
+        .image(
+          Phaser.Math.Between(0, WORLD_W),
+          Phaser.Math.Between(FLOOR_Y + 12, GAME_HEIGHT),
+          'px',
+        )
         .setAlpha(Phaser.Math.FloatBetween(0.05, 0.3))
         .setTint(0x9d7bff);
       this.tweens.add({
@@ -101,7 +111,10 @@ export class Hub extends Phaser.Scene {
     // Morfeo
     this.morfeo = this.add.sprite(300, FLOOR_Y, 'morfeo').setOrigin(0.5, 1).setScale(PIXEL_SCALE);
     this.morfeo.play('morfeo-idle');
-    this.add.image(300, FLOOR_Y - 24, 'glow-cyan').setScale(3).setAlpha(0.12);
+    this.add
+      .image(300, FLOOR_Y - 24, 'glow-cyan')
+      .setScale(3)
+      .setAlpha(0.12);
 
     // Iris
     this.iris = this.add.sprite(150, FLOOR_Y, 'iris').setOrigin(0.5, 1).setScale(PIXEL_SCALE);
@@ -110,7 +123,12 @@ export class Hub extends Phaser.Scene {
 
     // UI
     this.prompt = this.add
-      .text(0, 0, '', textStyle(14, '#ffd166', { backgroundColor: '#0d0a1ecc', padding: { x: 8, y: 4 } }))
+      .text(
+        0,
+        0,
+        '',
+        textStyle(14, '#ffd166', { backgroundColor: '#0d0a1ecc', padding: { x: 8, y: 4 } }),
+      )
       .setOrigin(0.5)
       .setDepth(DEPTH_HUD)
       .setVisible(false);
@@ -181,37 +199,69 @@ export class Hub extends Phaser.Scene {
   }
 
   private addDoor(x: number, dream: DreamId, tint: number, label: string): void {
-    const glow = this.add.image(x, FLOOR_Y - 54, 'glow-violet').setScale(5).setAlpha(0.1);
+    const glow = this.add
+      .image(x, FLOOR_Y - 54, 'glow-violet')
+      .setScale(5)
+      .setAlpha(0.1);
     this.tweens.add({ targets: glow, alpha: 0.2, duration: 1600, yoyo: true, repeat: -1 });
-    const door = this.add.image(x, FLOOR_Y, 'door').setOrigin(0.5, 1).setScale(PIXEL_SCALE).setTint(tint);
+    const door = this.add
+      .image(x, FLOOR_Y, 'door')
+      .setOrigin(0.5, 1)
+      .setScale(PIXEL_SCALE)
+      .setTint(tint);
     this.add
       .text(x, FLOOR_Y - 120, label, textStyle(14, '#cfc4ff', { align: 'center' }))
       .setOrigin(0.5);
     if (SaveManager.data.keys[dream]) {
-      this.add.image(x, FLOOR_Y - 130 - 20, 'key').setScale(2).setAlpha(0.95);
+      this.add
+        .image(x, FLOOR_Y - 130 - 20, 'key')
+        .setScale(2)
+        .setAlpha(0.95);
     }
     this.doors.push({ x, dream, sprite: door, label });
   }
 
   private addNightmareDoor(x: number): void {
-    const glow = this.add.image(x, FLOOR_Y - 60, 'glow-red').setScale(6).setAlpha(0.18);
+    const glow = this.add
+      .image(x, FLOOR_Y - 60, 'glow-red')
+      .setScale(6)
+      .setAlpha(0.18);
     this.tweens.add({ targets: glow, alpha: 0.4, duration: 700, yoyo: true, repeat: -1 });
-    const door = this.add.image(x, FLOOR_Y, 'door').setOrigin(0.5, 1).setScale(PIXEL_SCALE).setTint(0x2a2a35);
+    const door = this.add
+      .image(x, FLOOR_Y, 'door')
+      .setOrigin(0.5, 1)
+      .setScale(PIXEL_SCALE)
+      .setTint(0x2a2a35);
     this.tweens.add({ targets: door, alpha: 0.75, duration: 900, yoyo: true, repeat: -1 });
     this.add
       .text(x, FLOOR_Y - 120, '???', textStyle(14, '#ff6b6b', { align: 'center' }))
       .setOrigin(0.5);
     // Ojos rojos asomando por la rendija
-    const eyeL = this.add.image(x - 8, FLOOR_Y - 52, 'glow-red').setScale(0.5).setAlpha(0.6);
-    const eyeR = this.add.image(x + 8, FLOOR_Y - 52, 'glow-red').setScale(0.5).setAlpha(0.6);
+    const eyeL = this.add
+      .image(x - 8, FLOOR_Y - 52, 'glow-red')
+      .setScale(0.5)
+      .setAlpha(0.6);
+    const eyeR = this.add
+      .image(x + 8, FLOOR_Y - 52, 'glow-red')
+      .setScale(0.5)
+      .setAlpha(0.6);
     this.tweens.add({ targets: [eyeL, eyeR], alpha: 0.1, duration: 1300, yoyo: true, repeat: -1 });
     this.doors.push({ x, dream: 'chase', sprite: door, label: '???' });
   }
 
   private addWakeDoor(x: number): void {
     const ready = SaveManager.keyCount() >= 3 && SaveManager.data.nightmareDone;
-    const glow = this.add.image(x, FLOOR_Y - 70, 'glow-gold').setScale(ready ? 9 : 5).setAlpha(ready ? 0.25 : 0.08);
-    this.tweens.add({ targets: glow, alpha: ready ? 0.45 : 0.15, duration: 1200, yoyo: true, repeat: -1 });
+    const glow = this.add
+      .image(x, FLOOR_Y - 70, 'glow-gold')
+      .setScale(ready ? 9 : 5)
+      .setAlpha(ready ? 0.25 : 0.08);
+    this.tweens.add({
+      targets: glow,
+      alpha: ready ? 0.45 : 0.15,
+      duration: 1200,
+      yoyo: true,
+      repeat: -1,
+    });
     const door = this.add
       .image(x, FLOOR_Y, 'door')
       .setOrigin(0.5, 1)

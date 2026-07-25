@@ -1,3 +1,5 @@
+import { hex, palette, type WorldId } from './systems/Palette';
+
 // Constantes globales del juego
 export const GAME_WIDTH = 960;
 export const GAME_HEIGHT = 540;
@@ -14,26 +16,42 @@ export type DreamId = 'exam' | 'fall' | 'forest';
 
 export const DREAMS: DreamId[] = ['exam', 'fall', 'forest'];
 
-// Paletas de ambiente por escena (colores de fondo/acento)
-export const AMBIENT = {
-  hub: { bg: 0x141026, accent: 0x9d7bff, floor: 0x1e1838 },
-  exam: { bg: 0xffe9b3, accent: 0xff8c42, floor: 0x8a5a2b },
-  fall: { bg: 0x0d0a2e, accent: 0x7f6bff, floor: 0x1a1450 },
-  forest: { bg: 0x0f1a22, accent: 0xffd166, floor: 0x16242e },
-  chase: { bg: 0x9a9aad, accent: 0xb33939, floor: 0x0a0a12 },
-  menu: { bg: 0x0d0a1e, accent: 0xcfc4ff, floor: 0x0d0a1e },
-} as const;
+/**
+ * Tipografías del juego (auto-alojadas, OFL — ver public/fonts/LICENSE.md).
+ * `DISPLAY` para títulos y cifras; `BODY` para diálogo, más legible en frases largas.
+ */
+export const FONT_DISPLAY = '"Silkscreen", monospace';
+export const FONT_BODY = '"Pixelify Sans", monospace';
 
-export const FONT = 'Courier New, monospace';
+/** @deprecated Usar FONT_DISPLAY o FONT_BODY. Se mantiene para código heredado. */
+export const FONT = FONT_BODY;
 
-// Estilos de texto reutilizables
+/** Estilo de texto de cuerpo (diálogo, avisos). */
 export const textStyle = (
   size: number,
   color = '#efe9ff',
   extra: Phaser.Types.GameObjects.Text.TextStyle = {},
 ): Phaser.Types.GameObjects.Text.TextStyle => ({
-  fontFamily: FONT,
+  fontFamily: FONT_BODY,
   fontSize: `${size}px`,
   color,
   ...extra,
 });
+
+/** Estilo de texto de título (menús, tarjetas de sueño, HUD numérico). */
+export const titleStyle = (
+  size: number,
+  color = '#efe9ff',
+  extra: Phaser.Types.GameObjects.Text.TextStyle = {},
+): Phaser.Types.GameObjects.Text.TextStyle => ({
+  fontFamily: FONT_DISPLAY,
+  fontSize: `${size}px`,
+  color,
+  ...extra,
+});
+
+/** Atajo: color de acento de un mundo como cadena CSS. */
+export const accentOf = (world: WorldId): string => hex(palette(world).accent);
+
+export { palette, hex };
+export type { WorldId };

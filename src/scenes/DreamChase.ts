@@ -69,8 +69,14 @@ export class DreamChase extends Phaser.Scene {
     grad.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
 
     // Siluetas lejanas (colinas y casas torcidas) en dos capas parallax
-    this.add.tileSprite(GAME_WIDTH / 2, 330, GAME_WIDTH, 260, 'chase-far').setScrollFactor(0.25).setAlpha(0.4);
-    this.add.tileSprite(GAME_WIDTH / 2, 400, GAME_WIDTH, 220, 'chase-near').setScrollFactor(0.55).setAlpha(0.75);
+    this.add
+      .tileSprite(GAME_WIDTH / 2, 330, GAME_WIDTH, 260, 'chase-far')
+      .setScrollFactor(0.25)
+      .setAlpha(0.4);
+    this.add
+      .tileSprite(GAME_WIDTH / 2, 400, GAME_WIDTH, 220, 'chase-near')
+      .setScrollFactor(0.55)
+      .setAlpha(0.75);
 
     // Niebla baja que deriva
     for (let i = 0; i < 10; i++) {
@@ -89,11 +95,24 @@ export class DreamChase extends Phaser.Scene {
     }
 
     // Suelo negro
-    this.add.rectangle(WORLD_W / 2, (GROUND_Y + GAME_HEIGHT) / 2 + 6, WORLD_W, GAME_HEIGHT - GROUND_Y + 12, 0x0a0a12);
+    this.add.rectangle(
+      WORLD_W / 2,
+      (GROUND_Y + GAME_HEIGHT) / 2 + 6,
+      WORLD_W,
+      GAME_HEIGHT - GROUND_Y + 12,
+      0x0a0a12,
+    );
 
     // La puerta al fondo: la única luz cálida del sueño
-    this.add.image(DOOR_X, GROUND_Y - 60, 'glow-gold').setScale(5).setAlpha(0.2);
-    this.door = this.add.image(DOOR_X, GROUND_Y, 'door').setOrigin(0.5, 1).setScale(PIXEL_SCALE).setTint(0x8c8c9e);
+    this.add
+      .image(DOOR_X, GROUND_Y - 60, 'glow-gold')
+      .setScale(5)
+      .setAlpha(0.2);
+    this.door = this.add
+      .image(DOOR_X, GROUND_Y, 'door')
+      .setOrigin(0.5, 1)
+      .setScale(PIXEL_SCALE)
+      .setTint(0x8c8c9e);
 
     // Iris silueta
     this.iris = this.add
@@ -106,7 +125,11 @@ export class DreamChase extends Phaser.Scene {
     this.cameras.main.startFollow(this.iris, true, 0.09, 0.09);
 
     // La Sombra
-    this.shadow = this.add.sprite(-300, GROUND_Y - 6, 'shadow').setOrigin(0.5, 1).setScale(PIXEL_SCALE * 1.4).setDepth(60);
+    this.shadow = this.add
+      .sprite(-300, GROUND_Y - 6, 'shadow')
+      .setOrigin(0.5, 1)
+      .setScale(PIXEL_SCALE * 1.4)
+      .setDepth(60);
     this.shadow.play('shadow-idle');
     this.shadowGlowL = this.add.image(0, 0, 'glow-red').setScale(0.8).setAlpha(0.5).setDepth(61);
     this.shadowGlowR = this.add.image(0, 0, 'glow-red').setScale(0.8).setAlpha(0.5).setDepth(61);
@@ -179,7 +202,14 @@ export class DreamChase extends Phaser.Scene {
       const tex = this.textures.createCanvas('vignette', size, size);
       if (tex) {
         const ctx = tex.getContext();
-        const grd = ctx.createRadialGradient(size / 2, size / 2, size * 0.22, size / 2, size / 2, size * 0.5);
+        const grd = ctx.createRadialGradient(
+          size / 2,
+          size / 2,
+          size * 0.22,
+          size / 2,
+          size / 2,
+          size * 0.5,
+        );
         grd.addColorStop(0, 'rgba(0,0,0,0)');
         grd.addColorStop(1, 'rgba(0,0,0,1)');
         ctx.fillStyle = grd;
@@ -199,7 +229,11 @@ export class DreamChase extends Phaser.Scene {
     // Armarios para esconderse, repartidos con huecos variables
     let x = rnd.between(330, 470);
     while (x < WORLD_W - 420) {
-      const img = this.add.image(x, GROUND_Y + 2, 'wardrobe').setOrigin(0.5, 1).setScale(PIXEL_SCALE).setDepth(40);
+      const img = this.add
+        .image(x, GROUND_Y + 2, 'wardrobe')
+        .setOrigin(0.5, 1)
+        .setScale(PIXEL_SCALE)
+        .setDepth(40);
       this.worldItems.push(img);
       this.wardrobes.push({ x, img });
       x += rnd.between(300, 520);
@@ -208,7 +242,10 @@ export class DreamChase extends Phaser.Scene {
     // Postes/lámparas muertas decorativas
     for (let i = 0; i < 8; i++) {
       const px = rnd.between(200, WORLD_W - 200);
-      const pole = this.add.rectangle(px, GROUND_Y, 6, rnd.between(70, 120), 0x101018).setOrigin(0.5, 1).setDepth(30);
+      const pole = this.add
+        .rectangle(px, GROUND_Y, 6, rnd.between(70, 120), 0x101018)
+        .setOrigin(0.5, 1)
+        .setDepth(30);
       this.worldItems.push(pole);
     }
 
@@ -244,14 +281,28 @@ export class DreamChase extends Phaser.Scene {
       .setAlpha(0.35);
 
     this.toast = this.add
-      .text(GAME_WIDTH / 2, 110, '', textStyle(18, '#e8e8f0', { align: 'center', backgroundColor: '#0a0a12dd', padding: { x: 12, y: 6 } }))
+      .text(
+        GAME_WIDTH / 2,
+        110,
+        '',
+        textStyle(18, '#e8e8f0', {
+          align: 'center',
+          backgroundColor: '#0a0a12dd',
+          padding: { x: 12, y: 6 },
+        }),
+      )
       .setOrigin(0.5)
       .setScrollFactor(0)
       .setDepth(DEPTH_HUD)
       .setVisible(false);
 
     this.prompt = this.add
-      .text(0, 0, '', textStyle(14, '#e8c8c8', { backgroundColor: '#0a0a12cc', padding: { x: 8, y: 4 } }))
+      .text(
+        0,
+        0,
+        '',
+        textStyle(14, '#e8c8c8', { backgroundColor: '#0a0a12cc', padding: { x: 8, y: 4 } }),
+      )
       .setOrigin(0.5)
       .setScrollFactor(0)
       .setDepth(DEPTH_HUD)
@@ -265,7 +316,8 @@ export class DreamChase extends Phaser.Scene {
 
   update(_time: number, deltaMs: number): void {
     this.inp.update();
-    if (!this.started || this.pause.paused() || this.dialogue.active || this.phase === 'reveal') return;
+    if (!this.started || this.pause.paused() || this.dialogue.active || this.phase === 'reveal')
+      return;
     const dt = Math.min(deltaMs / 1000, 0.05);
 
     this.updateMovement(dt);
@@ -337,8 +389,14 @@ export class DreamChase extends Phaser.Scene {
     const eyesOn = this.surge !== 'idle' || this.phase === 'finale';
     const eyeAlpha = eyesOn ? 0.9 : 0.35;
     const s = this.shadow;
-    this.shadowGlowL.setPosition(s.x - 18, s.y - s.displayHeight + 26).setAlpha(eyeAlpha).setScale(eyesOn ? 1.1 : 0.7);
-    this.shadowGlowR.setPosition(s.x + 20, s.y - s.displayHeight + 26).setAlpha(eyeAlpha).setScale(eyesOn ? 1.1 : 0.7);
+    this.shadowGlowL
+      .setPosition(s.x - 18, s.y - s.displayHeight + 26)
+      .setAlpha(eyeAlpha)
+      .setScale(eyesOn ? 1.1 : 0.7);
+    this.shadowGlowR
+      .setPosition(s.x + 20, s.y - s.displayHeight + 26)
+      .setAlpha(eyeAlpha)
+      .setScale(eyesOn ? 1.1 : 0.7);
 
     // ¿Te alcanzó?
     if (this.phase === 'run' && this.surge === 'attack' && !this.hidden) {
@@ -385,7 +443,10 @@ export class DreamChase extends Phaser.Scene {
 
   private showPrompt(wx: number, wy: number, text: string): void {
     const cam = this.cameras.main;
-    this.prompt.setPosition(wx - cam.scrollX, wy - cam.scrollY).setText(text).setVisible(true);
+    this.prompt
+      .setPosition(wx - cam.scrollX, wy - cam.scrollY)
+      .setText(text)
+      .setVisible(true);
   }
 
   private setHidden(hidden: boolean, atX?: number): void {
@@ -409,7 +470,7 @@ export class DreamChase extends Phaser.Scene {
     this.cameras.main.shake(350, 0.02);
     this.cameras.main.flash(500, 10, 5, 15);
 
-    const lineKey = (`chase.caught.${Math.min(this.catches, 3)}`) as TextKey;
+    const lineKey = `chase.caught.${Math.min(this.catches, 3)}` as TextKey;
     this.started = false;
     this.time.delayedCall(500, () => {
       this.dialogue.say([{ who: null, text: t(lineKey) }], () => {
@@ -515,17 +576,34 @@ export class DreamChase extends Phaser.Scene {
   private hug(child: Phaser.GameObjects.Sprite): void {
     // Se acercan y el mundo recupera un poco de calidez
     this.tweens.add({ targets: child, x: this.iris.x - 34, duration: 1200, ease: 'Sine.inOut' });
-    this.tweens.add({ targets: this.iris, tint: { from: IRIS_TINT, to: 0xffffff }, duration: 2000 });
+    this.tweens.add({
+      targets: this.iris,
+      tint: { from: IRIS_TINT, to: 0xffffff },
+      duration: 2000,
+    });
     this.tweens.add({ targets: this.vignette, alpha: 0, duration: 2500 });
     this.tweens.add({ targets: this.door, tint: { from: 0x8c8c9e, to: 0xffd166 }, duration: 2500 });
     AudioManager.sfx('win');
 
-    const glow = this.add.image(this.iris.x - 17, GROUND_Y - 40, 'glow-gold').setScale(0).setDepth(54).setAlpha(0.6);
+    const glow = this.add
+      .image(this.iris.x - 17, GROUND_Y - 40, 'glow-gold')
+      .setScale(0)
+      .setDepth(54)
+      .setAlpha(0.6);
     this.tweens.add({ targets: glow, scale: 8, alpha: 0.35, duration: 2500 });
 
     this.time.delayedCall(2800, () => {
       this.add
-        .text(GAME_WIDTH / 2, 150, t('chase.done'), textStyle(24, '#e8e8f0', { fontStyle: 'bold', backgroundColor: '#0a0a12ee', padding: { x: 14, y: 8 } }))
+        .text(
+          GAME_WIDTH / 2,
+          150,
+          t('chase.done'),
+          textStyle(24, '#e8e8f0', {
+            fontStyle: 'bold',
+            backgroundColor: '#0a0a12ee',
+            padding: { x: 14, y: 8 },
+          }),
+        )
         .setOrigin(0.5)
         .setScrollFactor(0)
         .setDepth(DEPTH_HUD);

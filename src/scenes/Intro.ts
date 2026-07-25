@@ -24,7 +24,14 @@ export class Intro extends Phaser.Scene {
     fadeIn(this);
 
     const bed = this.add.image(GAME_WIDTH / 2, 380, 'bed').setScale(3.4);
-    this.tweens.add({ targets: bed, y: 384, duration: 2600, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
+    this.tweens.add({
+      targets: bed,
+      y: 384,
+      duration: 2600,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.inOut',
+    });
 
     // Zzz sobre la cama
     for (let i = 0; i < 3; i++) {
@@ -42,7 +49,12 @@ export class Intro extends Phaser.Scene {
     }
 
     this.lineText = this.add
-      .text(GAME_WIDTH / 2, 150, '', textStyle(22, '#efe9ff', { align: 'center', wordWrap: { width: 700 } }))
+      .text(
+        GAME_WIDTH / 2,
+        150,
+        '',
+        textStyle(22, '#efe9ff', { align: 'center', wordWrap: { width: 700 } }),
+      )
       .setOrigin(0.5)
       .setAlpha(0);
 

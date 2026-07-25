@@ -96,12 +96,16 @@ export class InputManager {
       .setDepth(DEPTH_HUD)
       .setInteractive();
     const circle = s.add
-      .circle(x, y, radius, 0xffffff, 0.10)
+      .circle(x, y, radius, 0xffffff, 0.1)
       .setScrollFactor(0)
       .setDepth(DEPTH_HUD)
       .setStrokeStyle(2, 0xffffff, 0.35);
     s.add
-      .text(x, y, label, { fontFamily: FONT, fontSize: `${Math.round(radius * 0.8)}px`, color: '#ffffff' })
+      .text(x, y, label, {
+        fontFamily: FONT,
+        fontSize: `${Math.round(radius * 0.8)}px`,
+        color: '#ffffff',
+      })
       .setOrigin(0.5)
       .setAlpha(0.8)
       .setScrollFactor(0)

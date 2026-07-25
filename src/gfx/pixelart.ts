@@ -70,7 +70,13 @@ export function makeSheet(
 }
 
 /** Textura rectangular de un color (para plataformas, suelos, barras). */
-export function makeSolid(scene: Phaser.Scene, key: string, w: number, h: number, color: string): void {
+export function makeSolid(
+  scene: Phaser.Scene,
+  key: string,
+  w: number,
+  h: number,
+  color: string,
+): void {
   if (scene.textures.exists(key)) return;
   const tex = scene.textures.createCanvas(key, w, h);
   if (!tex) throw new Error(`[pixelart] no se pudo crear canvas para "${key}"`);

@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { GAME_WIDTH, GAME_HEIGHT, FONT, textStyle, DEPTH_OVERLAY } from '../config';
+import { GAME_WIDTH, GAME_HEIGHT, FONT, titleStyle, DEPTH_OVERLAY } from '../config';
 import { AudioManager } from './AudioManager';
 import { SaveManager } from './SaveManager';
 
@@ -55,7 +55,10 @@ export function addMuteButton(scene: Phaser.Scene): void {
  * Botón de pausa con overlay (seguir / salir del sueño).
  * Devuelve un objeto para consultar si el juego está pausado.
  */
-export function addPauseOverlay(scene: Phaser.Scene, onExit: () => void): { paused: () => boolean } {
+export function addPauseOverlay(
+  scene: Phaser.Scene,
+  onExit: () => void,
+): { paused: () => boolean } {
   let paused = false;
   const items: Phaser.GameObjects.GameObject[] = [];
 
@@ -82,12 +85,14 @@ export function addPauseOverlay(scene: Phaser.Scene, onExit: () => void): { paus
         .setDepth(DEPTH_OVERLAY + 1)
         .setScrollFactor(0),
       scene.add
-        .text(GAME_WIDTH / 2, 190, '⏸ PAUSA', textStyle(30, '#cfc4ff'))
+        .text(GAME_WIDTH / 2, 190, 'PAUSA', titleStyle(24, '#cfc4ff', { letterSpacing: 4 }))
         .setOrigin(0.5)
         .setDepth(DEPTH_OVERLAY + 2)
         .setScrollFactor(0),
       makeTextButton(scene, GAME_WIDTH / 2, 280, 'seguir', close, 20).setDepth(DEPTH_OVERLAY + 2),
-      makeTextButton(scene, GAME_WIDTH / 2, 350, 'salir del sueño', onExit, 20).setDepth(DEPTH_OVERLAY + 2),
+      makeTextButton(scene, GAME_WIDTH / 2, 350, 'salir del sueño', onExit, 20).setDepth(
+        DEPTH_OVERLAY + 2,
+      ),
     );
   };
 
@@ -130,19 +135,29 @@ export function fadeToScene(scene: Phaser.Scene, key: string, data?: object, ms 
 }
 
 /** Tarjeta de título al entrar a un sueño: «SUEÑO I — EL EXAMEN INFINITO». */
-export function showTitleCard(scene: Phaser.Scene, title: string, name: string, onDone?: () => void): void {
+export function showTitleCard(
+  scene: Phaser.Scene,
+  title: string,
+  name: string,
+  onDone?: () => void,
+): void {
   const cover = scene.add
     .rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x0d0a1e, 1)
     .setDepth(DEPTH_OVERLAY + 1)
     .setScrollFactor(0);
   const t1 = scene.add
-    .text(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 34, title, textStyle(20, '#9d7bff'))
+    .text(
+      GAME_WIDTH / 2,
+      GAME_HEIGHT / 2 - 38,
+      title,
+      titleStyle(16, '#9d7bff', { letterSpacing: 4 }),
+    )
     .setOrigin(0.5)
     .setDepth(DEPTH_OVERLAY + 2)
     .setScrollFactor(0)
     .setAlpha(0);
   const t2 = scene.add
-    .text(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 8, name, textStyle(34, '#efe9ff', { fontStyle: 'bold' }))
+    .text(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 10, name, titleStyle(28, '#efe9ff'))
     .setOrigin(0.5)
     .setDepth(DEPTH_OVERLAY + 2)
     .setScrollFactor(0)

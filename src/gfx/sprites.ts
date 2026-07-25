@@ -84,9 +84,7 @@ const IRIS_TORSO = [
 ];
 
 // Igual pero con el ojo cerrado (parpadeo)
-const IRIS_TORSO_BLINK = IRIS_TORSO.map((r, i) =>
-  i === 6 ? '..OHSSSSssHO....' : r,
-);
+const IRIS_TORSO_BLINK = IRIS_TORSO.map((r, i) => (i === 6 ? '..OHSSSSssHO....' : r));
 
 const LEGS_TOGETHER = [
   '....OpO.OpO.....',
@@ -516,7 +514,6 @@ const BED_MAP = [
   '................................................',
   '................................................',
 ];
-
 
 // ── La Sombra (pesadilla, 26x18): masa negra con ojos rojos ──
 const SHADOW: Palette = {

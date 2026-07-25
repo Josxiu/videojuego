@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { GAME_WIDTH, GAME_HEIGHT, textStyle } from '../config';
+import { GAME_WIDTH, GAME_HEIGHT, textStyle, titleStyle } from '../config';
 import { t } from '../i18n';
 import { SaveManager } from '../systems/SaveManager';
 import { AudioManager } from '../systems/AudioManager';
@@ -21,12 +21,17 @@ export class MainMenu extends Phaser.Scene {
 
     // Título flotante
     const title = this.add
-      .text(GAME_WIDTH / 2, 150, t('menu.title'), textStyle(64, '#cfc4ff', { fontStyle: 'bold', letterSpacing: 10 }))
+      .text(GAME_WIDTH / 2, 150, t('menu.title'), titleStyle(52, '#cfc4ff', { letterSpacing: 8 }))
       .setOrigin(0.5);
-    this.add
-      .text(GAME_WIDTH / 2, 208, t('menu.subtitle'), textStyle(17, '#7f6bb8'))
-      .setOrigin(0.5);
-    this.tweens.add({ targets: title, y: 142, duration: 2400, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
+    this.add.text(GAME_WIDTH / 2, 208, t('menu.subtitle'), textStyle(17, '#7f6bb8')).setOrigin(0.5);
+    this.tweens.add({
+      targets: title,
+      y: 142,
+      duration: 2400,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.inOut',
+    });
 
     // Zzz flotando
     for (let i = 0; i < 3; i++) {
@@ -45,12 +50,26 @@ export class MainMenu extends Phaser.Scene {
 
     // Iris dormida en su cama
     const bed = this.add.image(GAME_WIDTH / 2, 320, 'bed').setScale(3);
-    this.tweens.add({ targets: bed, y: 324, duration: 2600, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
+    this.tweens.add({
+      targets: bed,
+      y: 324,
+      duration: 2600,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.inOut',
+    });
 
     const hasProgress = SaveManager.data.introSeen;
-    makeTextButton(this, GAME_WIDTH / 2, 428, hasProgress ? t('menu.continue') : t('menu.play'), () => {
-      fadeToScene(this, hasProgress ? 'Hub' : 'Intro');
-    }, 26);
+    makeTextButton(
+      this,
+      GAME_WIDTH / 2,
+      428,
+      hasProgress ? t('menu.continue') : t('menu.play'),
+      () => {
+        fadeToScene(this, hasProgress ? 'Hub' : 'Intro');
+      },
+      26,
+    );
 
     if (hasProgress) {
       const info = `🗝 ${SaveManager.keyCount()}/3   ✦ ${SaveManager.fireflyCount()}/${SaveManager.fireflyTotal()}`;

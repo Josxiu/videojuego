@@ -29,22 +29,27 @@ export const es = {
   'hub.meet.1': 'Miau. Digo... bienvenida, Iris.',
   'hub.meet.2': '¿¡Un gato que habla!?',
   'hub.meet.3': 'Un gato de HUMO que habla. Los detalles importan. Me llamo Morfeo.',
-  'hub.meet.4': 'Esto es el Entresueño: el pasillo entre tus sueños. Y tengo malas noticias: tu mente no quiere despertar.',
+  'hub.meet.4':
+    'Esto es el Entresueño: el pasillo entre tus sueños. Y tengo malas noticias: tu mente no quiere despertar.',
   'hub.meet.5': '¿Cómo que no quiere? ¡Mañana tengo un día importante!',
-  'hub.meet.6': 'Por eso mismo, sospecho. Mira: cada puerta guarda un sueño, y en el fondo de cada sueño hay una Llave del Despertar.',
+  'hub.meet.6':
+    'Por eso mismo, sospecho. Mira: cada puerta guarda un sueño, y en el fondo de cada sueño hay una Llave del Despertar.',
   'hub.meet.7': 'Tres llaves abren la puerta grande. Sin llaves... siesta eterna.',
   'hub.meet.8': 'A mí la siesta eterna me suena bien, pero los humanos se ponen dramáticos.',
-  'hub.meet.9': 'Empecemos. Elige una puerta. Yo estaré aquí, supervisando. Acostado, pero supervisando.',
+  'hub.meet.9':
+    'Empecemos. Elige una puerta. Yo estaré aquí, supervisando. Acostado, pero supervisando.',
 
   // Comentarios de Morfeo según progreso
   'hub.morfeo.zero.1': '¿Consejo? Las puertas no se abren solas. Bueno, sí, pero primero entra tú.',
   'hub.morfeo.one.1': 'Una llave. Nada mal para alguien que duerme abrazando sus apuntes.',
   'hub.morfeo.one.2': 'Los sueños saben lo que te pesa, Iris. Por eso se sienten tan... tuyos.',
   'hub.morfeo.two.1': 'Dos llaves. Casi puedo oler el desayuno del otro lado.',
-  'hub.morfeo.two.2': 'La última puerta es distinta. Ahí guardas lo que no quieres mirar. Ve con calma.',
+  'hub.morfeo.two.2':
+    'La última puerta es distinta. Ahí guardas lo que no quieres mirar. Ve con calma.',
   'hub.morfeo.three.1': 'Tres llaves. Te dije que supervisar acostado funcionaba.',
   'hub.morfeo.three.2': 'La puerta grande te espera. Yo... voy a extrañar este pasillo.',
-  'hub.morfeo.fireflies': 'Llevas {n} luciérnagas de memoria. Brillan más cuando las coleccionas. Como los recuerdos.',
+  'hub.morfeo.fireflies':
+    'Llevas {n} luciérnagas de memoria. Brillan más cuando las coleccionas. Como los recuerdos.',
 
   // ── Sueño 1: El Examen Infinito ──
   'exam.title': 'SUEÑO I',
@@ -86,13 +91,18 @@ export const es = {
   'forest.echoWrong': 'Los recuerdos se desordenan. La niebla suspira.',
   'forest.gateOpen': 'La niebla se abre un poco...',
   // Los tres ecos de memoria (en orden)
-  'forest.memory.1': 'ECO I — La abuela regando iris en el patio. «Se llaman como tú, mija. Florecen aunque nadie las mire.»',
-  'forest.memory.2': 'ECO II — La mudanza a la ciudad. El patio quedó atrás. «Cuando termine el semestre, la visito», dijiste.',
-  'forest.memory.3': 'ECO III — El mensaje sin responder: «Te espero el domingo con pan de dulce. — Abuela». Fue hace un mes.',
+  'forest.memory.1':
+    'ECO I — La abuela regando iris en el patio. «Se llaman como tú, mija. Florecen aunque nadie las mire.»',
+  'forest.memory.2':
+    'ECO II — La mudanza a la ciudad. El patio quedó atrás. «Cuando termine el semestre, la visito», dijiste.',
+  'forest.memory.3':
+    'ECO III — El mensaje sin responder: «Te espero el domingo con pan de dulce. — Abuela». Fue hace un mes.',
   'forest.heart.1': 'Por eso no quieres despertar, ¿verdad?',
   'forest.heart.2': 'Despertar es volver a un mundo donde el domingo ya pasó.',
-  'forest.heart.3': 'Pero mira este bosque, Iris. Tu abuela sigue aquí. En cada recuerdo que enciendes.',
-  'forest.heart.4': 'Despertar no es olvidar. Es llevarla contigo. Y responder ese mensaje: aún hay domingos.',
+  'forest.heart.3':
+    'Pero mira este bosque, Iris. Tu abuela sigue aquí. En cada recuerdo que enciendes.',
+  'forest.heart.4':
+    'Despertar no es olvidar. Es llevarla contigo. Y responder ese mensaje: aún hay domingos.',
   'forest.win.1': 'El bosque entero se enciende de luciérnagas.',
   'forest.keyGet': '¡LLAVE DEL DESPERTAR OBTENIDA!',
   'forest.lanternHint': 'Los faroles recuerdan el orden de la historia: patio, ciudad, mensaje.',
@@ -114,17 +124,22 @@ export const es = {
   'chase.reveal.1': 'Iris deja de correr. Respira. Se da la vuelta.',
   'chase.reveal.2': 'La sombra se detiene. Se encoge. Tiembla.',
   'chase.reveal.3': '...¿Una niña?',
-  'chase.reveal.4': 'Soy tú. La parte de ti que lleva semanas pidiendo parar. Corriste tanto... que me volví esto.',
+  'chase.reveal.4':
+    'Soy tú. La parte de ti que lleva semanas pidiendo parar. Corriste tanto... que me volví esto.',
   'chase.reveal.5': 'Ya no voy a huir de ti. Ven. Vamos a descansar juntas.',
   'chase.reveal.6': 'El abrazo deshace la pesadilla como humo.',
   'chase.done': 'LA PESADILLA SE DISUELVE',
 
   // Hub: la puerta de la pesadilla
-  'hub.nightmare.appear.1': '¿Sientes eso? Con las tres llaves, tu miedo ya no tiene dónde esconderse. Por eso abrió su propia puerta.',
-  'hub.nightmare.appear.2': 'Ahí dentro no puedo acompañarte. Solo recuerda: lo que te persigue no quiere alcanzarte. Quiere que te detengas.',
-  'hub.wakeDoorNightmare': 'Las llaves vibran... pero algo te persigue todavía. La puerta oscura espera.',
+  'hub.nightmare.appear.1':
+    '¿Sientes eso? Con las tres llaves, tu miedo ya no tiene dónde esconderse. Por eso abrió su propia puerta.',
+  'hub.nightmare.appear.2':
+    'Ahí dentro no puedo acompañarte. Solo recuerda: lo que te persigue no quiere alcanzarte. Quiere que te detengas.',
+  'hub.wakeDoorNightmare':
+    'Las llaves vibran... pero algo te persigue todavía. La puerta oscura espera.',
   'hub.morfeo.night.1': 'Correr no sirve ahí dentro; esconderse sí. Y al final... no corras.',
-  'hub.morfeo.done.1': 'Abrazaste lo que te perseguía. Pocos humanos hacen eso, ¿sabes? Ahora sí: la puerta grande.',
+  'hub.morfeo.done.1':
+    'Abrazaste lo que te perseguía. Pocos humanos hacen eso, ¿sabes? Ahora sí: la puerta grande.',
 
   // ── Final ──
   'ending.1': 'Las tres llaves giran solas en la cerradura.',
@@ -133,7 +148,8 @@ export const es = {
   'ending.4': '¿"Vamos"? Miau. Está bien. Pero yo no madrugo.',
   'ending.5': 'Iris abrió los ojos.',
   'ending.6': 'Por primera vez en semanas, había dormido de verdad.',
-  'ending.7': 'En su teléfono, un mensaje enviado: «Abuela: este domingo sí voy. Guárdame pan de dulce.»',
+  'ending.7':
+    'En su teléfono, un mensaje enviado: «Abuela: este domingo sí voy. Guárdame pan de dulce.»',
   'ending.8': 'Y sobre la almohada... una huella de gato hecha de humo.',
   'ending.thanks': 'FIN DEL PROTOTIPO — gracias por jugar',
   'ending.stats': 'luciérnagas de memoria: {n} / {total}',

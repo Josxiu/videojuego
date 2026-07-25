@@ -61,8 +61,13 @@ export class DreamFall extends Phaser.Scene {
     const grad = this.add.graphics();
     grad.fillGradientStyle(0x0d0a2e, 0x0d0a2e, 0x241a55, 0x241a55, 1);
     grad.fillRect(0, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT / 2);
-    this.starsFar = this.add.tileSprite(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 'fall-stars').setAlpha(0.5);
-    this.starsNear = this.add.tileSprite(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 'fall-stars').setAlpha(0.9).setTileScale(1.8);
+    this.starsFar = this.add
+      .tileSprite(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 'fall-stars')
+      .setAlpha(0.5);
+    this.starsNear = this.add
+      .tileSprite(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 'fall-stars')
+      .setAlpha(0.9)
+      .setTileScale(1.8);
 
     // Luna
     this.add.image(790, 100, 'glow-white').setScale(7).setAlpha(0.25);
@@ -71,7 +76,10 @@ export class DreamFall extends Phaser.Scene {
     this.add.circle(800, 112, 5, 0xe8dcc0, 0.9);
 
     // Iris cayendo
-    this.iris = this.add.sprite(GAME_WIDTH / 2, PLAYER_Y, 'iris-fall').setScale(PIXEL_SCALE).setDepth(50);
+    this.iris = this.add
+      .sprite(GAME_WIDTH / 2, PLAYER_Y, 'iris-fall')
+      .setScale(PIXEL_SCALE)
+      .setDepth(50);
     this.iris.play('iris-falling');
     // Estela de viento
     this.add.particles(0, 0, 'px', {
@@ -164,11 +172,23 @@ export class DreamFall extends Phaser.Scene {
     }
     // Anillos de viento que frenan la caída
     for (const d of [3200, 6500, 9800, 13200, 16500, 19500]) {
-      this.spawns.push({ depth: d, x: rnd.between(150, GAME_WIDTH - 150), type: 'ring', drift: 0, id: id++ });
+      this.spawns.push({
+        depth: d,
+        x: rnd.between(150, GAME_WIDTH - 150),
+        type: 'ring',
+        drift: 0,
+        id: id++,
+      });
     }
     // Luciérnagas de memoria (8)
     [1800, 4300, 6900, 9200, 11800, 14600, 17400, 20200].forEach((d) => {
-      this.spawns.push({ depth: d, x: rnd.between(120, GAME_WIDTH - 120), type: 'firefly', drift: 0, id: id++ });
+      this.spawns.push({
+        depth: d,
+        x: rnd.between(120, GAME_WIDTH - 120),
+        type: 'firefly',
+        drift: 0,
+        id: id++,
+      });
     });
   }
 
@@ -180,7 +200,11 @@ export class DreamFall extends Phaser.Scene {
       .setDepth(DEPTH_HUD);
     for (let i = 0; i < 3; i++) {
       this.hearts.push(
-        this.add.image(26 + i * 30, 26, 'heart').setScale(2.4).setScrollFactor(0).setDepth(DEPTH_HUD),
+        this.add
+          .image(26 + i * 30, 26, 'heart')
+          .setScale(2.4)
+          .setScrollFactor(0)
+          .setDepth(DEPTH_HUD),
       );
     }
     this.add.image(26, 60, 'glow-gold').setScale(0.9).setScrollFactor(0).setDepth(DEPTH_HUD);
@@ -190,7 +214,16 @@ export class DreamFall extends Phaser.Scene {
       .setScrollFactor(0)
       .setDepth(DEPTH_HUD);
     this.toast = this.add
-      .text(GAME_WIDTH / 2, 110, '', textStyle(17, '#cfc4ff', { align: 'center', backgroundColor: '#0d0a2ecc', padding: { x: 12, y: 6 } }))
+      .text(
+        GAME_WIDTH / 2,
+        110,
+        '',
+        textStyle(17, '#cfc4ff', {
+          align: 'center',
+          backgroundColor: '#0d0a2ecc',
+          padding: { x: 12, y: 6 },
+        }),
+      )
       .setOrigin(0.5)
       .setScrollFactor(0)
       .setDepth(DEPTH_HUD)
@@ -269,14 +302,33 @@ export class DreamFall extends Phaser.Scene {
   private makeSprite(s: Spawn): Phaser.GameObjects.Image {
     switch (s.type) {
       case 'clock': {
-        const img = this.add.image(s.x, 0, 'clock').setScale(PIXEL_SCALE).setDepth(40).setTint(0xb8a8ff);
-        this.tweens.add({ targets: img, angle: { from: -12, to: 12 }, duration: 900, yoyo: true, repeat: -1 });
+        const img = this.add
+          .image(s.x, 0, 'clock')
+          .setScale(PIXEL_SCALE)
+          .setDepth(40)
+          .setTint(0xb8a8ff);
+        this.tweens.add({
+          targets: img,
+          angle: { from: -12, to: 12 },
+          duration: 900,
+          yoyo: true,
+          repeat: -1,
+        });
         return img;
       }
       case 'door':
-        return this.add.image(s.x, 0, 'door').setScale(PIXEL_SCALE * 0.9).setDepth(40).setTint(0x8f7bff).setAngle(Phaser.Math.Between(-20, 20));
+        return this.add
+          .image(s.x, 0, 'door')
+          .setScale(PIXEL_SCALE * 0.9)
+          .setDepth(40)
+          .setTint(0x8f7bff)
+          .setAngle(Phaser.Math.Between(-20, 20));
       case 'window':
-        return this.add.image(s.x, 0, 'window').setScale(PIXEL_SCALE * 0.9).setDepth(40).setAngle(Phaser.Math.Between(-15, 15));
+        return this.add
+          .image(s.x, 0, 'window')
+          .setScale(PIXEL_SCALE * 0.9)
+          .setDepth(40)
+          .setAngle(Phaser.Math.Between(-15, 15));
       case 'ring': {
         const img = this.add.image(s.x, 0, 'ring').setScale(1.4).setDepth(35).setAlpha(0.9);
         this.tweens.add({ targets: img, scale: 1.55, duration: 700, yoyo: true, repeat: -1 });
@@ -323,7 +375,13 @@ export class DreamFall extends Phaser.Scene {
         AudioManager.sfx('collect');
       } else if (s.type === 'ring') {
         s.taken = true;
-        this.tweens.add({ targets: s.sprite, scale: 2.4, alpha: 0, duration: 500, onComplete: () => s.sprite?.setVisible(false) });
+        this.tweens.add({
+          targets: s.sprite,
+          scale: 2.4,
+          alpha: 0,
+          duration: 500,
+          onComplete: () => s.sprite?.setVisible(false),
+        });
         this.slowUntil = time + 1700;
         AudioManager.sfx('ring');
         this.showToast(t('fall.ring'), 1200);
@@ -356,7 +414,10 @@ export class DreamFall extends Phaser.Scene {
     this.running = false;
 
     // El colchón de nubes sube desde abajo y atrapa a Iris
-    const cloud = this.add.image(this.iris.x, GAME_HEIGHT + 80, 'cloud').setScale(3).setDepth(48);
+    const cloud = this.add
+      .image(this.iris.x, GAME_HEIGHT + 80, 'cloud')
+      .setScale(3)
+      .setDepth(48);
     this.add.tween({
       targets: cloud,
       y: 420,
@@ -386,12 +447,35 @@ export class DreamFall extends Phaser.Scene {
   }
 
   private giveKey(): void {
-    const key = this.add.image(this.iris.x, this.iris.y - 120, 'key').setScale(5).setDepth(70).setAlpha(0);
-    this.add.image(this.iris.x, this.iris.y - 120, 'glow-gold').setScale(4).setDepth(69).setAlpha(0.5);
-    AudioManager.sfx('key');
-    this.tweens.add({ targets: key, alpha: 1, y: this.iris.y - 90, duration: 800, ease: 'Bounce.out' });
+    const key = this.add
+      .image(this.iris.x, this.iris.y - 120, 'key')
+      .setScale(5)
+      .setDepth(70)
+      .setAlpha(0);
     this.add
-      .text(GAME_WIDTH / 2, 150, t('fall.keyGet'), textStyle(24, '#cfc4ff', { fontStyle: 'bold', backgroundColor: '#241a55ee', padding: { x: 14, y: 8 } }))
+      .image(this.iris.x, this.iris.y - 120, 'glow-gold')
+      .setScale(4)
+      .setDepth(69)
+      .setAlpha(0.5);
+    AudioManager.sfx('key');
+    this.tweens.add({
+      targets: key,
+      alpha: 1,
+      y: this.iris.y - 90,
+      duration: 800,
+      ease: 'Bounce.out',
+    });
+    this.add
+      .text(
+        GAME_WIDTH / 2,
+        150,
+        t('fall.keyGet'),
+        textStyle(24, '#cfc4ff', {
+          fontStyle: 'bold',
+          backgroundColor: '#241a55ee',
+          padding: { x: 14, y: 8 },
+        }),
+      )
       .setOrigin(0.5)
       .setScrollFactor(0)
       .setDepth(DEPTH_HUD);

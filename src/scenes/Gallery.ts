@@ -42,7 +42,8 @@ export class Gallery extends Phaser.Scene {
     let x = 60;
     let y = 110;
     for (const [key, frame] of entries) {
-      const img = frame !== undefined ? this.add.image(x, y, key, frame) : this.add.image(x, y, key);
+      const img =
+        frame !== undefined ? this.add.image(x, y, key, frame) : this.add.image(x, y, key);
       img.setScale(3);
       this.add
         .text(x, y + 66, frame !== undefined ? `${key}#${frame}` : key, textStyle(10, '#cfc4ff'))

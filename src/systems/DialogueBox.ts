@@ -43,7 +43,11 @@ export class DialogueBox {
     bg.lineStyle(2, accent, 0.8);
     bg.strokeRoundedRect(-W / 2, -H / 2, W, H, 10);
 
-    this.portraitGlow = scene.add.image(-W / 2 + 56, 0, 'glow-violet').setScale(3.2).setAlpha(0.35).setTint(accent);
+    this.portraitGlow = scene.add
+      .image(-W / 2 + 56, 0, 'glow-violet')
+      .setScale(3.2)
+      .setAlpha(0.35)
+      .setTint(accent);
     this.portrait = scene.add.sprite(-W / 2 + 56, 0, 'iris', '0').setScale(3.4);
     this.nameText = scene.add.text(-W / 2 + 108, -H / 2 + 14, '', {
       fontFamily: FONT,
@@ -65,10 +69,23 @@ export class DialogueBox {
         color: '#' + accent.toString(16).padStart(6, '0'),
       })
       .setOrigin(0.5);
-    scene.tweens.add({ targets: this.nextHint, y: H / 2 - 14, duration: 480, yoyo: true, repeat: -1 });
+    scene.tweens.add({
+      targets: this.nextHint,
+      y: H / 2 - 14,
+      duration: 480,
+      yoyo: true,
+      repeat: -1,
+    });
 
     this.container = scene.add
-      .container(x, y, [bg, this.portraitGlow, this.portrait, this.nameText, this.bodyText, this.nextHint])
+      .container(x, y, [
+        bg,
+        this.portraitGlow,
+        this.portrait,
+        this.nameText,
+        this.bodyText,
+        this.nextHint,
+      ])
       .setDepth(DEPTH_DIALOGUE)
       .setScrollFactor(0)
       .setVisible(false);

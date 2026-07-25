@@ -75,10 +75,21 @@ export class DreamExam extends Phaser.Scene {
 
     // Reloj gigante que "persigue" desde la izquierda
     this.clock = this.add.image(60, 300, 'clock').setScale(4).setDepth(60);
-    this.tweens.add({ targets: this.clock, y: 320, duration: 700, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
+    this.tweens.add({
+      targets: this.clock,
+      y: 320,
+      duration: 700,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.inOut',
+    });
 
     // Iris corriendo
-    this.iris = this.add.sprite(PLAYER_X, GROUND_Y, 'iris').setOrigin(0.5, 1).setScale(PIXEL_SCALE).setDepth(50);
+    this.iris = this.add
+      .sprite(PLAYER_X, GROUND_Y, 'iris')
+      .setOrigin(0.5, 1)
+      .setScale(PIXEL_SCALE)
+      .setDepth(50);
     this.iris.play('iris-run');
 
     this.buildCourse();
@@ -175,13 +186,25 @@ export class DreamExam extends Phaser.Scene {
     // Patrón de cada tramo: [offset, tipo] — alterna saltar/deslizar con aire
     // suficiente entre obstáculos (el salto dura ~0.85 s en el aire)
     const seg1: [number, ObType][] = [
-      [600, 'coffee'], [1050, 'paper'], [1500, 'locker'], [1950, 'coffee'], [2300, 'bell'],
+      [600, 'coffee'],
+      [1050, 'paper'],
+      [1500, 'locker'],
+      [1950, 'coffee'],
+      [2300, 'bell'],
     ];
     const seg2: [number, ObType][] = [
-      [2750, 'locker'], [3200, 'paper'], [3650, 'coffee'], [4090, 'bell'], [4530, 'locker'],
+      [2750, 'locker'],
+      [3200, 'paper'],
+      [3650, 'coffee'],
+      [4090, 'bell'],
+      [4530, 'locker'],
     ];
     const seg3: [number, ObType][] = [
-      [5000, 'bell'], [5490, 'locker'], [5980, 'paper'], [6460, 'coffee'], [6800, 'bell'],
+      [5000, 'bell'],
+      [5490, 'locker'],
+      [5980, 'paper'],
+      [6460, 'coffee'],
+      [6800, 'bell'],
     ];
     [...seg1, ...seg2, ...seg3].forEach(([x, type]) => add(x, type));
 
@@ -202,7 +225,11 @@ export class DreamExam extends Phaser.Scene {
       .setScale(0.005, 1)
       .setScrollFactor(0)
       .setDepth(DEPTH_HUD);
-    this.add.text(GAME_WIDTH / 2 + 224, 26, '🏫', textStyle(16)).setOrigin(0.5).setScrollFactor(0).setDepth(DEPTH_HUD);
+    this.add
+      .text(GAME_WIDTH / 2 + 224, 26, '🏫', textStyle(16))
+      .setOrigin(0.5)
+      .setScrollFactor(0)
+      .setDepth(DEPTH_HUD);
 
     this.add.image(24, 26, 'glow-gold').setScale(1).setScrollFactor(0).setDepth(DEPTH_HUD);
     this.ffText = this.add
@@ -212,7 +239,16 @@ export class DreamExam extends Phaser.Scene {
       .setDepth(DEPTH_HUD);
 
     this.toast = this.add
-      .text(GAME_WIDTH / 2, 120, '', textStyle(18, '#8a5a2b', { align: 'center', backgroundColor: '#fff3d0dd', padding: { x: 12, y: 6 } }))
+      .text(
+        GAME_WIDTH / 2,
+        120,
+        '',
+        textStyle(18, '#8a5a2b', {
+          align: 'center',
+          backgroundColor: '#fff3d0dd',
+          padding: { x: 12, y: 6 },
+        }),
+      )
       .setOrigin(0.5)
       .setScrollFactor(0)
       .setDepth(DEPTH_HUD)
@@ -309,26 +345,53 @@ export class DreamExam extends Phaser.Scene {
   private makeObstacleSprite(s: Spawn): Phaser.GameObjects.Image {
     switch (s.type) {
       case 'locker': {
-        const img = this.add.image(0, GROUND_Y, 'locker').setOrigin(0.5, 1).setScale(PIXEL_SCALE * 0.8).setDepth(40);
+        const img = this.add
+          .image(0, GROUND_Y, 'locker')
+          .setOrigin(0.5, 1)
+          .setScale(PIXEL_SCALE * 0.8)
+          .setDepth(40);
         return img;
       }
       case 'coffee': {
-        const img = this.add.image(0, GROUND_Y + 2, 'coffee').setOrigin(0.5, 1).setScale(PIXEL_SCALE).setDepth(40);
+        const img = this.add
+          .image(0, GROUND_Y + 2, 'coffee')
+          .setOrigin(0.5, 1)
+          .setScale(PIXEL_SCALE)
+          .setDepth(40);
         return img;
       }
       case 'paper': {
-        const img = this.add.image(0, GROUND_Y - 118, 'paper').setScale(PIXEL_SCALE).setDepth(40);
+        const img = this.add
+          .image(0, GROUND_Y - 118, 'paper')
+          .setScale(PIXEL_SCALE)
+          .setDepth(40);
         this.tweens.add({ targets: img, angle: 360, duration: 1400, repeat: -1 });
         return img;
       }
       case 'bell': {
-        const img = this.add.image(0, GROUND_Y - 128, 'bell').setScale(PIXEL_SCALE).setDepth(40);
-        this.tweens.add({ targets: img, angle: { from: -14, to: 14 }, duration: 380, yoyo: true, repeat: -1 });
+        const img = this.add
+          .image(0, GROUND_Y - 128, 'bell')
+          .setScale(PIXEL_SCALE)
+          .setDepth(40);
+        this.tweens.add({
+          targets: img,
+          angle: { from: -14, to: 14 },
+          duration: 380,
+          yoyo: true,
+          repeat: -1,
+        });
         return img;
       }
       case 'firefly': {
         const img = this.add.image(0, s.y, 'glow-gold').setScale(1.5).setDepth(45);
-        this.tweens.add({ targets: img, y: s.y - 14, duration: 800, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
+        this.tweens.add({
+          targets: img,
+          y: s.y - 14,
+          duration: 800,
+          yoyo: true,
+          repeat: -1,
+          ease: 'Sine.inOut',
+        });
         return img;
       }
     }
@@ -337,9 +400,10 @@ export class DreamExam extends Phaser.Scene {
   /** Cajas de colisión del jugador y del obstáculo. */
   private checkCollisions(): void {
     const px = PLAYER_X;
-    const playerRect = this.sliding > 0
-      ? new Phaser.Geom.Rectangle(px - 30, GROUND_Y - 36, 60, 36)
-      : new Phaser.Geom.Rectangle(px - 16, this.iris.y - 66, 32, 64);
+    const playerRect =
+      this.sliding > 0
+        ? new Phaser.Geom.Rectangle(px - 30, GROUND_Y - 36, 60, 36)
+        : new Phaser.Geom.Rectangle(px - 16, this.iris.y - 66, 32, 64);
 
     for (const s of this.spawns) {
       if (s.taken || !s.sprite || !s.sprite.visible) continue;
@@ -415,7 +479,12 @@ export class DreamExam extends Phaser.Scene {
     this.iris.play('iris-idle');
 
     // El aula: una puerta al final del pasillo
-    const door = this.add.image(GAME_WIDTH + 90, GROUND_Y, 'door').setOrigin(0.5, 1).setScale(PIXEL_SCALE).setTint(0xffb020).setDepth(30);
+    const door = this.add
+      .image(GAME_WIDTH + 90, GROUND_Y, 'door')
+      .setOrigin(0.5, 1)
+      .setScale(PIXEL_SCALE)
+      .setTint(0xffb020)
+      .setDepth(30);
     this.tweens.add({ targets: door, x: PLAYER_X + 240, duration: 900, ease: 'Sine.out' });
     this.tweens.add({
       targets: this.iris,
@@ -438,12 +507,35 @@ export class DreamExam extends Phaser.Scene {
   }
 
   private giveKey(): void {
-    const key = this.add.image(this.iris.x, this.iris.y - 160, 'key').setScale(5).setDepth(70).setAlpha(0);
-    this.add.image(this.iris.x, this.iris.y - 160, 'glow-gold').setScale(4).setDepth(69).setAlpha(0.5);
-    AudioManager.sfx('key');
-    this.tweens.add({ targets: key, alpha: 1, y: this.iris.y - 120, duration: 800, ease: 'Bounce.out' });
+    const key = this.add
+      .image(this.iris.x, this.iris.y - 160, 'key')
+      .setScale(5)
+      .setDepth(70)
+      .setAlpha(0);
     this.add
-      .text(GAME_WIDTH / 2, 150, t('exam.keyGet'), textStyle(24, '#8a5a2b', { fontStyle: 'bold', backgroundColor: '#fff3d0ee', padding: { x: 14, y: 8 } }))
+      .image(this.iris.x, this.iris.y - 160, 'glow-gold')
+      .setScale(4)
+      .setDepth(69)
+      .setAlpha(0.5);
+    AudioManager.sfx('key');
+    this.tweens.add({
+      targets: key,
+      alpha: 1,
+      y: this.iris.y - 120,
+      duration: 800,
+      ease: 'Bounce.out',
+    });
+    this.add
+      .text(
+        GAME_WIDTH / 2,
+        150,
+        t('exam.keyGet'),
+        textStyle(24, '#8a5a2b', {
+          fontStyle: 'bold',
+          backgroundColor: '#fff3d0ee',
+          padding: { x: 14, y: 8 },
+        }),
+      )
       .setOrigin(0.5)
       .setScrollFactor(0)
       .setDepth(DEPTH_HUD);

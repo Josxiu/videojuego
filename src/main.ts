@@ -37,7 +37,18 @@ const game = new Phaser.Game({
     arcade: { gravity: { x: 0, y: 0 }, debug: false },
   },
   input: { activePointers: 3 },
-  scene: [Boot, MainMenu, Intro, Hub, DreamExam, DreamFall, DreamForest, DreamChase, Ending, Gallery],
+  scene: [
+    Boot,
+    MainMenu,
+    Intro,
+    Hub,
+    DreamExam,
+    DreamFall,
+    DreamForest,
+    DreamChase,
+    Ending,
+    Gallery,
+  ],
 });
 
 // Referencia para pruebas automatizadas
