@@ -39,7 +39,6 @@ export const es = {
   'hub.wakeDoorNightmare':
     'Tu puerta gira a medias. Algo la traba desde el otro lado: alguien está soñando contigo.',
   'hub.wakeDoorOwn': 'Tu puerta espera. Pero todavía falta uno: el que llevas años sin reclamar.',
-  'hub.done': 'Ya devuelto. Del otro lado, alguien duerme tranquilo.',
 
   // Primer encuentro con Morfeo
   'hub.meet.1': 'No toques nada.',
@@ -134,7 +133,6 @@ export const es = {
   'fall.hint': 'arrastra el dedo para moverte · arriba planeas, abajo caes en picada',
   'fall.hintKeys': '← → ↑ ↓ para moverte · arriba planeas, abajo caes en picada',
   'fall.boxHint': 'Una caja. Tócala para abrirla.',
-  'fall.unpacked': 'desempacado: {n}',
   'fall.balloon': 'Un globo de la despedida. Te sostiene un momento.',
   'fall.repack': 'Te golpeas y algo vuelve a su caja. Así pasa: uno desempaca y vuelve a empacar.',
   'fall.ground': 'Abajo, por fin, algo que parece un piso.',
@@ -313,10 +311,6 @@ export const es = {
   'ui.pause': 'PAUSA',
   'ui.resume': 'seguir',
   'ui.exitDream': 'salir del sueño',
-  'ui.retry': 'reintentar',
-  'ui.tapToContinue': 'toca para continuar',
-  'ui.keyCount': 'devueltos',
-  'ui.mute': 'sonido',
 } as const;
 
 export type TextKey = keyof typeof es;

@@ -31,6 +31,21 @@ describe('i18n', () => {
     expect(es['menu.subtitle']).toMatch(/sueños/);
   });
 
+  it('existen todas las claves que el juego arma con números', () => {
+    // Estas claves se construyen en tiempo de ejecución (`exam.grade.${n}`...),
+    // así que TypeScript no puede comprobarlas: lo hace este test.
+    const needed = [
+      ...[0, 1, 2, 3, 4, 5].map((n) => `exam.grade.${n}`),
+      ...[1, 2, 3].flatMap((n) => [`forest.memory.${n}`, `forest.memory.${n}b`]),
+      ...[1, 2, 3].map((n) => `chase.caught.${n}`),
+      ...[1, 2, 3, 4, 5].map((n) => `song.section.${n}`),
+      ...[1, 2, 3, 4, 5, 6].map((n) => `intro.${n}`),
+      ...Array.from({ length: 11 }, (_, i) => `ending.${i + 1}`),
+    ];
+    const missing = needed.filter((k) => !(k in es));
+    expect(missing).toEqual([]);
+  });
+
   it('el guion cubre a los cuatro vecinos por su nombre', () => {
     // La historia depende de que cada sueño tenga un dueño concreto, no genérico.
     const todo = Object.values(es).join(' ');

@@ -134,6 +134,8 @@ class AudioManagerClass {
   private nextStep = 0;
   private current?: MusicId;
   private level = 0;
+  /** Pausado a propósito: un toque cualquiera no debe reanudarlo. */
+  private held = false;
   muted = false;
 
   /** Crear/reanudar el contexto; llamar tras un gesto del usuario. */
@@ -171,13 +173,24 @@ class AudioManagerClass {
       this.echoFeedback.connect(this.echoDelay);
       damp.connect(this.master);
     }
-    if (this.ctx.state === 'suspended') void this.ctx.resume();
+    if (this.ctx.state === 'suspended' && !this.held) void this.ctx.resume();
     // Si una escena pidió música antes del primer gesto del usuario, arrancarla ahora
     if (this.current && !this.timer) {
       const id = this.current;
       this.current = undefined;
       this.playMusic(id, this.level);
     }
+  }
+
+  /** Congela todo el audio (y su reloj). Útil para pausar un ritmo sin desfasarlo. */
+  suspend(): void {
+    this.held = true;
+    if (this.ctx && this.ctx.state === 'running') void this.ctx.suspend();
+  }
+
+  resume(): void {
+    this.held = false;
+    if (this.ctx && this.ctx.state === 'suspended') void this.ctx.resume();
   }
 
   setMuted(m: boolean): void {

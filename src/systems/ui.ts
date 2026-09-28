@@ -11,6 +11,7 @@ import {
   DEPTH_HUD,
 } from '../config';
 import { AudioManager } from './AudioManager';
+import { t } from '../i18n';
 import { SaveManager } from './SaveManager';
 import type { DialogueTheme } from './DialogueBox';
 import { stylizeTexture, STYLE_DISPLAY } from '../gfx/stylize';
@@ -72,6 +73,7 @@ export function addMuteButton(scene: Phaser.Scene): void {
 export function addPauseOverlay(
   scene: Phaser.Scene,
   onExit: () => void,
+  hooks: { onPause?: () => void; onResume?: () => void } = {},
 ): { paused: () => boolean } {
   let paused = false;
   const items: Phaser.GameObjects.GameObject[] = [];
@@ -88,25 +90,37 @@ export function addPauseOverlay(
     paused = false;
     items.forEach((i) => i.destroy());
     items.length = 0;
+    hooks.onResume?.();
   };
 
   const open = () => {
     if (paused) return;
     paused = true;
+    hooks.onPause?.();
     items.push(
       scene.add
         .rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x0d0a1e, 0.75)
         .setDepth(DEPTH_OVERLAY + 1)
         .setScrollFactor(0),
       scene.add
-        .text(GAME_WIDTH / 2, 190, 'PAUSA', titleStyle(24, '#cfc4ff', { letterSpacing: 4 }))
+        .text(GAME_WIDTH / 2, 190, t('ui.pause'), titleStyle(24, '#cfc4ff', { letterSpacing: 4 }))
         .setOrigin(0.5)
         .setDepth(DEPTH_OVERLAY + 2)
         .setScrollFactor(0),
-      makeTextButton(scene, GAME_WIDTH / 2, 280, 'seguir', close, 20).setDepth(DEPTH_OVERLAY + 2),
-      makeTextButton(scene, GAME_WIDTH / 2, 350, 'salir del sueño', onExit, 20).setDepth(
+      makeTextButton(scene, GAME_WIDTH / 2, 280, t('ui.resume'), close, 20).setDepth(
         DEPTH_OVERLAY + 2,
       ),
+      makeTextButton(
+        scene,
+        GAME_WIDTH / 2,
+        350,
+        t('ui.exitDream'),
+        () => {
+          hooks.onResume?.();
+          onExit();
+        },
+        20,
+      ).setDepth(DEPTH_OVERLAY + 2),
     );
   };
 

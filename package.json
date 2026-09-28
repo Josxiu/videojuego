@@ -1,7 +1,7 @@
 {
   "name": "duermevela",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Duermevela — un juego sobre sueños de los que no puedes despertar",
   "type": "module",
   "scripts": {

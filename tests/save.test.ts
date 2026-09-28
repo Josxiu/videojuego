@@ -50,6 +50,38 @@ describe('SaveManager', () => {
     expect(SaveManager.keyCount()).toBe(0);
   });
 
+  it('migra guardados sin los campos del sueño propio ni de la pesadilla', () => {
+    localStorage.setItem(
+      KEY,
+      JSON.stringify({
+        keys: { exam: true, fall: true, forest: true },
+        fireflies: { exam: 6, fall: 8, forest: 6 },
+        nightmareDone: true,
+      }),
+    );
+    SaveManager.load();
+    expect(SaveManager.data.fireflies.chase).toBe(0);
+    expect(SaveManager.data.examBest).toBe(0);
+    expect(SaveManager.data.ownDreamRevealed).toBe(false);
+    expect(SaveManager.data.songDone).toBe(false);
+    expect(SaveManager.fireflyCount()).toBe(20);
+    expect(SaveManager.fireflyTotal()).toBe(26);
+  });
+
+  it('la calificación del examen solo mejora', () => {
+    SaveManager.recordExam(3);
+    SaveManager.recordExam(1);
+    expect(SaveManager.data.examBest).toBe(3);
+  });
+
+  it('borrar el progreso respeta el sonido apagado', () => {
+    SaveManager.data.muted = true;
+    SaveManager.giveKey('fall');
+    SaveManager.reset();
+    expect(SaveManager.keyCount()).toBe(0);
+    expect(SaveManager.data.muted).toBe(true);
+  });
+
   it('cuenta las llaves obtenidas', () => {
     SaveManager.giveKey('exam');
     SaveManager.giveKey('forest');

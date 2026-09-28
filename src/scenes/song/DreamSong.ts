@@ -197,7 +197,11 @@ export class DreamSong extends Phaser.Scene {
       .setVisible(false);
 
     this.dialogue = new DialogueBox(this, 0xffb070, 'dawn');
-    this.pause = addPauseOverlay(this, () => fadeToScene(this, 'Hub'));
+    // Pausar congela el reloj del audio: la música y la partitura siguen juntas al volver
+    this.pause = addPauseOverlay(this, () => fadeToScene(this, 'Hub'), {
+      onPause: () => AudioManager.suspend(),
+      onResume: () => AudioManager.resume(),
+    });
 
     // Toques con marca de tiempo exacta (el reloj del audio, no el del cuadro)
     this.input.on('pointerdown', (p: Phaser.Input.Pointer) => {
@@ -516,15 +520,19 @@ export class DreamSong extends Phaser.Scene {
         onComplete: () => p.destroy(),
       });
     }
-    if (perfect) {
-      floatingText(this, this.target.x, this.target.y - 40, t('song.perfect'), {
+    floatingText(
+      this,
+      this.target.x,
+      this.target.y - 40,
+      t(perfect ? 'song.perfect' : 'song.good'),
+      {
         fontFamily: FONT_HAND,
-        fontSize: '20px',
-        color: '#fff3e0',
+        fontSize: perfect ? '20px' : '16px',
+        color: perfect ? '#fff3e0' : '#cfc4ff',
         stroke: '#1a1640',
         strokeThickness: 4,
-      });
-    }
+      },
+    );
     n.icon?.destroy();
     n.tapeIcon?.destroy();
     // Cada sonido atrapado prende una ventana más
