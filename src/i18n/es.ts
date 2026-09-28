@@ -61,29 +61,53 @@ export const es = {
   'hub.morfeo.fireflies':
     'Llevas {n} luciérnagas. Son restos: pedacitos de sueño que nadie reclamó. El edificio está lleno.',
 
-  // ── Sueño de Don Élmer: El Examen Infinito ──
-  'exam.title': 'SUEÑO DEL CONSERJE',
+  // ── Sueño de Don Élmer: El Examen Infinito (gis sobre pizarrón) ──
+  'exam.title': 'SUEÑO DE LA CONSERJERÍA',
   'exam.name': 'EL EXAMEN INFINITO',
   'exam.intro.1':
-    'Don Élmer lleva treinta años barriendo esta escuela y cuarenta soñando que llega tarde al examen.',
-  'exam.intro.2': 'Nunca lo presentó: se salió en tercero para trabajar. El sueño no se enteró.',
-  'exam.hint': 'toca: saltar · desliza abajo: agacharse',
-  'exam.hintKeys': '↑ saltar · ↓ deslizarse',
-  'exam.checkpoint': '¡Timbre! Sigue corriendo...',
-  'exam.section2': 'El pasillo se estira. En su sueño siempre se estira.',
-  'exam.section3': '¡El aula está cerca!',
-  'exam.win.1': '*JADEO* ...llegué. Llegué al examen.',
-  'exam.win.2': 'La hoja está en blanco. Las dos caras.',
-  'exam.win.3':
-    'Claro que sí. Nunca supo qué le iban a preguntar: por eso lleva cuarenta años corriendo hacia una hoja vacía.',
-  'exam.win.4': 'Entonces no hay examen que aprobar. Solo hay que devolverle esto.',
+    'Don Élmer es el conserje del Girasol desde hace treinta años. Y desde hace cuarenta sueña que llega tarde a un examen.',
+  'exam.intro.2': 'Dejó la escuela en tercero para ponerse a trabajar. El sueño nunca se enteró.',
+  'exam.intro.3': 'Aquí todo está hecho de gis. Y el gis, tarde o temprano, se borra.',
+  'exam.intro.4': 'Corre. Y que no te alcance el borrador.',
+  'exam.hint': 'toca: saltar (mantén: más alto) · desliza abajo: barrerse',
+  'exam.hintKeys': '↑ / espacio: saltar (mantén: más alto) · ↓: barrerse',
+  'exam.hintQuestion': 'arriba: salta para contestar · abajo: sigue corriendo',
+  'exam.stairs':
+    'La escuela de su sueño tiene la escalera del Girasol. Él la barre todos los días. Y la cuenta.',
+  'exam.upstairs': 'Ciento doce. Siempre son ciento doce.',
+  'exam.sprint': '¡El timbre! El salón está cerca.',
+  'exam.right': '¡eso sí lo sabe!',
+  'exam.wrong': 'Esa no. El borrador se acerca.',
+  'exam.stumble': '¡tropiezo!',
+  'exam.fell': 'Caes en un borrón. El gis te vuelve a dibujar del otro lado.',
+  'exam.erased.1':
+    'El borrador te alcanza. Por un momento no eres nada: una mancha blanca en el pizarrón.',
+  'exam.erased.2':
+    'Alguien te vuelve a dibujar, con la mano temblorosa de quien no ha escrito en años.',
+  'exam.class.1': 'Salón 3º B. Todos los pupitres vacíos, menos uno.',
+  'exam.class.2': 'Llegué tarde. Siempre llego tarde.',
+  'exam.class.3': 'Y ya ni me acuerdo de qué era el examen. La hoja está en blanco.',
+  'exam.class.4': 'Creo que ya lo presentaste. Allá afuera, en el pasillo.',
+  'exam.class.5':
+    'Lo del elevador, lo de las bisagras, lo del niño que llora de madrugada. Te lo sabías todo.',
+  'exam.class.6':
+    'Cuarenta años de examen oral en los pasillos de un edificio. Nadie se tomó la molestia de calificarlo.',
+  'exam.class.7': 'Toma. Creo que esto es tuyo.',
+  'exam.class.8': '...mi gis.',
+  'exam.class.9':
+    'Élmer pasa al pizarrón. Escribe su nombre despacio, con letra de tercero de primaria.',
+  'exam.class.10': 'Presente.',
+  'exam.board.name': 'Élmer Rosales · 3º B',
+  'exam.board.grade': 'Aciertos: {n} de 5',
+  'exam.grade.5': 'Diez. Con estrellita.',
+  'exam.grade.4': 'Nueve. Muy bien.',
+  'exam.grade.3': 'Ocho. Bien.',
+  'exam.grade.2': 'Siete. Aprobado.',
+  'exam.grade.1': 'Seis. De panzazo, pero pasó.',
+  'exam.grade.0': 'Aprobado de todos modos: la asistencia también cuenta.',
   'exam.keyGet': 'DEVUELTO: EL GIS DE DON ÉLMER',
   'exam.fragment':
-    'Un gis gastado hasta el tamaño de una uña. Lo guardó treinta años en el bolsillo del overol.',
-  'exam.fail': 'Tropiezas. El pasillo se alarga un poco más, burlón.',
-  'exam.wrong': 'Esa no. El pasillo se estira para darte otra oportunidad.',
-  'exam.right': '¡eso sí lo sabe!',
-  'exam.score': 'aciertos: {n}/{total}',
+    'Un gis gastado hasta el tamaño de una uña. Lo guardó treinta años en el bolsillo del overol, por si algún día lo pasaban al pizarrón.',
 
   // ── Sueño de Nadia: La Caída Sin Fin ──
   'fall.title': 'SUEÑO DEL 5º',

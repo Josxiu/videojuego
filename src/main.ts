@@ -4,7 +4,7 @@ import { Boot } from './scenes/Boot';
 import { MainMenu } from './scenes/MainMenu';
 import { Intro } from './scenes/Intro';
 import { Hub } from './scenes/Hub';
-import { DreamExam } from './scenes/DreamExam';
+import { DreamExam } from './scenes/exam/DreamExam';
 import { DreamFall } from './scenes/DreamFall';
 import { DreamForest } from './scenes/DreamForest';
 import { DreamChase } from './scenes/DreamChase';

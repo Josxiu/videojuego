@@ -740,6 +740,30 @@ export function scribble(
 
 // ── Papeles de fondo ──
 
+/**
+ * Textura sobre lo ya pintado: manchas grandes, fibras y grano fino.
+ * Sirve igual para papel, pizarrón o cartón.
+ */
+export function grain(ctx: Ctx, w: number, h: number, rng: Rng, amount = 1, fiber = 1): void {
+  const seed = rng.int(0, 9999);
+  const img = ctx.getImageData(0, 0, w, h);
+  const d = img.data;
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const i = (y * w + x) * 4;
+      const n =
+        ((vnoise(x / 60, y / 60, seed) - 0.5) * 0.06 +
+          (vnoise(x / 1.5, y / 9, seed + 1) - 0.5) * 0.05 * fiber +
+          (hash2(x, y, seed) - 0.5) * 0.04) *
+        amount;
+      d[i] = Math.max(0, Math.min(255, d[i] * (1 + n)));
+      d[i + 1] = Math.max(0, Math.min(255, d[i + 1] * (1 + n)));
+      d[i + 2] = Math.max(0, Math.min(255, d[i + 2] * (1 + n)));
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+}
+
 /** Llena un área con papel: color base, manchas y fibras. */
 export function paperGround(
   ctx: Ctx,
@@ -751,20 +775,5 @@ export function paperGround(
 ): void {
   ctx.fillStyle = color;
   ctx.fillRect(0, 0, w, h);
-  const seed = rng.int(0, 9999);
-  const img = ctx.getImageData(0, 0, w, h);
-  const d = img.data;
-  for (let y = 0; y < h; y++) {
-    for (let x = 0; x < w; x++) {
-      const i = (y * w + x) * 4;
-      const n =
-        (vnoise(x / 60, y / 60, seed) - 0.5) * 0.06 +
-        (vnoise(x / 1.5, y / 9, seed + 1) - 0.5) * 0.05 * fiber +
-        (hash2(x, y, seed) - 0.5) * 0.04 * fiber;
-      d[i] = Math.max(0, Math.min(255, d[i] * (1 + n)));
-      d[i + 1] = Math.max(0, Math.min(255, d[i + 1] * (1 + n)));
-      d[i + 2] = Math.max(0, Math.min(255, d[i + 2] * (1 + n)));
-    }
-  }
-  ctx.putImageData(img, 0, 0);
+  grain(ctx, w, h, rng, 1, fiber);
 }
