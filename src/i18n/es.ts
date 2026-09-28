@@ -184,33 +184,52 @@ export const es = {
   'forest.fragment':
     'Un bote de leche con un agujero, que usó de regadera durante setenta años. El agujero es a propósito.',
 
-  // ── Pesadilla de Tomás: La Persecución ──
+  // ── Pesadilla de Tomás: La Persecución (crayola) ──
   'chase.title': 'PESADILLA DEL 2A',
   'chase.name': 'LA PERSECUCIÓN',
   'chase.intro.1':
-    'Este sueño no estaba en la lista. Es de Tomás, siete años, el que llora de madrugada.',
-  'chase.intro.2': 'Y aquí las reglas cambian: aquí tú no vienes a devolver nada.',
-  'chase.hint': '◀ ▶ moverte · ✦ esconderte en los armarios',
-  'chase.hintKeys': '← → para moverte · E para esconderte',
+    'Este sueño no estaba en la lista. Es de Tomás, del 2A. Siete años. El que llora de madrugada.',
+  'chase.intro.2':
+    'Las pesadillas de los niños están dibujadas con crayola. Por eso asustan tanto: nadie las borra.',
+  'chase.intro.3':
+    'Aquí no vienes a devolver nada. Escóndete, aguanta, y fíjate bien de qué tiene forma lo que te persigue.',
+  'chase.hint': '◀ ▶ moverte · ✦ esconderte · la luz de las lamparitas te protege',
+  'chase.hintKeys': '← → moverte · E esconderte · la luz de las lamparitas te protege',
   'chase.surge': '¡VIENE!',
   'chase.hidden': 'contén la respiración...',
+  'chase.light': 'La lamparita de Tomás. Aquí la sombra no entra.',
+  'chase.flicker': 'La lamparita parpadea...',
+  'chase.crayon': '¡Una crayola! El dibujo se llena de color.',
+  'chase.learned': 'Ya sabe que ahí te escondes.',
   'chase.caught.1':
-    'Te alcanza. El cuarto se reacomoda: en las pesadillas de un niño, los muebles nunca están dos veces en el mismo sitio.',
+    'Te alcanza. Tomás redibuja el cuarto: en las pesadillas de un niño, los muebles nunca están dos veces en el mismo sitio.',
   'chase.caught.2':
-    'Otra vez. Los armarios cambiaron de lugar. Él también los ve cambiar cada noche.',
+    'Otra vez. Los escondites cambiaron de lugar. Él también los ve cambiar cada noche.',
   'chase.caught.3': 'Ya sabe dónde te escondes. Aprende rápido para tener siete años.',
-  'chase.door': 'La puerta no abre. Nunca abre: es su sueño, no el tuyo.',
-  'chase.turn': 'dejar de esconderse',
-  'chase.reveal.1': 'Iris deja de correr. Se da la vuelta. Levanta las manos.',
+  'chase.door': 'La puerta no abre. Nunca abre: es su pesadilla, no la tuya.',
+  'chase.turn': 'dejar de correr',
+  'chase.sit': 'mantén ↓ para sentarte y hacerte pequeña',
+  'chase.sitTouch': 'mantén ▼ para sentarte y hacerte pequeña',
+  'chase.smaller': 'Mientras más pequeña se hace Iris, más pequeña se hace la sombra.',
+  'chase.reveal.1': 'Iris deja de correr. Se da la vuelta.',
   'chase.reveal.2': 'La sombra se detiene a dos metros. Tiembla más que ella.',
-  'chase.reveal.3': 'Y entonces entiende de qué tiene forma la sombra.',
-  'chase.reveal.4': 'De ella. De una desconocida enorme entrando de noche al cuarto de un niño.',
-  'chase.reveal.5': 'La monstrua era yo. Llevo toda la noche huyendo de mí misma vista por él.',
-  'chase.reveal.6':
-    'Iris se sienta en el suelo para ser más pequeña. Espera. Es lo único que sirve.',
-  'chase.reveal.7':
-    'La sombra se acerca, la olfatea y se deshace. Al fondo, un niño duerme sin apretar los ojos.',
+  'chase.reveal.3':
+    'La sombra se hace chiquita hasta que solo queda un dibujo en el piso: una desconocida enorme, con el pelo de Iris.',
+  'chase.tomas.1': '¿Tú eres la que camina en el techo?',
+  'chase.tomas.2': '...¿el techo?',
+  'chase.tomas.3': 'Todas las noches. Tac, tac, tac. A las tres de la mañana.',
+  'chase.tomas.4': 'Soy yo. Vivo arriba. No podía dormir, así que caminaba.',
+  'chase.tomas.5': 'Yo tampoco podía dormir. Por ti.',
+  'chase.tomas.6': 'Perdón. Desde mañana camino en calcetines.',
+  'chase.tomas.7': '¿Y si mejor tocas el piso tres veces? Así sé que eres tú y no un monstruo.',
+  'chase.tomas.8': 'Tres veces. Trato hecho.',
+  'chase.tomas.9':
+    'Tomás agarra una crayola y corrige su dibujo. Le quita los dientes. Le pone una sonrisa y un letrero.',
+  'chase.tomas.10':
+    'Luego se queda dormido ahí mismo, en el piso de la cocina, abrazado a su dibujo.',
   'chase.done': 'LA PESADILLA SE DISUELVE',
+  'chase.fragment':
+    'Te llevas un dibujo de crayola: una vecina enorme, pero sonriendo. Y un trato: tres golpes en el piso.',
 
   // Hub: la puerta de la pesadilla
   'hub.nightmare.appear.1': 'Espera. Esa puerta no estaba.',

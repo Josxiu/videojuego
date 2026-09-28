@@ -7,7 +7,7 @@ import { Hub } from './scenes/Hub';
 import { DreamExam } from './scenes/exam/DreamExam';
 import { DreamFall } from './scenes/fall/DreamFall';
 import { DreamForest } from './scenes/forest/DreamForest';
-import { DreamChase } from './scenes/DreamChase';
+import { DreamChase } from './scenes/chase/DreamChase';
 import { Ending } from './scenes/Ending';
 import { Gallery } from './scenes/Gallery';
 import { AudioManager } from './systems/AudioManager';
