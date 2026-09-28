@@ -231,6 +231,26 @@ export const es = {
   'chase.fragment':
     'Te llevas un dibujo de crayola: una vecina enorme, pero sonriendo. Y un trato: tres golpes en el piso.',
 
+  // ── El sueño de Iris: La Canción del Edificio ──
+  'song.title': 'SUEÑO DEL 3',
+  'song.name': 'LA CANCIÓN DEL EDIFICIO',
+  'song.intro.1': 'Cuando Iris tenía nueve años grababa la lluvia con una grabadora de casete.',
+  'song.intro.2':
+    'Decía que iba a hacer canciones con los ruidos de las casas. Luego creció, estudió algo práctico y se compró audífonos.',
+  'song.intro.3':
+    'Tu sueño. Polvoso, pero entero. Solo le falta lo que siempre le faltó: material.',
+  'song.intro.4': 'Quítate los audífonos. El edificio lleva toda la noche tocando para ti.',
+  'song.hint': 'toca cuando cada sonido llegue a la grabadora',
+  'song.hintKeys': 'espacio (o clic) cuando cada sonido llegue a la grabadora',
+  'song.section.1': 'Planta baja: Don Élmer barre la escalera. Shh... shh...',
+  'song.section.2': 'Quinto piso: Nadia abre otra caja. Tum.',
+  'song.section.3': 'Cuarto piso: el balcón del 4B gotea. Plic.',
+  'song.section.4': 'Segundo piso: tres golpes en el techo. Toc, toc, toc.',
+  'song.section.5': 'Y tú. Tararea.',
+  'song.perfect': '¡justo!',
+  'song.good': 'bien',
+  'song.dawn': 'Amanece en el edificio Girasol.',
+
   // Hub: la puerta de la pesadilla
   'hub.nightmare.appear.1': 'Espera. Esa puerta no estaba.',
   'hub.nightmare.appear.2':

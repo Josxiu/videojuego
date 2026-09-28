@@ -192,6 +192,16 @@ class AudioManagerClass {
     return this.ctx ? this.ctx.currentTime : performance.now() / 1000;
   }
 
+  /**
+   * Retraso entre agendar un sonido y oírlo (salida del dispositivo). Los ritmos
+   * lo restan al juzgar un toque, para que «a tiempo» signifique lo que se oye.
+   */
+  latency(): number {
+    const c = this.ctx as (AudioContext & { outputLatency?: number }) | undefined;
+    if (!c) return 0;
+    return Math.min(0.12, (c.outputLatency ?? 0) + (c.baseLatency ?? 0));
+  }
+
   /** ¿El audio está corriendo de verdad? (los ritmos dependen de esto) */
   get running(): boolean {
     return !!this.ctx && this.ctx.state === 'running';
