@@ -109,22 +109,37 @@ export const es = {
   'exam.fragment':
     'Un gis gastado hasta el tamaño de una uña. Lo guardó treinta años en el bolsillo del overol, por si algún día lo pasaban al pizarrón.',
 
-  // ── Sueño de Nadia: La Caída Sin Fin ──
-  'fall.title': 'SUEÑO DEL 5º',
+  // ── Sueño de Nadia: La Caída Sin Fin (papel recortado) ──
+  'fall.title': 'SUEÑO DEL QUINTO PISO',
   'fall.name': 'LA CAÍDA SIN FIN',
-  'fall.intro.1': 'Nadia se mudó hace siete meses. Sigue durmiendo entre cajas sin abrir.',
+  'fall.intro.1': 'Nadia se mudó al 5º hace siete meses. Duerme entre cajas que no ha abierto.',
   'fall.intro.2': 'Todas las noches sueña que se cae. Nunca sueña que llega.',
-  'fall.hint': 'arrastra el dedo para moverte',
-  'fall.hintKeys': '← → para moverte',
-  'fall.ring': 'El viento te sostiene un momento...',
-  'fall.depth': '{n} m',
-  'fall.win.1': '...¿nubes? Esperaba concreto.',
-  'fall.win.2': 'Ella también. Por eso lleva siete meses cayendo: quien no desempaca, no aterriza.',
-  'fall.win.3': 'Estaba en el fondo, entre las plumas. Lo que se trajo y no ha usado ni una vez.',
+  'fall.intro.3': 'Regla de este sueño: quien no desempaca, no aterriza.',
+  'fall.intro.4': 'Abre sus cajas. Todas no: las suficientes.',
+  'fall.hint': 'arrastra el dedo para moverte · arriba planeas, abajo caes en picada',
+  'fall.hintKeys': '← → ↑ ↓ para moverte · arriba planeas, abajo caes en picada',
+  'fall.boxHint': 'Una caja. Tócala para abrirla.',
+  'fall.unpacked': 'desempacado: {n}',
+  'fall.balloon': 'Un globo de la despedida. Te sostiene un momento.',
+  'fall.repack':
+    'Te golpeas y algo vuelve a su caja. Así pasa: uno desempaca y vuelve a empacar.',
+  'fall.ground': 'Abajo, por fin, algo que parece un piso.',
+  'fall.land.1':
+    'Iris aterriza sobre un plano. Las paredes se levantan como en un libro desplegable.',
+  'fall.land.2': '¿Tú también te caes?',
+  'fall.land.3': 'Ya no. Aterricé en tu sala.',
+  'fall.land.4': 'No es sala. Es un cuarto con cajas.',
+  'fall.land.5': 'Ahora tiene una taza, una foto y un tapete. Es bastante sala.',
+  'fall.land.6': '...sí, ¿verdad?',
+  'fall.land.7': 'Y esto. Se me quedó pegado. Es de tu otra casa.',
+  'fall.land.8': 'Esa puerta ya no existe. No abre nada.',
+  'fall.land.9': 'Las llaves viejas no abren. Se cuelgan.',
+  'fall.land.10':
+    'Nadia clava un clavo junto a la puerta nueva y cuelga la llave. Se queda mirándola un rato.',
+  'fall.land.11': 'Mañana abro las otras.',
   'fall.keyGet': 'DEVUELTO: LA LLAVE DE LA OTRA CASA',
   'fall.fragment':
-    'Una llave de una puerta que ya no existe, en una ciudad a la que no piensa volver.',
-  'fall.fail': 'El cielo te recoge y te suelta otra vez. A ella le hace lo mismo cada noche.',
+    'La llave de una puerta que ya no existe. Ahora cuelga de un clavo, junto a la puerta que sí.',
 
   // ── Sueño de la señora del 4B: El Patio de Atrás ──
   'forest.title': 'SUEÑO DEL 4B',

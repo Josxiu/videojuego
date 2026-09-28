@@ -8,7 +8,7 @@ describe('i18n', () => {
   });
 
   it('sustituye variables', () => {
-    expect(t('fall.depth', { n: 42 })).toBe('42 m');
+    expect(t('exam.board.grade', { n: 4 })).toBe('Aciertos: 4 de 5');
   });
 
   it('no deja marcadores {var} sin sustituir en ningún texto', () => {

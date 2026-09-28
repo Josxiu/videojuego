@@ -5,7 +5,7 @@ import { MainMenu } from './scenes/MainMenu';
 import { Intro } from './scenes/Intro';
 import { Hub } from './scenes/Hub';
 import { DreamExam } from './scenes/exam/DreamExam';
-import { DreamFall } from './scenes/DreamFall';
+import { DreamFall } from './scenes/fall/DreamFall';
 import { DreamForest } from './scenes/DreamForest';
 import { DreamChase } from './scenes/DreamChase';
 import { Ending } from './scenes/Ending';
