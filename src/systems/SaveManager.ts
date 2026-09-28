@@ -1,28 +1,40 @@
-import { DreamId } from '../config';
+import type { DreamId } from '../config';
+
+/** Sueños que esconden luciérnagas (la pesadilla también: son crayolas). */
+export type FireflyId = DreamId | 'chase';
 
 export interface SaveData {
   keys: Record<DreamId, boolean>;
-  fireflies: Record<DreamId, number>;
+  fireflies: Record<FireflyId, number>;
+  /** Mejor calificación en el examen de Don Élmer (respuestas correctas). */
+  examBest: number;
   introSeen: boolean;
   metMorfeo: boolean;
   nightmareIntroSeen: boolean;
   nightmareDone: boolean;
+  /** Morfeo ya reveló que falta un sueño: el de Iris. */
+  ownDreamRevealed: boolean;
+  /** Iris recuperó su propio sueño (la canción del edificio). */
+  songDone: boolean;
   endingSeen: boolean;
   muted: boolean;
 }
 
-// Total de luciérnagas de memoria que existen en cada sueño
-export const FIREFLY_TOTALS: Record<DreamId, number> = { exam: 6, fall: 8, forest: 6 };
+// Total de luciérnagas que existen en cada sueño
+export const FIREFLY_TOTALS: Record<FireflyId, number> = { exam: 6, fall: 8, forest: 6, chase: 6 };
 
 const STORAGE_KEY = 'duermevela-save-v1';
 
 const fresh = (): SaveData => ({
   keys: { exam: false, fall: false, forest: false },
-  fireflies: { exam: 0, fall: 0, forest: 0 },
+  fireflies: { exam: 0, fall: 0, forest: 0, chase: 0 },
+  examBest: 0,
   introSeen: false,
   metMorfeo: false,
   nightmareIntroSeen: false,
   nightmareDone: false,
+  ownDreamRevealed: false,
+  songDone: false,
   endingSeen: false,
   muted: false,
 });
@@ -59,7 +71,9 @@ class SaveManagerClass {
   }
 
   reset(): void {
+    const muted = this.data.muted;
     this.data = fresh();
+    this.data.muted = muted;
     this.save();
   }
 
@@ -76,9 +90,16 @@ class SaveManagerClass {
   }
 
   /** Registra luciérnagas de un sueño (solo si superan el récord anterior). */
-  recordFireflies(dream: DreamId, n: number): void {
+  recordFireflies(dream: FireflyId, n: number): void {
     if (n > this.data.fireflies[dream]) {
       this.data.fireflies[dream] = n;
+      this.save();
+    }
+  }
+
+  recordExam(correct: number): void {
+    if (correct > this.data.examBest) {
+      this.data.examBest = correct;
       this.save();
     }
   }

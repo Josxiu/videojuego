@@ -3,7 +3,7 @@
  * y en ningún otro sitio: las escenas piden colores por nombre, nunca por hex suelto.
  */
 
-export type WorldId = 'menu' | 'hub' | 'exam' | 'fall' | 'forest' | 'chase' | 'ending';
+export type WorldId = 'menu' | 'hub' | 'exam' | 'fall' | 'forest' | 'chase' | 'song' | 'ending';
 
 /** Colores de un mundo. `ink`/`paper` son el par de contraste para texto y cajas. */
 export interface WorldPalette {
@@ -42,45 +42,55 @@ export const PALETTES: Record<WorldId, WorldPalette> = {
     ink: 0xefe9ff,
     paper: 0x0d0a1e,
   },
-  // Sueño de Don Élmer: tiza, madera vieja y sol de mediodía
+  // Sueño de Don Élmer: gis sobre pizarrón verde
   exam: {
-    sky: 0xffe9b3,
-    mid: 0xffd98a,
-    ground: 0xc98d4a,
-    accent: 0xff8c42,
-    accent2: 0x2e6f6b,
-    ink: 0x5a3418,
-    paper: 0xfff3d0,
+    sky: 0x23392f,
+    mid: 0x2c463a,
+    ground: 0x6b4424,
+    accent: 0xffe08a,
+    accent2: 0xffc2d4,
+    ink: 0xf2efe6,
+    paper: 0x23392f,
   },
-  // Sueño de Nadia: cielo nocturno de mudanza
+  // Sueño de Nadia: papel recortado y cartón de mudanza
   fall: {
-    sky: 0x0d0a2e,
-    mid: 0x241a55,
-    ground: 0x1a1450,
-    accent: 0x8f7bff,
-    accent2: 0x86f7ff,
-    ink: 0xefe9ff,
-    paper: 0x191138,
-  },
-  // Sueño de la señora del 4B: patio recordado, verde y oro
-  forest: {
-    sky: 0x0f1a22,
-    mid: 0x16242e,
-    ground: 0x101d26,
+    sky: 0x1d2a5a,
+    mid: 0x2c3d73,
+    ground: 0xc98d4a,
     accent: 0xffd166,
-    accent2: 0x6fcf97,
-    ink: 0xf2ecd9,
-    paper: 0x0f1a22,
+    accent2: 0xe8b33c,
+    ink: 0x2a2a44,
+    paper: 0xfbf5e4,
   },
-  // Pesadilla de Tomás: sin color, solo contraste
+  // Sueño de Doña Chuy: acuarela sobre papel crema
+  forest: {
+    sky: 0xf4ecd8,
+    mid: 0xe8dcc0,
+    ground: 0xd8c8a4,
+    accent: 0x4aa8c8,
+    accent2: 0xe86a8a,
+    ink: 0x4a3a2a,
+    paper: 0xf6efdc,
+  },
+  // Pesadilla de Tomás: crayola sobre papel de noche
   chase: {
-    sky: 0xb8b8c8,
-    mid: 0x6e6e84,
-    ground: 0x0a0a12,
-    accent: 0xb33939,
-    accent2: 0xe8e8f0,
-    ink: 0xe8e8f0,
-    paper: 0x0a0a12,
+    sky: 0x1b1f4a,
+    mid: 0x2a2f6a,
+    ground: 0x141020,
+    accent: 0xffd23a,
+    accent2: 0xd8453a,
+    ink: 0x2b2340,
+    paper: 0xfffdf6,
+  },
+  // El sueño de Iris: el edificio al amanecer
+  song: {
+    sky: 0x1a1640,
+    mid: 0x3a2a6a,
+    ground: 0x2a2048,
+    accent: 0xffd166,
+    accent2: 0xff9a6a,
+    ink: 0xfff3e0,
+    paper: 0x1a1640,
   },
   ending: {
     sky: 0xffe9d0,

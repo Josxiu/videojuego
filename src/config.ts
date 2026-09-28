@@ -22,6 +22,12 @@ export const DREAMS: DreamId[] = ['exam', 'fall', 'forest'];
  */
 export const FONT_DISPLAY = '"Silkscreen", monospace';
 export const FONT_BODY = '"Pixelify Sans", monospace';
+/** Gis sobre pizarrón (sueño de Don Élmer). */
+export const FONT_CHALK = '"Cabin Sketch", "Patrick Hand", cursive';
+/** Letra de adulto a mano (notas, cajas de mudanza, recuerdos). */
+export const FONT_HAND = '"Patrick Hand", cursive';
+/** Letra de niño (la pesadilla de Tomás). */
+export const FONT_KID = '"Gochi Hand", "Patrick Hand", cursive';
 
 /** @deprecated Usar FONT_DISPLAY o FONT_BODY. Se mantiene para código heredado. */
 export const FONT = FONT_BODY;

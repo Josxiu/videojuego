@@ -8,14 +8,25 @@ import type { WorldId } from '../../systems/Palette';
  * una entrada aquí.
  */
 export const FX_PRESETS: Record<WorldId, DreamFXSettings> = {
-  // Recuerdo escolar proyectado en una tele vieja
-  exam: { scanline: 0.35, grain: 0.12, vignette: 0.25, contrast: 1.12, chroma: 0.6 },
-  // Cielo nocturno: lente amplia, colores que se separan al caer
-  fall: { chroma: 1.6, vignette: 0.45, grain: 0.08, contrast: 1.05, wave: 0.0012, waveSpeed: 0.8 },
-  // Patio recordado: cálido, granulado como una foto vieja
-  forest: { grain: 0.2, vignette: 0.55, contrast: 1.08, tint: 0xffd166, tintAmount: 0.08 },
-  // Pesadilla infantil: casi sin color, mucho grano, bordes que se cierran
-  chase: { desat: 0.85, contrast: 1.35, grain: 0.3, vignette: 0.6 },
+  // Gis sobre pizarrón: las líneas tiemblan como animación a mano, polvo en el aire
+  exam: { boil: 0.9, boilFps: 7, paper: 0.55, paperScale: 2.5, grain: 0.05, vignette: 0.35 },
+  // Papel recortado: fibras del papel y un leve temblor de stop-motion
+  fall: { paper: 0.7, paperScale: 2.5, boil: 0.35, boilFps: 10, vignette: 0.35, grain: 0.03 },
+  // Acuarela: papel con textura, pigmento que se corre, el mundo húmedo
+  forest: {
+    paper: 1,
+    paperScale: 2,
+    soft: 0.7,
+    wave: 0.0006,
+    waveSpeed: 0.5,
+    vignette: 0.28,
+    tint: 0xffe8c0,
+    tintAmount: 0.04,
+  },
+  // Crayola de noche: trazos inquietos, papel granuloso, bordes que se cierran
+  chase: { boil: 1.2, boilFps: 6, paper: 0.8, paperScale: 2.5, grain: 0.06, vignette: 0.55 },
+  // El sueño propio: limpio, cálido, apenas un respiro
+  song: { vignette: 0.3, grain: 0.04, chroma: 0.35, wave: 0.0006, waveSpeed: 0.4 },
   // El Entresueño: todo ondula suavemente, como visto desde debajo del agua
   hub: { wave: 0.0022, waveSpeed: 0.6, vignette: 0.35, grain: 0.05, chroma: 0.4 },
   menu: { vignette: 0.4, grain: 0.06, wave: 0.0009, waveSpeed: 0.4 },

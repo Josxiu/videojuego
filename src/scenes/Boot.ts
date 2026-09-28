@@ -1,11 +1,18 @@
 import Phaser from 'phaser';
 import { registerAllSprites } from '../gfx/sprites';
+import { registerLegacySprites } from '../gfx/sprites/legacy';
 import { SaveManager } from '../systems/SaveManager';
 import { AudioManager } from '../systems/AudioManager';
 import { GAME_WIDTH, GAME_HEIGHT } from '../config';
 
 /** Fuentes que deben estar listas antes de dibujar cualquier texto. */
-const FONTS_TO_LOAD = ['16px Silkscreen', '16px "Pixelify Sans"'];
+const FONTS_TO_LOAD = [
+  '16px Silkscreen',
+  '16px "Pixelify Sans"',
+  '16px "Cabin Sketch"',
+  '16px "Patrick Hand"',
+  '16px "Gochi Hand"',
+];
 
 /**
  * Arranque: carga fuentes, genera las texturas y decide la primera escena.
@@ -21,6 +28,7 @@ export class Boot extends Phaser.Scene {
     SaveManager.load();
     AudioManager.muted = SaveManager.data.muted;
     registerAllSprites(this);
+    registerLegacySprites(this);
 
     // Indicador mínimo por si la carga de fuentes tarda en una red lenta
     const hint = this.add

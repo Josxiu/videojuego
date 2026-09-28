@@ -13,6 +13,8 @@ export class InputManager {
   private touchState: Partial<Record<Action, boolean>> = {};
   private cur: Partial<Record<Action, boolean>> = {};
   private prev: Partial<Record<Action, boolean>> = {};
+  /** Acciones «pulsadas» por un gesto: cuentan como presionadas durante un cuadro. */
+  private pulses = new Set<Action>();
 
   // Joystick virtual
   joyX = 0;
@@ -51,7 +53,7 @@ export class InputManager {
   }
 
   private actionDown(a: Action): boolean {
-    if (this.touchState[a]) return true;
+    if (this.touchState[a] || this.pulses.has(a)) return true;
     switch (a) {
       case 'left':
         return this.keyDown('left') || this.keyDown('a') || this.joyX < -0.35;
@@ -75,6 +77,12 @@ export class InputManager {
       this.prev[a] = this.cur[a];
       this.cur[a] = this.actionDown(a);
     }
+    this.pulses.clear();
+  }
+
+  /** Simula una pulsación breve (un cuadro) de una acción. */
+  pulse(a: Action): void {
+    this.pulses.add(a);
   }
 
   isDown(a: Action): boolean {
@@ -174,6 +182,53 @@ export class InputManager {
     this.joyThumb.setPosition(bx + nx * cl, by + ny * cl);
     this.joyX = (nx * cl) / max;
     this.joyY = (ny * cl) / max;
+  }
+
+  /**
+   * Gestos del runner: tocar = salto corto, mantener = salto alto,
+   * deslizar hacia abajo = barrerse (o caer en picada en el aire).
+   */
+  addRunnerGestures(): void {
+    const s = this.scene;
+    let start: { y: number; id: number } | undefined;
+    let decided = false;
+    let holdTimer: Phaser.Time.TimerEvent | undefined;
+    s.input.on('pointerdown', (p: Phaser.Input.Pointer) => {
+      // La esquina de pausa/sonido no cuenta como salto
+      if (p.y < 60 && p.x > GAME_WIDTH - 110) return;
+      start = { y: p.y, id: p.id };
+      decided = false;
+      holdTimer?.remove();
+      holdTimer = s.time.delayedCall(70, () => {
+        if (start && !decided) {
+          decided = true;
+          this.touchState.jump = true;
+        }
+      });
+    });
+    s.input.on('pointermove', (p: Phaser.Input.Pointer) => {
+      if (!start || p.id !== start.id) return;
+      if (p.y - start.y > 26) {
+        if (!decided) {
+          decided = true;
+          this.pulse('down');
+        } else if (this.touchState.jump) {
+          // Ya saltando: deslizar hacia abajo es caer en picada
+          this.touchState.jump = false;
+          this.pulse('down');
+        }
+        start.y = p.y + 999; // un deslizamiento por gesto
+      }
+    });
+    const end = (p: Phaser.Input.Pointer) => {
+      if (!start || p.id !== start.id) return;
+      if (!decided) this.pulse('jump');
+      decided = true;
+      this.touchState.jump = false;
+      start = undefined;
+    };
+    s.input.on('pointerup', end);
+    s.input.on('pointerupoutside', end);
   }
 
   /** Detecta toques rápidos y deslizamientos hacia abajo (para el runner). */
