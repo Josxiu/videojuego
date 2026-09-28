@@ -51,10 +51,10 @@ await check('menú → intro → hub', async (page) => {
   await page.goto(BASE);
   await waitScene(page, 'MainMenu');
   await page.waitForTimeout(800);
-  await page.mouse.click(480, 428); // Jugar
+  await page.mouse.click(250, 300); // Dormir
   await waitScene(page, 'Intro');
-  for (let i = 0; i < 9; i++) {
-    await page.waitForTimeout(1100);
+  for (let i = 0; i < 12; i++) {
+    await page.waitForTimeout(1300);
     await page.mouse.click(480, 300);
     const inHub = await page.evaluate(() => window.__game.scene.isActive('Hub'));
     if (inHub) break;
@@ -63,7 +63,16 @@ await check('menú → intro → hub', async (page) => {
 });
 
 // 2. Cada escena carga sin errores
-for (const scene of ['Hub', 'DreamExam', 'DreamFall', 'DreamForest', 'DreamChase', 'Ending', 'Gallery']) {
+for (const scene of [
+  'Hub',
+  'DreamExam',
+  'DreamFall',
+  'DreamForest',
+  'DreamChase',
+  'DreamSong',
+  'Ending',
+  'Gallery',
+]) {
   await check(`escena ${scene}`, async (page) => {
     await page.goto(`${BASE}?scene=${scene}`);
     await waitScene(page, scene);
@@ -101,7 +110,7 @@ await check('degradación sin WebGL (Canvas)', async (page) => {
   const sp = await soft.newPage({ viewport: { width: 960, height: 540 } });
   const errs = [];
   sp.on('pageerror', (e) => errs.push(String(e)));
-  for (const scene of ['Hub', 'DreamExam', 'DreamChase']) {
+  for (const scene of ['Hub', 'DreamExam', 'DreamFall', 'DreamForest', 'DreamChase', 'DreamSong']) {
     await sp.goto(`${BASE}?scene=${scene}`);
     await sp.waitForFunction((s) => window.__game?.scene?.isActive(s), scene, { timeout: 25000 });
     await sp.waitForTimeout(1500);

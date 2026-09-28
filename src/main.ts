@@ -3,7 +3,7 @@ import { GAME_WIDTH, GAME_HEIGHT } from './config';
 import { Boot } from './scenes/Boot';
 import { MainMenu } from './scenes/MainMenu';
 import { Intro } from './scenes/Intro';
-import { Hub } from './scenes/Hub';
+import { Hub } from './scenes/hub/Hub';
 import { DreamExam } from './scenes/exam/DreamExam';
 import { DreamFall } from './scenes/fall/DreamFall';
 import { DreamForest } from './scenes/forest/DreamForest';

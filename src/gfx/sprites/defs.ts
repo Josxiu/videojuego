@@ -66,6 +66,7 @@ export const SPRITES: SpriteDef[] = [
   { key: 'heart', pal: P.HEART_PAL, frames: [P.HEART] },
   { key: 'door', pal: P.DOOR_PAL, frames: [P.DOOR] },
   { key: 'bed', pal: P.BED_PAL, frames: [P.BED] },
+  { key: 'bed-morning', pal: P.BED_PAL, frames: [P.BED_MORNING] },
 ];
 
 /** Cuadros con nombre de la hoja de Iris, para no usar números mágicos. */

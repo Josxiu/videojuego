@@ -232,3 +232,6 @@ export const BED = [
   '................................................',
   '................................................',
 ];
+
+/** La misma cama a la mañana siguiente: los audífonos ya no están puestos. */
+export const BED_MORNING = BED.map((r, i) => (i >= 6 && i <= 8 ? r.replace(/[Aa]/g, 'H') : r));

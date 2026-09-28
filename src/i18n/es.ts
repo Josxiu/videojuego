@@ -14,22 +14,32 @@ export const es = {
   'menu.credits': 'edificio Girasol, 3:14 a. m.',
 
   // ── Intro ──
-  'intro.1': 'Edificio Girasol. Tercer piso. Tres y cuarto de la mañana.',
-  'intro.2': 'Iris lleva once días durmiendo con los audífonos puestos para no oír a los vecinos.',
+  'intro.1': 'Edificio Girasol. Tres y catorce de la mañana.',
+  'intro.2': 'Iris, la del 3, lleva once días durmiendo con audífonos para no oír a los vecinos.',
   'intro.3': 'Hoy se le acabó la batería.',
   'intro.4':
-    'Y por primera vez oyó el edificio entero respirando: cuarenta personas dormidas, cuarenta sueños subiendo por los ductos.',
-  'intro.5': 'Se durmió con todos encima.',
+    'Y por primera vez oyó el edificio entero respirando: cuarenta personas dormidas, cuarenta sueños subiendo por el tiro de luz.',
+  'intro.5': 'Tres se le quedaron pegados.',
+  'intro.6': 'Se durmió con todos encima.',
   'intro.skip': 'tocar para continuar',
 
   // ── Hub: El Entresueño ──
   'hub.title': 'EL ENTRESUEÑO',
   'hub.interact': 'hablar',
   'hub.enter': 'entrar',
-  'hub.locked': 'La puerta no es tuya. Todavía no te deja pasar.',
+  'hub.desk': 'ADMINISTRACIÓN DE SUEÑOS · TURNO NOCTURNO',
+  'hub.door.exam': 'CONSERJERÍA',
+  'hub.door.fall': '5º',
+  'hub.door.forest': '4B',
+  'hub.door.chase': '2A',
+  'hub.door.wake': '3',
+  'hub.door.own': '¿?',
   'hub.wakeDoorLocked':
     'Tu puerta. Cerrada por dentro, con tres cosas ajenas atoradas en la cerradura.',
-  'hub.wakeDoorReady': 'Tu puerta. Ahora sí gira.',
+  'hub.wakeDoorNightmare':
+    'Tu puerta gira a medias. Algo la traba desde el otro lado: alguien está soñando contigo.',
+  'hub.wakeDoorOwn': 'Tu puerta espera. Pero todavía falta uno: el que llevas años sin reclamar.',
+  'hub.done': 'Ya devuelto. Del otro lado, alguien duerme tranquilo.',
 
   // Primer encuentro con Morfeo
   'hub.meet.1': 'No toques nada.',
@@ -40,16 +50,17 @@ export const es = {
     'Esto es el Entresueño: el tiro de luz por donde suben los sueños del edificio. Tú te dormiste con la ventana abierta, metafóricamente hablando.',
   'hub.meet.5': '¿Y eso qué significa?',
   'hub.meet.6':
-    'Que se te pegaron tres sueños que no son tuyos. Del 5º, del 4B y del conserje. Y mientras los cargues, tu cuerpo no te deja volver: no reconoce lo que traes.',
+    'Que se te pegaron tres sueños que no son tuyos. Del conserje, del 5º y del 4B. Y mientras los cargues, tu cuerpo no te deja volver: no reconoce lo que traes.',
   'hub.meet.7':
     'Entras, devuelves lo que te llevaste, sales. Sin improvisar. Sin conmoverte. Sobre todo, sin conmoverte.',
   'hub.meet.8': '¿Y si me pierdo?',
   'hub.meet.9':
-    'Los sueños ajenos tienen reglas ajenas: aprende las suyas, no impongas las tuyas. Ah, y algo importante: allí dentro, la rara eres tú.',
+    'Cada sueño está dibujado con lo que su dueño tiene a la mano: gis, cartón, acuarela. Aprende sus reglas; no impongas las tuyas. Y allí dentro, la rara eres tú.',
 
   // Comentarios de Morfeo según progreso
   'hub.morfeo.zero.1':
     'Tres puertas. Tres desconocidos que duermen a diez metros de ti y de los que no sabes ni el nombre.',
+  'hub.morfeo.zero.2': 'Empieza por abajo, si quieres. El conserje lleva cuarenta años esperando.',
   'hub.morfeo.one.1': 'Uno devuelto. ¿Ves? No era tuyo y ya se te nota más ligera.',
   'hub.morfeo.one.2':
     'Cuidado con quedarte a mirar. Los sueños ajenos son cómodos justamente porque no duelen igual.',
@@ -60,6 +71,10 @@ export const es = {
   'hub.morfeo.three.2': '«Tocaría». Fíjate en esa palabra. Yo me fijé.',
   'hub.morfeo.fireflies':
     'Llevas {n} luciérnagas. Son restos: pedacitos de sueño que nadie reclamó. El edificio está lleno.',
+  'hub.morfeo.own.1': 'Al fondo, donde no miraste. Lleva años juntando polvo. Ya es hora.',
+  'hub.morfeo.end.1':
+    'Ya puedes despertar. Administrativamente, este ha sido el turno más raro de mi carrera.',
+  'hub.morfeo.end.2': 'Si oyes un gato en el tiro de luz, no le hables. No le gusta que le hablen.',
 
   // ── Sueño de Don Élmer: El Examen Infinito (gis sobre pizarrón) ──
   'exam.title': 'SUEÑO DE LA CONSERJERÍA',
@@ -254,37 +269,45 @@ export const es = {
   // Hub: la puerta de la pesadilla
   'hub.nightmare.appear.1': 'Espera. Esa puerta no estaba.',
   'hub.nightmare.appear.2':
-    'Es el 2A. El niño. Su pesadilla se abrió sola porque hay alguien merodeando el edificio por dentro... o sea, tú.',
-  'hub.wakeDoorNightmare':
-    'Tu puerta gira a medias. Algo la traba desde el otro lado: alguien está soñando contigo.',
+    'Es el 2A. El niño. Su pesadilla se abrió sola porque hay alguien caminando por el edificio a deshoras... o sea, tú.',
   'hub.morfeo.night.1':
     'Ahí dentro no eres visita: eres lo que da miedo. Cuando entiendas eso, sabrás qué hacer.',
   'hub.morfeo.done.1':
     'Te dejaste ver por un niño de siete años y sobreviviste. Administrativamente, eso no lo había visto nunca.',
 
-  // ── Final ──
-  'ending.1': 'Las tres cosas ajenas ya no traban la cerradura. Tu puerta gira.',
-  'ending.2': 'Un momento. Falta una.',
-  'ending.3': '¿Cómo que falta una? Devolví las tres.',
-  'ending.4':
-    'Las tres ajenas. Queda una que lleva aquí mucho más tiempo y que nadie ha venido a reclamar.',
-  'ending.5': 'Al fondo del Entresueño, donde no miraste, hay un sueño tuyo cubierto de polvo.',
-  'ending.6':
-    'Lo dejaste aquí hace años, cuando decidiste que era más práctico soñar lo que otros esperaban de ti.',
-  'ending.7':
+  // Hub: la revelación del cuarto sueño
+  'hub.own.1': 'Tu puerta gira. Las tres cosas ajenas ya no traban la cerradura.',
+  'hub.own.2': 'Un momento. Falta uno.',
+  'hub.own.3': '¿Cómo que falta uno? Devolví los tres.',
+  'hub.own.4':
+    'Los tres ajenos. Queda uno que lleva aquí mucho más tiempo y que nadie ha venido a reclamar.',
+  'hub.own.5': 'Al fondo del Entresueño, donde no miraste, hay un sueño tuyo cubierto de polvo.',
+  'hub.own.6':
+    'Lo dejaste aquí hace años, cuando decidiste que era más práctico ponerte audífonos que oír lo que tenías alrededor.',
+  'hub.own.7':
     'Este tiro de luz está lleno de sueños que la gente abandona. Yo solo los barro. Es un trabajo bastante triste, si te soy sincero.',
-  'ending.8': '¿Y si me lo llevo?',
-  'ending.9':
+  'hub.own.8': '¿Y si me lo llevo?',
+  'hub.own.9':
     'Entonces vas a despertar cargando algo. Otra vez. Pero por primera vez va a ser tuyo.',
-  'ending.10': 'Iris abrió los ojos a las 6:40.',
+
+  // ── Final ──
+  'ending.1': 'Iris abrió los ojos a las 6:40. No buscó los audífonos.',
+  'ending.2': 'Oyó a Don Élmer barriendo la escalera. Ciento doce escalones.',
+  'ending.3': 'Oyó a la del 5º abrir una caja. Y luego otra.',
+  'ending.4': 'Oyó gotear el balcón del 4B. A propósito.',
+  'ending.5': 'Tocó el piso tres veces. Desde abajo, alguien tocó el techo tres veces.',
+  'ending.6': 'Sacó su grabadora de una caja que tampoco había abierto. Todavía tenía pilas.',
+  'ending.7': 'A las 7:05, en vez de bajar por el correo, subió un piso.',
+  'ending.8': 'Cuarto piso, puerta B. Tocó.',
+  'ending.9': 'Abrió una señora de ochenta y uno con un bote de leche en la mano.',
+  'ending.10': '— Buenos días. Soy la del 3. Vengo a que me enseñe a no encharcar.',
   'ending.11':
-    'Once días de audífonos y hoy oyó el edificio: el conserje arrastrando el bote, la del 5º moviendo cajas, alguien regando en el 4B.',
-  'ending.12': 'A las 7:05 bajó por el correo. Se detuvo en el cuarto piso, puerta B, y tocó.',
-  'ending.13': 'Abrió una señora de ochenta y uno con un bote de leche en la mano.',
-  'ending.14': '— Buenos días. Soy la del 3. Vengo a que me enseñe a no encharcar.',
-  'ending.thanks': 'FIN DEL PROTOTIPO',
+    'En el tiro de luz, un gato gris con ojos color agua las miró como quien revisa un trámite. Luego se fue a dormir.',
+  'ending.thanks': 'FIN',
   'ending.stats': 'luciérnagas: {n} / {total}',
+  'ending.exam': 'examen de Don Élmer: {n} de 5',
   'ending.continue': 'quedan treinta y seis puertas en este edificio',
+  'ending.menu': 'volver al menú',
 
   // ── UI general ──
   'ui.pause': 'PAUSA',

@@ -1,6 +1,5 @@
 import Phaser from 'phaser';
 import { registerAllSprites } from '../gfx/sprites';
-import { registerLegacySprites } from '../gfx/sprites/legacy';
 import { SaveManager } from '../systems/SaveManager';
 import { AudioManager } from '../systems/AudioManager';
 import { GAME_WIDTH, GAME_HEIGHT } from '../config';
@@ -28,7 +27,6 @@ export class Boot extends Phaser.Scene {
     SaveManager.load();
     AudioManager.muted = SaveManager.data.muted;
     registerAllSprites(this);
-    registerLegacySprites(this);
 
     // Indicador mínimo por si la carga de fuentes tarda en una red lenta
     const hint = this.add
