@@ -121,8 +121,7 @@ export const es = {
   'fall.boxHint': 'Una caja. Tócala para abrirla.',
   'fall.unpacked': 'desempacado: {n}',
   'fall.balloon': 'Un globo de la despedida. Te sostiene un momento.',
-  'fall.repack':
-    'Te golpeas y algo vuelve a su caja. Así pasa: uno desempaca y vuelve a empacar.',
+  'fall.repack': 'Te golpeas y algo vuelve a su caja. Así pasa: uno desempaca y vuelve a empacar.',
   'fall.ground': 'Abajo, por fin, algo que parece un piso.',
   'fall.land.1':
     'Iris aterriza sobre un plano. Las paredes se levantan como en un libro desplegable.',
@@ -141,34 +140,49 @@ export const es = {
   'fall.fragment':
     'La llave de una puerta que ya no existe. Ahora cuelga de un clavo, junto a la puerta que sí.',
 
-  // ── Sueño de la señora del 4B: El Patio de Atrás ──
+  // ── Sueño de Doña Chuy: El Patio de Atrás (acuarela) ──
   'forest.title': 'SUEÑO DEL 4B',
   'forest.name': 'EL PATIO DE ATRÁS',
-  'forest.intro.1': 'Doña Chuy tiene ochenta y un años y sueña siempre el mismo patio.',
-  'forest.intro.2': 'El de la casa donde creció. Lleva semanas sin encontrar el camino de vuelta.',
-  'forest.hint': 'muévete con el joystick · toca ✦ para activar ecos',
-  'forest.hintKeys': 'WASD/flechas para moverte · E para activar ecos',
-  'forest.echoLocked': 'Ese recuerdo va después. Ella los ordena así, no como tú quieras.',
-  'forest.echoWrong': 'Los recuerdos se desordenan. La niebla se cierra un poco.',
-  'forest.gateOpen': 'La niebla se abre. Vas por buen camino.',
-  // Los tres ecos de memoria (en orden)
+  'forest.intro.1': 'Doña Chuy tiene ochenta y un años y todas las noches sueña el mismo patio.',
+  'forest.intro.2':
+    'El de la casa donde creció. Pero el sueño se le está despintando: ya casi no le quedan colores.',
+  'forest.intro.3': 'Toma. El bote de leche que usaba de regadera. Gotea: siempre goteó.',
+  'forest.intro.4': 'Donde cae el agua, vuelve el color. La pila está en medio del patio.',
+  'forest.hint': 'joystick para caminar · ✦ junto a una maceta: regar · ✦ en la pila: llenar',
+  'forest.hintKeys':
+    'WASD / flechas para caminar · E junto a una maceta: regar · E en la pila: llenar',
+  'forest.water': 'regar',
+  'forest.fill': 'llenar el bote',
+  'forest.empty': 'El bote está vacío. La pila está en medio del patio.',
+  'forest.later': 'Todavía no. Ese recuerdo viene después.',
+  'forest.done': 'Ya está regada. Brilla como recién pintada.',
+  'forest.nextGroup': 'Se dibujan macetas nuevas en el boceto...',
   'forest.memory.1':
-    'ECO I — Una niña riega macetas con un bote de leche agujerado. Su madre le grita que no encharque. Ella encharca.',
+    'ECO I — Una niña de trenzas riega las macetas con un bote de leche agujerado. Su mamá le grita que no encharque. Ella encharca.',
+  'forest.memory.1b': '—¡Chuy, el patio no es alberca!',
   'forest.memory.2':
-    'ECO II — La misma niña, más alta, le enseña a regar a su hijo. El bote es el mismo. El agujero también.',
+    'ECO II — La misma niña, ya grande, le enseña a regar a su hijo. El bote es el mismo. El agujero también.',
+  'forest.memory.2b': '—Despacito, mijo. Que les llegue a las de en medio.',
   'forest.memory.3':
     'ECO III — Una mujer de ochenta y uno riega una maceta en un balcón del 4B. Sola. El bote es el mismo.',
+  'forest.memory.3b': 'Nadie le dice que no encharque. Nadie le dice nada.',
   'forest.heart.1': 'No está perdida, Iris. Sabe perfectamente dónde está.',
   'forest.heart.2': '¿Entonces qué busca?',
   'forest.heart.3':
     'A alguien a quien enseñarle. El patio lo recuerda entero; lo que le falta es alguien al lado.',
   'forest.heart.4':
-    'Vive cuatro puertas abajo de la tuya. Cuando despiertes te vas a acordar de esto, y va a ser incómodo.',
-  'forest.win.1': 'El patio entero se enciende. Ella encuentra el camino.',
-  'forest.keyGet': 'DEVUELTO: EL CAMINO DE VUELTA',
-  'forest.fragment': 'Un bote de leche con un agujero, que usó de regadera durante setenta años.',
-  'forest.lanternHint':
-    'Los faroles guardan el orden de su vida: la niña, la madre, la mujer sola.',
+    'Vive un piso arriba del tuyo. Todas las mañanas oyes gotear su balcón y nunca te has preguntado por qué.',
+  'forest.chuy.1': 'Ay, mija. Estás encharcando.',
+  'forest.chuy.2': 'El bote tiene un agujero.',
+  'forest.chuy.3': 'Pues claro. Si no, ¿cómo les llega el agua a las de en medio?',
+  'forest.chuy.4': 'Setenta años con este bote. Nunca nadie me lo pidió prestado.',
+  'forest.chuy.5': 'Se me quedó pegado. Vine a devolvérselo.',
+  'forest.chuy.6': 'Quédatelo un ratito... No. Mejor súbete mañana y te enseño con el de verdad.',
+  'forest.win.1':
+    'El patio entero se pinta de golpe, como cuando alguien abre la ventana en la mañana.',
+  'forest.keyGet': 'DEVUELTO: EL BOTE DE DOÑA CHUY',
+  'forest.fragment':
+    'Un bote de leche con un agujero, que usó de regadera durante setenta años. El agujero es a propósito.',
 
   // ── Pesadilla de Tomás: La Persecución ──
   'chase.title': 'PESADILLA DEL 2A',

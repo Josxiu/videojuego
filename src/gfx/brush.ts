@@ -100,7 +100,9 @@ export function deform(pts: Pt[], depth: number, variance: number, rng: Rng): Pt
       const g = (rng.next() + rng.next() + rng.next() - 1.5) / 1.5;
       const nx = -(b[1] - a[1]) / (len || 1);
       const ny = (b[0] - a[0]) / (len || 1);
-      const off = g * v * (len / 20 + 0.5);
+      // El desplazamiento crece con el lado, pero con tope: en polígonos grandes
+      // el borde tiembla como pigmento, sin deformar la forma entera.
+      const off = g * v * Math.min(1.6, 0.5 + len / 60);
       next.push([mx + nx * off, my + ny * off]);
     }
     cur = next;

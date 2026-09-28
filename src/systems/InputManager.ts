@@ -40,6 +40,23 @@ export class InputManager {
       add('space', K.SPACE);
       add('e', K.E);
       add('enter', K.ENTER);
+      // Una pulsación más corta que un cuadro no debe perderse: se registra como pulso
+      const byCode: Record<number, Action[]> = {
+        [K.LEFT]: ['left'],
+        [K.A]: ['left'],
+        [K.RIGHT]: ['right'],
+        [K.D]: ['right'],
+        [K.UP]: ['up', 'jump'],
+        [K.W]: ['up', 'jump'],
+        [K.DOWN]: ['down'],
+        [K.S]: ['down'],
+        [K.SPACE]: ['jump', 'interact'],
+        [K.E]: ['interact'],
+        [K.ENTER]: ['interact'],
+      };
+      const onKey = (ev: KeyboardEvent) => byCode[ev.keyCode]?.forEach((a) => this.pulses.add(a));
+      kb.on('keydown', onKey);
+      scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => kb.off('keydown', onKey));
     }
   }
 
