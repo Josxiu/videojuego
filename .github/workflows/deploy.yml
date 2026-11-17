@@ -8,6 +8,7 @@ on:
       - main
       # La rama del prototipo también publica, para probar sin fusionar:
       - claude/dream-game-concept-033or6
+      - claude/sweet-hopper-1gddyy
   workflow_dispatch:
 
 permissions:
