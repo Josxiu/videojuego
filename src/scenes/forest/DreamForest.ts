@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { GAME_WIDTH, GAME_HEIGHT, DEPTH_HUD, FONT_HAND } from '../../config';
+import { GAME_WIDTH, DEPTH_HUD, FONT_HAND } from '../../config';
 import { t } from '../../i18n';
 import type { TextKey } from '../../i18n';
 import { applyWorldFX, type DreamFXPipeline } from '../../gfx/postfx';
@@ -21,7 +21,10 @@ import {
   showTitleCard,
   addPauseOverlay,
   showReturnCard,
+  showActBanner,
+  showSecretBanner,
 } from '../../systems/ui';
+import { burst } from '../../systems/Juice';
 import { debug } from '../../systems/debug';
 import {
   PATIO_PLANTS,
@@ -35,7 +38,7 @@ import { paintPatio, WORLD_W, WORLD_H, RES, PILA, TREE, START, BOUNDS } from './
 const STYLE = 'watercolor';
 const SPEED = 190;
 /** Cada cuántos píxeles caminados cae una gota del bote. */
-const DRIP_EVERY = 26;
+const DRIP_BASE = 26;
 const POUR_COST = 25;
 const CELL = 40;
 
@@ -58,6 +61,7 @@ interface PropState {
 }
 
 interface Firefly {
+  index: number;
   x: number;
   y: number;
   sprite: Phaser.GameObjects.Image;
@@ -70,10 +74,11 @@ type Facing = 'side' | 'front' | 'back';
 /**
  * Sueño de Doña Chuy: el patio de su infancia, despintado.
  *
- * El patio es un boceto a lápiz. Iris carga el bote agujereado: cada gota
- * que cae borra el boceto y deja ver la acuarela de abajo. Hay que llenar el
- * bote en la pila, planear el camino (se vacía caminando) y regar las
- * macetas de cada etapa de su vida para que vuelvan sus recuerdos.
+ * - Acto I: mañana de geranios junto a la pila.
+ * - Acto II: tarde que se seca — tras el primer recuerdo el agua gotea más
+ *   rápido y el olvido re-seca el patio detrás de Iris.
+ * - Acto III: ruptura de regla — la pila se seca por completo (0%); solo
+ *   acercándose a Doña Chuy con el bote vacío florece el patio entero.
  */
 export class DreamForest extends Phaser.Scene {
   private inp!: InputManager;
@@ -82,21 +87,32 @@ export class DreamForest extends Phaser.Scene {
   private fx?: DreamFXPipeline;
   private cover!: Phaser.GameObjects.RenderTexture;
   private brush!: Phaser.GameObjects.Image;
+  private dryBrush!: Phaser.GameObjects.Image;
   private iris!: Phaser.GameObjects.Sprite;
   private can!: Phaser.GameObjects.Image;
+  private chuySprite?: Phaser.GameObjects.Sprite;
+  private dryCover?: Phaser.GameObjects.Arc;
   private prompt!: Phaser.GameObjects.Text;
   private toast!: Phaser.GameObjects.Text;
   private waterBar!: Phaser.GameObjects.Graphics;
   private ffText!: Phaser.GameObjects.Text;
+  private actText!: Phaser.GameObjects.Text;
   private memoryIcons: Phaser.GameObjects.Text[] = [];
 
   private plants: PlantState[] = [];
   private props: PropState[] = [];
   private fireflies: Firefly[] = [];
+  private paintedPts: { x: number; y: number }[] = [];
   private wet = new Uint8Array(0);
   private jaula!: Phaser.GameObjects.Image;
   private started = false;
   private ending = false;
+  private insomnia = false;
+  private act: 1 | 2 | 3 = 1;
+  private pilaDry = false;
+  private act3SeekChuy = false;
+  private secretDone = false;
+  private dryTimer = 0;
   private water = 0;
   private walked = 0;
   private group = 0;
@@ -107,8 +123,8 @@ export class DreamForest extends Phaser.Scene {
     super('DreamForest');
   }
 
-  create(): void {
-    this.resetState();
+  create(data: { insomnia?: boolean } = {}): void {
+    this.resetState(Boolean(data.insomnia) || debug.flag('insomnia'));
     this.fx = applyWorldFX(this, 'forest');
     this.fx?.configure(PATIO_START_FX);
     this.cameras.main.setBackgroundColor(0xf4ecd8);
@@ -146,6 +162,11 @@ export class DreamForest extends Phaser.Scene {
       .setDepth(5);
     this.cover.draw('patio-sketch', 0, 0);
     this.brush = this.make.image({ key: 'wc-stamp-0', add: false }).setOrigin(0.5);
+    this.dryBrush = this.make
+      .image({ key: 'wc-stamp-0', add: false })
+      .setOrigin(0.5)
+      .setTint(0xe8dec5)
+      .setAlpha(0.42);
     this.wet = new Uint8Array(Math.ceil(WORLD_W / CELL) * Math.ceil(WORLD_H / CELL));
 
     this.buildProps();
@@ -167,10 +188,13 @@ export class DreamForest extends Phaser.Scene {
     this.dialogue = new DialogueBox(this, 0x7a5a9a, 'watercolor');
     this.inp = new InputManager(this);
     if (this.inp.isTouch) {
-      this.inp.addJoystick();
-      this.inp.addButton(GAME_WIDTH - 100, GAME_HEIGHT - 90, 44, '✦', 'interact');
+      this.inp.addOneFingerStick(() => {
+        if (this.prompt.visible) this.inp.pulse('interact');
+      });
     }
-    this.pause = addPauseOverlay(this, () => fadeToScene(this, 'Hub'));
+    this.pause = addPauseOverlay(this, () => fadeToScene(this, 'Hub'), {
+      onRestart: () => this.scene.restart({ insomnia: this.insomnia }),
+    });
 
     if (debug.flag('skip')) {
       const at = debug.num('at', 0);
@@ -178,8 +202,13 @@ export class DreamForest extends Phaser.Scene {
         for (const p of this.plants.filter((pp) => pp.group === g)) this.bloom(p, true);
         this.group = g + 1;
       }
+      if (at >= 1) {
+        this.act = 2;
+        this.actText.setText(this.insomnia ? `${t('ui.act2')} · ☾` : t('ui.act2'));
+      }
       this.refreshPlants();
       this.water = 100;
+      this.drawWater();
       this.started = true;
       if (at >= 3) this.heartMoment();
       return;
@@ -197,22 +226,33 @@ export class DreamForest extends Phaser.Scene {
             { who: 'morfeo', text: t('forest.intro.4'), mood: 'smug' },
           ],
           () => {
+            showActBanner(this, t('forest.act1'), '#7a5a9a');
             this.showToast(this.inp.isTouch ? t('forest.hint') : t('forest.hintKeys'), 4000);
             this.started = true;
           },
         );
       },
       'watercolor',
+      this.insomnia ? t('forest.insomnia') : undefined,
     );
   }
 
-  private resetState(): void {
+  private resetState(insomnia: boolean): void {
     this.plants = [];
     this.props = [];
     this.fireflies = [];
+    this.paintedPts = [];
     this.memoryIcons = [];
+    this.chuySprite = undefined;
+    this.dryCover = undefined;
     this.started = false;
     this.ending = false;
+    this.insomnia = insomnia;
+    this.act = 1;
+    this.pilaDry = false;
+    this.act3SeekChuy = false;
+    this.secretDone = false;
+    this.dryTimer = 0;
     this.water = 0;
     this.walked = 0;
     this.group = 0;
@@ -227,7 +267,12 @@ export class DreamForest extends Phaser.Scene {
       const sprite = this.add.image(x, y, `${key}-sketch`).setOrigin(0.5, 1).setDepth(y);
       this.props.push({ key, x, y, r, painted: false, sprite });
     }
-    this.jaula = this.add.image(330, 40, 'jaula-sketch').setOrigin(0.5, 0).setDepth(20);
+    this.jaula = this.add
+      .image(330, 40, 'jaula-sketch')
+      .setOrigin(0.5, 0)
+      .setDepth(20)
+      .setInteractive({ useHandCursor: true });
+    this.jaula.on('pointerdown', () => this.tryWaterJaula());
   }
 
   private buildPlants(): void {
@@ -236,8 +281,13 @@ export class DreamForest extends Phaser.Scene {
         .image(p.x, p.y, `maceta-${p.kind}-seca`)
         .setOrigin(0.5, 0.95)
         .setDepth(p.y)
-        .setScale(1.35);
-      this.plants.push({ ...p, watered: false, sprite });
+        .setScale(1.35)
+        .setInteractive({ useHandCursor: true });
+      const state: PlantState = { ...p, watered: false, sprite };
+      sprite.on('pointerdown', () => {
+        if (Math.hypot(this.iris.x - p.x, this.iris.y - p.y) < 110) this.useOnPlant(state);
+      });
+      this.plants.push(state);
     }
     this.refreshPlants();
   }
@@ -254,13 +304,14 @@ export class DreamForest extends Phaser.Scene {
   }
 
   private buildFireflies(): void {
-    for (const [x, y] of PATIO_FIREFLIES) {
+    PATIO_FIREFLIES.forEach(([x, y], index) => {
+      const got = SaveManager.hasFirefly('forest', index);
       const sprite = this.add
         .image(x, y, 'wc-firefly')
         .setDepth(y + 40)
-        .setAlpha(0);
-      this.fireflies.push({ x, y, sprite, shown: false, taken: false });
-    }
+        .setAlpha(got ? 0.35 : 0);
+      this.fireflies.push({ index, x, y, sprite, shown: false, taken: false });
+    });
   }
 
   private buildHud(): void {
@@ -274,12 +325,25 @@ export class DreamForest extends Phaser.Scene {
     fix(this.add.image(40, 92, 'wc-firefly').setScale(0.9));
     this.ffText = fix(
       this.add
-        .text(62, 92, `0/${PATIO_FIREFLIES.length}`, {
+        .text(62, 92, `${SaveManager.data.fireflies.forest}/${PATIO_FIREFLIES.length}`, {
           fontFamily: FONT_HAND,
           fontSize: '22px',
           color: '#4a3a2a',
+          stroke: '#f4ecd8',
+          strokeThickness: 4,
         })
         .setOrigin(0, 0.5),
+    );
+    this.actText = fix(
+      this.add
+        .text(GAME_WIDTH - 96, 30, this.insomnia ? `${t('ui.act1')} · ☾` : t('ui.act1'), {
+          fontFamily: FONT_HAND,
+          fontSize: '18px',
+          color: this.insomnia ? '#b0506a' : '#4a3a2a',
+          stroke: '#f4ecd8',
+          strokeThickness: 4,
+        })
+        .setOrigin(1, 0.5),
     );
     ['I', 'II', 'III'].forEach((n, i) => {
       this.memoryIcons.push(
@@ -288,7 +352,9 @@ export class DreamForest extends Phaser.Scene {
             .text(GAME_WIDTH / 2 - 50 + i * 50, 30, n, {
               fontFamily: FONT_HAND,
               fontSize: '26px',
-              color: '#b8ac98',
+              color: '#736858',
+              stroke: '#f4ecd8',
+              strokeThickness: 4,
             })
             .setOrigin(0.5),
         ),
@@ -340,7 +406,7 @@ export class DreamForest extends Phaser.Scene {
   // ── Pintar ──
 
   /** Borra el boceto con manchas irregulares: aparece la acuarela de abajo. */
-  private paint(x: number, y: number, r: number, stamps = 1): void {
+  private paint(x: number, y: number, r: number, stamps = 1, trackDry = true): void {
     for (let i = 0; i < stamps; i++) {
       const ox = stamps > 1 ? Phaser.Math.Between(-r * 0.5, r * 0.5) : 0;
       const oy = stamps > 1 ? Phaser.Math.Between(-r * 0.4, r * 0.4) : 0;
@@ -350,6 +416,9 @@ export class DreamForest extends Phaser.Scene {
         .setScale((rr * RES) / 20)
         .setAngle(Phaser.Math.Between(0, 360));
       this.cover.erase(this.brush, (x + ox) * RES, (y + oy) * RES);
+    }
+    if (trackDry && this.paintedPts.length < 220) {
+      this.paintedPts.push({ x, y });
     }
     this.markWet(x, y, r);
   }
@@ -406,8 +475,25 @@ export class DreamForest extends Phaser.Scene {
     }
     this.move(dt);
     this.syncCan();
+    this.updateEvaporation(dt);
     this.updateFireflies();
     this.updateInteractions();
+  }
+
+  private updateEvaporation(dt: number): void {
+    if (this.act !== 2 || this.paintedPts.length < 4) return;
+    this.dryTimer += dt;
+    const interval = this.insomnia ? 1.25 : 2.5;
+    if (this.dryTimer < interval) return;
+    this.dryTimer = 0;
+    const pt = this.paintedPts[Phaser.Math.Between(1, this.paintedPts.length - 1)];
+    if (!pt || Math.hypot(pt.x - this.iris.x, pt.y - this.iris.y) < 120) return;
+    if (Math.hypot(pt.x - PILA.x, pt.y - PILA.y) < 130) return;
+    this.dryBrush
+      .setTexture(`wc-stamp-${Phaser.Math.Between(0, 2)}`)
+      .setScale(Phaser.Math.FloatBetween(1.4, 2.2) * RES)
+      .setAngle(Phaser.Math.Between(0, 360));
+    this.cover.draw(this.dryBrush, pt.x * RES, pt.y * RES);
   }
 
   private move(dt: number): void {
@@ -442,9 +528,10 @@ export class DreamForest extends Phaser.Scene {
     if (this.facing === 'side') this.iris.setFlipX(dx < 0);
     else this.iris.setFlipX(false);
 
-    // El bote gotea mientras caminas
+    // El bote gotea más rápido en la tarde del Acto II / Desvelo
+    const dripEvery = this.act >= 2 ? (this.insomnia ? 12 : 17) : this.insomnia ? 18 : DRIP_BASE;
     this.walked += Math.hypot(this.iris.x - ox, this.iris.y - oy);
-    if (this.walked >= DRIP_EVERY) {
+    if (this.walked >= dripEvery) {
       this.walked = 0;
       if (this.water > 0) this.drip();
     }
@@ -509,9 +596,28 @@ export class DreamForest extends Phaser.Scene {
   private updateInteractions(): void {
     const ix = this.iris.x;
     const iy = this.iris.y;
+
+    // Acto III: acercarse a Doña Chuy bajo el limonero aunque el bote esté en 0%
+    if (this.act3SeekChuy && this.chuySprite) {
+      const cx = this.chuySprite.x;
+      const cy = this.chuySprite.y;
+      if (Math.hypot(ix - cx, iy - cy) < 115) {
+        this.showPrompt(cx, cy - 110, `✦ ${t('forest.hug')}`);
+        if (this.inp.justDown('interact')) this.meetChuy();
+        return;
+      }
+    }
+
+    // Secreto: reja del zaguán viejo / jaula
+    if (!this.secretDone && Math.abs(ix - this.jaula.x) < 90 && iy < BOUNDS.y0 + 75) {
+      this.showPrompt(this.jaula.x, BOUNDS.y0 - 40, `✦ ${t('forest.water')}`);
+      if (this.inp.justDown('interact')) this.tryWaterJaula();
+      return;
+    }
+
     const nearPila = Math.hypot((ix - PILA.x) / 1.3, iy - (PILA.y + 10)) < 115;
     let target: PlantState | undefined;
-    let best = 80;
+    let best = 92;
     for (const p of this.plants) {
       const d = Math.hypot(ix - p.x, iy - p.y);
       if (d < best) {
@@ -531,11 +637,36 @@ export class DreamForest extends Phaser.Scene {
       return;
     }
     if (nearPila) {
-      this.showPrompt(PILA.x, PILA.y - 90, `✦ ${t('forest.fill')}`);
+      this.showPrompt(PILA.x, PILA.y - 90, this.pilaDry ? '0%' : `✦ ${t('forest.fill')}`);
       if (this.inp.justDown('interact')) this.fill();
       return;
     }
     this.prompt.setVisible(false);
+  }
+
+  private tryWaterJaula(): void {
+    if (this.secretDone) return;
+    if (Math.abs(this.iris.x - this.jaula.x) > 130 || this.iris.y > BOUNDS.y0 + 120) return;
+    if (this.water < 10) {
+      AudioManager.sfx('wrong');
+      this.showToast(t('forest.empty'), 1800);
+      return;
+    }
+    this.secretDone = true;
+    this.water = Math.max(0, this.water - 15);
+    this.drawWater();
+    this.jaula.setTexture('jaula-paint');
+    this.paint(this.jaula.x, 140, 130, 5);
+    this.splash(this.jaula.x, 110, 12);
+    AudioManager.sfx('secret');
+    AudioManager.sfx('bloom');
+    SaveManager.markSecret('forest');
+    showSecretBanner(this, t('forest.secret'));
+    burst(this, this.jaula.x, 100, 0xffe08a, 20, 45);
+    const neighbor = addStyled(this, this.jaula.x - 56, 170, 'chuymama', STYLE, { feet: true })
+      .setDepth(160)
+      .setAlpha(0);
+    this.tweens.add({ targets: neighbor, alpha: 0.72, duration: 900, yoyo: true, hold: 1800 });
   }
 
   private showPrompt(x: number, y: number, text: string): void {
@@ -543,6 +674,11 @@ export class DreamForest extends Phaser.Scene {
   }
 
   private fill(): void {
+    if (this.pilaDry) {
+      AudioManager.sfx('wrong');
+      this.showToast(t('forest.dryOut'), 2200);
+      return;
+    }
     this.water = 100;
     this.drawWater();
     AudioManager.sfx('fill');
@@ -564,7 +700,8 @@ export class DreamForest extends Phaser.Scene {
       this.showToast(t('forest.empty'), 2000);
       return;
     }
-    this.water = Math.max(0, this.water - POUR_COST);
+    const cost = this.insomnia ? 40 : POUR_COST;
+    this.water = Math.max(0, this.water - cost);
     this.drawWater();
     AudioManager.sfx('pour');
     this.tweens.add({ targets: this.can, angle: 70, duration: 180, yoyo: true, hold: 500 });
@@ -609,7 +746,11 @@ export class DreamForest extends Phaser.Scene {
       if (f.taken) continue;
       if (!f.shown && this.isWet(f.x, f.y)) {
         f.shown = true;
-        this.tweens.add({ targets: f.sprite, alpha: 1, duration: 800 });
+        this.tweens.add({
+          targets: f.sprite,
+          alpha: SaveManager.hasFirefly('forest', f.index) ? 0.45 : 1,
+          duration: 800,
+        });
         this.tweens.add({
           targets: f.sprite,
           y: f.y - 12,
@@ -626,8 +767,10 @@ export class DreamForest extends Phaser.Scene {
       ) {
         f.taken = true;
         this.collected++;
-        this.ffText.setText(`${this.collected}/${PATIO_FIREFLIES.length}`);
+        SaveManager.collectFirefly('forest', f.index);
+        this.ffText.setText(`${SaveManager.data.fireflies.forest}/${PATIO_FIREFLIES.length}`);
         AudioManager.sfx('collect');
+        burst(this, f.x, f.y, 0xffe08a, 14, 40);
         this.tweens.add({ targets: f.sprite, scale: 2.5, alpha: 0, duration: 500 });
       }
     }
@@ -671,11 +814,18 @@ export class DreamForest extends Phaser.Scene {
       () => {
         // Los fantasmas del recuerdo se quedan tenues, como manchas de agua
         ghosts.flat().forEach((o) => this.tweens.add({ targets: o, alpha: 0.35, duration: 1500 }));
+        if (g === 0) {
+          this.act = 2;
+          this.actText
+            .setText(this.insomnia ? `${t('ui.act2')} · ☾` : t('ui.act2'))
+            .setColor('#e86a8a');
+          showActBanner(this, t('forest.act2'), '#e86a8a');
+        }
         if (g < PATIO_MEMORIES.length - 1) {
           this.group = g + 1;
           this.refreshPlants();
           AudioManager.sfx('scribble');
-          this.showToast(t('forest.nextGroup'), 2000);
+          this.showToast(g === 0 ? t('forest.dryWarn') : t('forest.nextGroup'), 3000);
         } else {
           this.group = PATIO_MEMORIES.length;
           this.time.delayedCall(600, () => this.heartMoment());
@@ -684,7 +834,7 @@ export class DreamForest extends Phaser.Scene {
     );
   }
 
-  /** Morfeo explica; Doña Chuy aparece bajo el limonero. */
+  /** Morfeo explica qué se está secando; luego la pila muere y arranca Acto III. */
   private heartMoment(): void {
     this.ending = true;
     this.prompt.setVisible(false);
@@ -701,65 +851,110 @@ export class DreamForest extends Phaser.Scene {
         { who: 'morfeo', text: t('forest.heart.3') },
         { who: 'morfeo', text: t('forest.heart.4'), mood: 'smug' },
       ],
-      () => this.meetChuy(),
+      () => {
+        this.tweens.add({
+          targets: morfeo,
+          alpha: 0,
+          duration: 500,
+          onComplete: () => morfeo.destroy(),
+        });
+        this.beginAct3();
+      },
     );
   }
 
-  private meetChuy(): void {
+  /** Acto III: se seca la pila y el bote marca 0%. La regla se rompe al acercarse a Doña Chuy. */
+  private beginAct3(): void {
+    this.act = 3;
+    this.actText.setText(this.insomnia ? `${t('ui.act3')} · ☾` : t('ui.act3')).setColor('#7a5a9a');
+    this.pilaDry = true;
+    this.act3SeekChuy = true;
+    this.ending = false;
+    this.water = 0;
+    this.drawWater();
+    AudioManager.sfx('wrong');
+    this.dryCover = this.add.circle(PILA.x, PILA.y, 44, 0xc8b89a, 0.92).setDepth(PILA.y + 5);
+
     const cx = TREE.x - 40;
     const cy = TREE.y + 110;
-    this.paint(cx, cy, 170, 8);
-    const chuy = addStyled(this, cx, cy, 'chuy', STYLE, { feet: true, scale: 1.2 })
+    this.chuySprite = addStyled(this, cx, cy, 'chuy', STYLE, { feet: true, scale: 1.2 })
       .setDepth(cy)
-      .setAlpha(0);
-    chuy.play(styledKey('chuy-idle', STYLE));
-    this.tweens.add({ targets: chuy, alpha: 1, duration: 1400 });
-    this.cameras.main.stopFollow();
-    this.cameras.main.pan(cx - 120, cy - 60, 1600, 'Sine.easeInOut');
-    // Iris camina hacia ella
-    this.facing = 'side';
-    this.iris.setFlipX(this.iris.x > cx);
-    this.iris.play(styledKey('iris-walk', STYLE), true);
-    const tx = cx + (this.iris.x > cx ? 90 : -90);
-    this.tweens.add({
-      targets: this.iris,
-      x: tx,
-      y: cy,
-      duration: Math.min(2400, Math.hypot(this.iris.x - tx, this.iris.y - cy) * 5),
-      onUpdate: () => this.iris.setDepth(this.iris.y),
-      onComplete: () => {
-        this.iris.setFlipX(this.iris.x > cx);
-        this.idlePose();
-        this.dialogue.say(
-          [
-            { who: 'chuy', text: t('forest.chuy.1') },
-            { who: 'iris', text: t('forest.chuy.2'), mood: 'wow' },
-            { who: 'chuy', text: t('forest.chuy.3') },
-            { who: 'chuy', text: t('forest.chuy.4') },
-            {
-              who: 'iris',
-              text: t('forest.chuy.5'),
-              action: () => {
-                this.tweens.add({
-                  targets: this.can,
-                  x: chuy.x + 16,
-                  y: chuy.y - 40,
-                  duration: 900,
-                  ease: 'Sine.inOut',
-                });
-              },
-            },
-            { who: 'chuy', text: t('forest.chuy.6') },
-            { who: null, text: t('forest.win.1'), action: () => this.floodWithColor(cx, cy) },
-          ],
-          () => this.giveBack(),
-        );
-      },
+      .setTint(0x9a9080)
+      .setAlpha(0)
+      .setInteractive({ useHandCursor: true });
+    this.chuySprite.play(styledKey('chuy-idle', STYLE));
+    this.chuySprite.on('pointerdown', () => {
+      if (this.act3SeekChuy && Math.hypot(this.iris.x - cx, this.iris.y - cy) < 130) {
+        this.meetChuy();
+      }
     });
+    this.tweens.add({ targets: this.chuySprite, alpha: 0.9, duration: 900 });
+    const beacon = this.add
+      .image(cx, cy - 40, 'glow-gold')
+      .setScale(2.1)
+      .setAlpha(0.55)
+      .setDepth(cy - 1);
+    this.tweens.add({
+      targets: beacon,
+      scale: 2.6,
+      alpha: 0.25,
+      duration: 700,
+      yoyo: true,
+      repeat: -1,
+    });
+
+    showActBanner(this, t('forest.act3'), '#7a5a9a');
+    this.showToast(t('forest.dryOut'), 4200);
+  }
+
+  private meetChuy(): void {
+    if (!this.act3SeekChuy || this.ending) return;
+    this.act3SeekChuy = false;
+    this.ending = true;
+    this.prompt.setVisible(false);
+    const cx = TREE.x - 40;
+    const cy = TREE.y + 110;
+    const chuy =
+      this.chuySprite ??
+      addStyled(this, cx, cy, 'chuy', STYLE, { feet: true, scale: 1.2 }).setDepth(cy);
+    chuy.clearTint().setAlpha(1);
+    this.paint(cx, cy, 170, 8, false);
+    this.tweens.add({ targets: this.can, angle: 75, duration: 240, yoyo: true });
+
+    this.cameras.main.stopFollow();
+    this.cameras.main.pan(cx - 120, cy - 60, 1200, 'Sine.easeInOut');
+    this.iris.setFlipX(this.iris.x > cx);
+    this.idlePose();
+
+    this.dialogue.say(
+      [
+        { who: 'chuy', text: t('forest.chuy.1') },
+        { who: 'iris', text: t('forest.chuy.2'), mood: 'wow' },
+        { who: 'chuy', text: t('forest.chuy.3') },
+        { who: 'chuy', text: t('forest.chuy.4') },
+        {
+          who: 'iris',
+          text: t('forest.chuy.5'),
+          action: () => {
+            this.tweens.add({
+              targets: this.can,
+              x: chuy.x + 16,
+              y: chuy.y - 40,
+              duration: 900,
+              ease: 'Sine.inOut',
+            });
+          },
+        },
+        { who: 'chuy', text: t('forest.chuy.6') },
+        { who: null, text: t('forest.win.1'), action: () => this.floodWithColor(cx, cy) },
+      ],
+      () => this.giveBack(),
+    );
   }
 
   /** El boceto desaparece desde Doña Chuy hacia afuera: el patio entero se pinta. */
   private floodWithColor(x: number, y: number): void {
+    this.dryCover?.destroy();
     AudioManager.sfx('win');
     AudioManager.setMusicLevel(3);
     this.fx?.blendTo(
@@ -780,6 +975,8 @@ export class DreamForest extends Phaser.Scene {
             x + Math.cos(a) * state.r,
             y + Math.sin(a) * state.r * 0.7,
             140 + state.r * 0.15,
+            1,
+            false,
           );
         }
       },
@@ -794,7 +991,7 @@ export class DreamForest extends Phaser.Scene {
   private giveBack(): void {
     AudioManager.sfx('key');
     showReturnCard(this, 'watercolor', t('forest.keyGet'), t('forest.fragment'), 'bote');
-    SaveManager.giveKey('forest');
+    SaveManager.markCompleted('forest', this.insomnia);
     SaveManager.recordFireflies('forest', this.collected);
     this.time.delayedCall(4400, () => fadeToScene(this, 'Hub', undefined, 900));
   }
