@@ -47,3 +47,24 @@ Este documento registra cada decisión tomada de forma autónoma durante el desa
 ## D09 — Ramificación de finales con elección reversible antes del cierre
 - **Decisión**: Incorporar una decisión moral frente a Octavio tras el 6A (aceptar el aislamiento *Cámara Anecoica* u oponerse para abrir el Entresueño) más 3 gradaciones del amanecer (*Tregua Frágil*, *Desayuno en el 4B*, *El Girasol Despierto*) construidas dinámicamente según luciérnagas, secretos, calificación de Élmer y hazañas de Desvelo.
 - **Por qué**: Hace que el jugador sienta que sus acciones —incluso escuchar con atención o ayudar en Desvelo— determinan qué edificio Girasol amanece al día siguiente.
+
+## D10 — Siluetas con contorno oscuro/claro para contrastar fondos luminosos y textiles
+- **Decisión**: Incorporar contorno protector (`#f4ecd8` / `#1e2533` / crema en HUD e iconos) cuando la paleta natural de un sueño (Acuarela del Patio, Algodón de Xilografía, Vitral) comparte luminancia con la interfaz.
+- **Por qué**: Tras inspeccionar capturas reales en Chromium se detectó pérdida de contraste en textos sobre papel claro y al superponer tarjetas de devolución con diálogos activos; fijar trazos y separar bandas verticales (`y = 68` actos, `y = 122` secretos, `y = 496` pistas) resolvió por completo la legibilidad.
+
+## D11 — Filtro pasa-bajas Web Audio para «quitarse los audífonos» en el Sueño 10
+- **Decisión**: Conectar un `BiquadFilterNode` tipo `lowpass` (`setMuffle(hz | null)`) entre `musicBus` y `master` en `AudioManager.ts`.
+- **Por qué**: En el Acto I del clímax (*La Canción del Edificio*), la música pasa gradualmente de `520 Hz` a `4800 Hz` y finalmente se abre por completo al entrar al Acto II, permitiendo que el jugador *escuche* literalmente cómo Iris se quita los audífonos. Se restablece automáticamente en `stopMusic()` para no contaminar otras escenas.
+
+## D12 — Reloj de tiempo real y protección anti-rebote tras diálogos
+- **Decisión**: Medir las pulsaciones mantenidas del Sueño 10 y la partitura de respaldo sobre `performance.now() / 1000` (descontando pausas) en vez de acumular `deltaMs` limitado a `50 ms` por Phaser; y añadir `clickGuardUntil` / ignorar taps inmediatos tras cerrar cajas de diálogo o elecciones.
+- **Por qué**: En hardware lento o renderizado por software (SwiftShader), el límite interno de `deltaMs` desaceleraba la canción respecto al reloj real y los gestos mantenidos duraban el doble; además evitó que el clic final de un diálogo contara como un toque rítmico, un golpe en falso en la pesadilla o un desvío de espejo accidental.
+
+## D13 — Cono de proyección continuo en Teatro de Sombras y retroceso seguro en Acto III 3D
+- **Decisión**: Calcular tangentes exactas desde el proyector de carbón al disco del suelo con una única poli-sombra cerrada sin costuras y, en la cámara 3D de Octavio (`DreamChamber3D`), habilitar la detección de quietud de Acto III desde `z >= 20.8` en lugar de `22.4`.
+- **Por qué**: Al probar el Acto III real, el primer pulso acústico reflejado empuja a Iris hacia atrás (`z ~ 22.1`); exigir `22.4` dejaba bloqueado al jugador que obedecía la instrucción de quedarse quieto inmediatamente después del empujón.
+
+## D14 — Publicación en GitHub Pages desde rama dedicada mediante GitHub Actions
+- **Decisión**: Mantener `base: './'` en `vite.config.ts`, añadir la rama `duermevela-edicion-definitiva` al flujo `.github/workflows/deploy.yml` (ejecutando `npm run check` previo al despliegue) y habilitar la rama en el entorno `github-pages` sin modificar `main` ni `claude/game-polish-graphics-story-7iqqls`.
+- **Por qué**: Respeta estrictamente el aislamiento del resto de ramas mientras entrega una build verificada y accesible desde navegador de escritorio y celular.
+
