@@ -21,8 +21,10 @@ import {
   showTitleCard,
   addPauseOverlay,
   showReturnCard,
+  showActBanner,
+  showSecretBanner,
 } from '../../systems/ui';
-import { pop, floatingText } from '../../systems/Juice';
+import { burst, pop, floatingText } from '../../systems/Juice';
 import { debug } from '../../systems/debug';
 import { FALL_SKIES, FALL_ITEMS, BOXES_TO_LAND } from '../../data/fallBiomes';
 import {
@@ -47,7 +49,16 @@ const FALL_FAST = 470;
 const CHUNK = 540;
 const FIREFLIES = 6;
 
-type Kind = 'furniture' | 'tape' | 'box' | 'balloon' | 'firefly' | 'decor';
+type Kind =
+  | 'furniture'
+  | 'tape'
+  | 'sealedTape'
+  | 'box'
+  | 'balloon'
+  | 'firefly'
+  | 'secretEnv'
+  | 'weightFurniture'
+  | 'decor';
 
 interface Entity {
   kind: Kind;
@@ -60,6 +71,7 @@ interface Entity {
   phase?: number;
   gapX?: number;
   gapW?: number;
+  fireflyIdx?: number;
   /** Ya destruido: se saca de la lista. */
   gone?: boolean;
 }
@@ -67,9 +79,11 @@ interface Entity {
 /**
  * Sueño de Nadia: caída libre por un diorama de papel.
  *
- * La caída no tiene fondo hasta que Iris desempaca lo suficiente: cada caja
- * abierta suelta un objeto de su vida y cambia el cielo por otro papel de su
- * mudanza. Si Iris se lastima demasiado, lo último que sacó vuelve a su caja.
+ * - Acto I: primeros cielos de mudanza, cajas 1-3, cinta con huecos.
+ * - Acto II (al abrir la caja 3): sorpresa — cintas selladas de lado a lado que
+ *   solo se rompen cayendo en picada por la costura central, y corrientes ascendentes.
+ * - Acto III (Plano del 5A): romper la regla tocando/jalando los 3 muebles
+ *   colgantes para dar peso al plano y desplegar el cuarto pop-up.
  */
 export class DreamFall extends Phaser.Scene {
   private inp!: InputManager;
@@ -83,10 +97,17 @@ export class DreamFall extends Phaser.Scene {
   private hearts: Phaser.GameObjects.Image[] = [];
   private boxIcons: Phaser.GameObjects.Image[] = [];
   private ffText!: Phaser.GameObjects.Text;
+  private actText!: Phaser.GameObjects.Text;
+  private weightText?: Phaser.GameObjects.Text;
   private toast!: Phaser.GameObjects.Text;
   private heldBalloon?: Phaser.GameObjects.Image;
 
   private running = false;
+  private insomnia = false;
+  private act: 1 | 2 | 3 = 1;
+  private twistDone = false;
+  private act3Triggered = false;
+  private diving = false;
   private depth = 0;
   private ix = GAME_WIDTH / 2;
   private iy = BAND_MID;
@@ -100,6 +121,10 @@ export class DreamFall extends Phaser.Scene {
   private lastBoxChunk = 0;
   private firefliesSpawned = 0;
   private fireflies = 0;
+  private secretSpawned = false;
+  private secretFound = false;
+  private glideTimer = 0;
+  private weightsCut = 0;
   private floorY?: number;
   private landed = false;
   private boxHintShown = false;
@@ -109,8 +134,8 @@ export class DreamFall extends Phaser.Scene {
     super('DreamFall');
   }
 
-  create(): void {
-    this.resetState();
+  create(data: { insomnia?: boolean } = {}): void {
+    this.resetState(Boolean(data.insomnia) || debug.flag('insomnia'));
     this.fx = applyWorldFX(this, 'fall');
     fadeIn(this);
     AudioManager.playMusic('fall', 0);
@@ -162,7 +187,9 @@ export class DreamFall extends Phaser.Scene {
     this.buildHud();
     this.dialogue = new DialogueBox(this, 0xc0392b, 'paper');
     this.inp = new InputManager(this);
-    this.pause = addPauseOverlay(this, () => fadeToScene(this, 'Hub'));
+    this.pause = addPauseOverlay(this, () => fadeToScene(this, 'Hub'), {
+      onRestart: () => this.scene.restart({ insomnia: this.insomnia }),
+    });
 
     if (debug.flag('skip')) {
       const at = debug.num('at', 0);
@@ -183,17 +210,24 @@ export class DreamFall extends Phaser.Scene {
             { who: 'morfeo', text: t('fall.intro.4') },
           ],
           () => {
+            showActBanner(this, `${t('ui.act1')} · 5A`, '#ffd166');
             this.showToast(this.inp.isTouch ? t('fall.hint') : t('fall.hintKeys'), 3200);
             this.running = true;
           },
         );
       },
       'paper',
+      this.insomnia ? t('fall.insomnia') : undefined,
     );
   }
 
-  private resetState(): void {
+  private resetState(insomnia: boolean): void {
     this.running = false;
+    this.insomnia = insomnia;
+    this.act = 1;
+    this.twistDone = false;
+    this.act3Triggered = false;
+    this.diving = false;
     this.depth = 0;
     this.ix = GAME_WIDTH / 2;
     this.iy = BAND_MID;
@@ -205,10 +239,15 @@ export class DreamFall extends Phaser.Scene {
     this.entities = [];
     this.hearts = [];
     this.boxIcons = [];
+    this.weightText = undefined;
     this.nextChunk = 1;
     this.lastBoxChunk = 0;
     this.firefliesSpawned = 0;
     this.fireflies = 0;
+    this.secretSpawned = false;
+    this.secretFound = false;
+    this.glideTimer = 0;
+    this.weightsCut = 0;
     this.floorY = undefined;
     this.landed = false;
     this.boxHintShown = false;
@@ -233,7 +272,7 @@ export class DreamFall extends Phaser.Scene {
     fix(this.add.image(38, 76, 'fall-firefly').setScale(0.8));
     this.ffText = fix(
       this.add
-        .text(60, 76, `0/${FIREFLIES}`, {
+        .text(60, 76, `${SaveManager.data.fireflies.fall}/${FIREFLIES}`, {
           fontFamily: FONT_HAND,
           fontSize: '22px',
           color: '#fbf5e4',
@@ -241,6 +280,17 @@ export class DreamFall extends Phaser.Scene {
           strokeThickness: 4,
         })
         .setOrigin(0, 0.5),
+    );
+    this.actText = fix(
+      this.add
+        .text(GAME_WIDTH - 96, 30, this.insomnia ? `${t('ui.act1')} · ☾` : t('ui.act1'), {
+          fontFamily: FONT_HAND,
+          fontSize: '18px',
+          color: this.insomnia ? '#ffb3c6' : '#fbf5e4',
+          stroke: '#2a2a44',
+          strokeThickness: 4,
+        })
+        .setOrigin(1, 0.5),
     );
     for (let i = 0; i < BOXES_TO_LAND; i++) {
       this.boxIcons.push(fix(this.add.image(GAME_WIDTH / 2 - 100 + i * 40, 32, 'fall-box-icon')));
@@ -302,9 +352,15 @@ export class DreamFall extends Phaser.Scene {
     } else if (vy === 0) {
       vy = (BAND_MID - this.iy) * 1.2; // sin tocar nada, vuelve a la altura media
     }
+    // Viento ascendente en Acto II y racha lateral en Modo Desvelo
+    if (this.twistDone && this.unpacked < BOXES_TO_LAND) {
+      vy -= 22;
+      if (this.insomnia) vx += Math.sin(this.depth * 0.004) * 75;
+    }
     this.ix = Phaser.Math.Clamp(this.ix + vx * dt, 40, GAME_WIDTH - 40);
     this.iy = Phaser.Math.Clamp(this.iy + vy * dt, BAND_TOP, BAND_BOTTOM);
-    const diving = this.iy > BAND_MID + 70;
+    const diving = this.iy > BAND_MID + 55;
+    this.diving = diving;
     if (diving) {
       if (this.iris.anims.isPlaying) this.iris.anims.stop();
       this.iris.setTexture(styledKey('iris-fall', STYLE), '2');
@@ -322,6 +378,15 @@ export class DreamFall extends Phaser.Scene {
         ? Phaser.Math.Linear(FALL_SLOW, FALL_BASE, (y - BAND_TOP) / (BAND_MID - BAND_TOP))
         : Phaser.Math.Linear(FALL_BASE, FALL_FAST, (y - BAND_MID) / (BAND_BOTTOM - BAND_MID));
     v *= 1 + 0.05 * this.unpacked;
+    if (
+      this.act === 3 &&
+      this.weightsCut < 3 &&
+      this.floorY !== undefined &&
+      this.depth >= this.floorY - 490
+    ) {
+      // Planeo suave una vez que el plano y los 3 muebles están visibles en pantalla
+      v = Math.min(v, 55);
+    }
     if (this.slowFor > 0) v *= 0.45;
     return v;
   }
@@ -336,7 +401,37 @@ export class DreamFall extends Phaser.Scene {
     } else {
       this.iris.setAlpha(1);
     }
-    if (this.floorY !== undefined && this.depth + this.iy + 40 >= this.floorY) this.land();
+
+    // Secreto del Cielo 5: planear arriba a la derecha revela el sobre completo de mamá
+    if (this.unpacked === 5 && !this.secretSpawned) {
+      if (this.iy < BAND_MID - 12 && this.ix > GAME_WIDTH * 0.54) {
+        this.glideTimer += dt;
+        if (this.glideTimer >= 0.45) this.spawnSecretEnvelope();
+      }
+    }
+
+    if (this.floorY !== undefined && this.depth + this.iy + 40 >= this.floorY) {
+      if (this.weightsCut < 3) {
+        this.bounceOnBlueprint();
+      } else {
+        this.land();
+      }
+    }
+  }
+
+  private bounceOnBlueprint(): void {
+    if (this.floorY === undefined) return;
+    AudioManager.sfx('whoosh');
+    this.depth = this.floorY - 470;
+    this.iy = BAND_TOP + 20;
+    this.cameras.main.shake(180, 0.005);
+    if (!this.act3Triggered) {
+      this.act3Triggered = true;
+      showActBanner(this, t('fall.act3'), '#72efdd');
+      this.showToast(t('fall.ruleBreakHint'), 4200);
+    } else {
+      this.showToast(t('fall.ruleBreakHint'), 2600);
+    }
   }
 
   // ── Generación por tramos ──
@@ -347,7 +442,7 @@ export class DreamFall extends Phaser.Scene {
     }
     // Lo que ya quedó muy arriba se destruye
     for (const e of this.entities) {
-      if (e.y < this.depth - 700) {
+      if (e.y < this.depth - 700 && e.kind !== 'weightFurniture') {
         e.parts.forEach((p) => {
           if (p !== this.heldBalloon) p.destroy();
         });
@@ -360,9 +455,9 @@ export class DreamFall extends Phaser.Scene {
 
   private spawnChunk(i: number): void {
     const top = i * CHUNK;
-    // Tras desempacar todo, un tramo limpio y luego el piso
+    // Tras desempacar todo, un tramo limpio y luego el plano con los 3 muebles colgantes
     if (this.unpacked >= BOXES_TO_LAND) {
-      if (this.floorY === undefined) this.spawnFloor(top + CHUNK);
+      if (this.floorY === undefined) this.spawnFloor(top + 280);
       return;
     }
     const rng = new Rng(`caida-${i}-${this.runSeed}`);
@@ -376,6 +471,10 @@ export class DreamFall extends Phaser.Scene {
         this.spawnBox(rng.range(110, GAME_WIDTH - 110), y);
         return;
       }
+      if (d >= 3 && s !== boxSlot + 1 && s !== boxSlot - 1 && rng.chance(0.32)) {
+        this.spawnSealedTape(y, rng);
+        return;
+      }
       if (d >= 1 && rng.chance(0.18 + 0.07 * d) && s !== boxSlot + 1 && s !== boxSlot - 1) {
         this.spawnTape(y, rng, d);
         return;
@@ -383,7 +482,7 @@ export class DreamFall extends Phaser.Scene {
       if (rng.chance(0.5 + 0.08 * d)) this.spawnFurniture(rng.range(90, GAME_WIDTH - 90), y, rng);
       if (this.firefliesSpawned < FIREFLIES && rng.chance(0.4)) {
         this.spawnFirefly(rng.range(80, GAME_WIDTH - 80), y + rng.range(-40, 40));
-      } else if (rng.chance(this.hp < 3 ? 0.22 : 0.08)) {
+      } else if (!this.insomnia && rng.chance(this.hp < 3 ? 0.22 : 0.08)) {
         this.spawnBalloon(rng.range(80, GAME_WIDTH - 80), y);
       }
     });
@@ -441,6 +540,60 @@ export class DreamFall extends Phaser.Scene {
     this.entities.push({ kind: 'tape', x: 0, y, parts: [left, right, endL, endR], gapX, gapW });
   }
 
+  /** Acto II: tira entera sellada; solo se rompe cayendo en picada por la costura central. */
+  private spawnSealedTape(y: number, rng: Rng): void {
+    const cx = rng.range(240, GAME_WIDTH - 240);
+    const left = this.add
+      .tileSprite(0, y, cx, 34, 'fall-tape')
+      .setOrigin(0, 0.5)
+      .setTint(0xffd6c4)
+      .setDepth(30);
+    const right = this.add
+      .tileSprite(cx, y, GAME_WIDTH - cx, 34, 'fall-tape')
+      .setOrigin(0, 0.5)
+      .setTint(0xffd6c4)
+      .setDepth(30);
+    const seam = this.add.rectangle(cx, y, 6, 42, 0xffd166, 0.9).setDepth(32);
+    const hint = this.add
+      .text(cx, y - 28, '▼', {
+        fontFamily: FONT_HAND,
+        fontSize: '20px',
+        color: '#ffd166',
+        stroke: '#2a2a44',
+        strokeThickness: 4,
+      })
+      .setOrigin(0.5)
+      .setDepth(32);
+    this.tweens.add({ targets: seam, alpha: 0.35, duration: 400, yoyo: true, repeat: -1 });
+    this.entities.push({
+      kind: 'sealedTape',
+      x: cx,
+      y,
+      parts: [left, right, seam, hint],
+      gapX: cx,
+    });
+  }
+
+  private spawnSecretEnvelope(): void {
+    this.secretSpawned = true;
+    const x = GAME_WIDTH - 135;
+    const y = this.depth + BAND_TOP + 65;
+    const glow = this.add.image(x, y, 'glow-gold').setScale(2.1).setAlpha(0.75).setDepth(33);
+    const env = this.add
+      .rectangle(x, y, 42, 28, 0xfbf5e4, 0.98)
+      .setStrokeStyle(2, 0x7a5a3a)
+      .setDepth(35);
+    const flap = this.add.triangle(x, y - 5, -18, -8, 18, -8, 0, 6, 0xe8d8b8).setDepth(36);
+    const seal = this.add.circle(x, y + 3, 5, 0xc0392b).setDepth(37);
+    this.tweens.add({ targets: glow, scale: 2.6, duration: 600, yoyo: true, repeat: -1 });
+    this.entities.push({
+      kind: 'secretEnv',
+      x,
+      y,
+      parts: [glow, env, flap, seal],
+    });
+  }
+
   private spawnBox(x: number, y: number): void {
     const k = Math.min(this.unpacked, FALL_ITEMS.length - 1);
     const sprite = this.add.image(x, y, `fall-box-${k}`).setDepth(35);
@@ -483,9 +636,18 @@ export class DreamFall extends Phaser.Scene {
   }
 
   private spawnFirefly(x: number, y: number): void {
+    const idx = this.firefliesSpawned;
     this.firefliesSpawned++;
-    const glow = this.add.image(x, y, 'glow-gold').setScale(1.7).setAlpha(0.55).setDepth(33);
-    const sprite = this.add.image(x, y, 'fall-firefly').setDepth(34);
+    const got = SaveManager.hasFirefly('fall', idx);
+    const glow = this.add
+      .image(x, y, 'glow-gold')
+      .setScale(1.7)
+      .setAlpha(got ? 0.22 : 0.55)
+      .setDepth(33);
+    const sprite = this.add
+      .image(x, y, 'fall-firefly')
+      .setAlpha(got ? 0.4 : 1)
+      .setDepth(34);
     this.tweens.add({
       targets: [sprite, glow],
       x: x + 26,
@@ -501,13 +663,19 @@ export class DreamFall extends Phaser.Scene {
       yoyo: true,
       repeat: -1,
     });
-    this.entities.push({ kind: 'firefly', x, y, parts: [sprite, glow], sprite });
+    this.entities.push({ kind: 'firefly', x, y, parts: [sprite, glow], sprite, fireflyIdx: idx });
   }
 
   private updateEntities(time: number): void {
+    const freq = this.insomnia ? 0.0028 : 0.0014;
     for (const e of this.entities) {
-      if (e.done || e.kind !== 'furniture' || !e.sprite) continue;
-      e.sprite.setAngle(Math.sin(time * 0.0014 + (e.phase ?? 0)) * 10);
+      if (e.done) continue;
+      if (e.kind === 'furniture' && e.sprite) {
+        e.sprite.setAngle(Math.sin(time * freq + (e.phase ?? 0)) * 10);
+      } else if (e.kind === 'secretEnv') {
+        e.y += 1.2;
+        e.parts.forEach((p) => ((p as unknown as { y: number }).y += 1.2));
+      }
     }
   }
 
@@ -534,7 +702,20 @@ export class DreamFall extends Phaser.Scene {
           }
           break;
         }
+        case 'secretEnv': {
+          if (Phaser.Math.Distance.Between(px, py, e.x, e.y) < 48) {
+            this.collectSecretEnvelope(e);
+          }
+          break;
+        }
+        case 'weightFurniture': {
+          if (Phaser.Math.Distance.Between(px, py, e.x, e.y) < 62) {
+            this.cutWeight(e);
+          }
+          break;
+        }
         case 'furniture': {
+          if (this.unpacked >= BOXES_TO_LAND) break;
           if (this.invuln > 0 || !e.sprite || !e.furniture) break;
           const [w, h] = FURNITURE_BOX[e.furniture];
           const a = Phaser.Math.DegToRad(e.sprite.angle);
@@ -553,15 +734,57 @@ export class DreamFall extends Phaser.Scene {
           }
           break;
         }
+        case 'sealedTape': {
+          if (e.gapX === undefined) break;
+          if (py + 24 > e.y - 15 && py - 26 < e.y + 15) {
+            if (this.diving) {
+              this.breakSealedTape(e);
+            } else if (this.invuln <= 0) {
+              this.hurt();
+            }
+          }
+          break;
+        }
       }
     }
+  }
+
+  private breakSealedTape(e: Entity): void {
+    e.done = true;
+    AudioManager.sfx('rip');
+    burst(this, e.x, e.y, 0xffd166, 18, 45);
+    const [left, right, seam, hint] = e.parts;
+    seam?.destroy();
+    hint?.destroy();
+    this.tweens.add({ targets: left, x: -240, alpha: 0, angle: -10, duration: 400 });
+    this.tweens.add({ targets: right, x: GAME_WIDTH + 240, alpha: 0, angle: 10, duration: 400 });
+    floatingText(this, this.ix, e.y - 24, t('fall.tapeBreak'), {
+      fontFamily: FONT_HAND,
+      fontSize: '22px',
+      color: '#ffd166',
+      stroke: '#2a2a44',
+      strokeThickness: 4,
+    });
+  }
+
+  private collectSecretEnvelope(e: Entity): void {
+    e.done = true;
+    this.secretFound = true;
+    SaveManager.markSecret('fall');
+    AudioManager.sfx('secret');
+    showSecretBanner(this, t('fall.secret'));
+    this.showToast(t('fall.secretText'), 3600);
+    burst(this, e.x, e.y, 0xffd166, 22, 50);
+    this.tweens.add({ targets: e.parts, scale: 1.6, alpha: 0, duration: 450 });
   }
 
   private takeFirefly(e: Entity): void {
     e.done = true;
     this.fireflies++;
-    this.ffText.setText(`${this.fireflies}/${FIREFLIES}`);
+    if (e.fireflyIdx !== undefined) SaveManager.collectFirefly('fall', e.fireflyIdx);
+    this.ffText.setText(`${SaveManager.data.fireflies.fall}/${FIREFLIES}`);
     AudioManager.sfx('collect');
+    burst(this, e.x, e.y, 0xffd166, 14, 40);
     this.tweens.add({ targets: e.parts, scale: 2.2, alpha: 0, duration: 380 });
   }
 
@@ -662,14 +885,29 @@ export class DreamFall extends Phaser.Scene {
     this.unpack();
   }
 
-  /** Cuenta una caja desempacada: sube la música y cambia el cielo. */
+  /** Cuenta una caja desempacada: sube la música, activa Acto II/III y cambia el cielo. */
   private unpack(instant = false): void {
     this.boxIcons[this.unpacked].setTexture('fall-box-icon-open');
     this.unpacked++;
     AudioManager.setMusicLevel(this.unpacked);
     this.changeSky(this.unpacked, instant);
     this.relabelBoxes();
+    if (this.unpacked >= 3 && !this.twistDone) {
+      this.twistDone = true;
+      this.act = 2;
+      this.actText
+        .setText(this.insomnia ? `${t('ui.act2')} · ☾` : t('ui.act2'))
+        .setColor('#ffd166');
+      if (!instant) {
+        showActBanner(this, t('fall.act2'), '#ffd166');
+        this.time.delayedCall(2600, () => this.showToast(t('fall.twist'), 3600));
+      }
+    }
     if (this.unpacked >= BOXES_TO_LAND) {
+      this.act = 3;
+      this.actText
+        .setText(this.insomnia ? `${t('ui.act3')} · ☾` : t('ui.act3'))
+        .setColor('#72efdd');
       this.time.delayedCall(instant ? 0 : 2400, () => this.showToast(t('fall.ground'), 2200));
     }
   }
@@ -738,12 +976,109 @@ export class DreamFall extends Phaser.Scene {
       .image(GAME_WIDTH / 2, y, 'fall-room-floor')
       .setOrigin(0.5, 0)
       .setDepth(40);
+
+    // Acto III: 3 muebles colgantes con hilos brillantes que el jugador debe cortar/jalar
+    this.weightText = this.add
+      .text(GAME_WIDTH / 2, 72, '✂ 0/3', {
+        fontFamily: FONT_HAND,
+        fontSize: '22px',
+        color: '#72efdd',
+        stroke: '#2a2a44',
+        strokeThickness: 4,
+      })
+      .setOrigin(0.5)
+      .setScrollFactor(0)
+      .setDepth(DEPTH_HUD);
+
+    const spots: [number, number, Furniture][] = [
+      [220, y - 240, FURNITURE[0]],
+      [480, y - 190, FURNITURE[1 % FURNITURE.length]],
+      [740, y - 250, FURNITURE[2 % FURNITURE.length]],
+    ];
+    spots.forEach(([wx, wy, furn], idx) => {
+      const glow = this.add
+        .image(wx, wy + 20, 'glow-gold')
+        .setScale(2.1)
+        .setAlpha(0.65)
+        .setDepth(28);
+      const thread = this.add
+        .rectangle(wx, wy, 2.5, 420, 0x72efdd, 0.85)
+        .setOrigin(0.5, 1)
+        .setDepth(29);
+      const sprite = this.add
+        .image(wx, wy, `fall-${furn}`)
+        .setOrigin(0.5, 0.05)
+        .setTint(0xfff4d6)
+        .setDepth(32)
+        .setInteractive({ useHandCursor: true });
+      const cutTag = this.add
+        .text(wx, wy - 22, '✂', {
+          fontFamily: FONT_HAND,
+          fontSize: '22px',
+          color: '#72efdd',
+          stroke: '#2a2a44',
+          strokeThickness: 4,
+        })
+        .setOrigin(0.5)
+        .setDepth(33);
+      this.tweens.add({
+        targets: glow,
+        scale: 2.6,
+        alpha: 0.35,
+        duration: 550,
+        yoyo: true,
+        repeat: -1,
+        delay: idx * 140,
+      });
+      const ent: Entity = {
+        kind: 'weightFurniture',
+        x: wx,
+        y: wy,
+        parts: [sprite, thread, glow, cutTag],
+        sprite,
+        furniture: furn,
+      };
+      sprite.on('pointerdown', () => {
+        if (!ent.done && !this.landed) this.cutWeight(ent);
+      });
+      this.entities.push(ent);
+    });
+  }
+
+  private cutWeight(e: Entity): void {
+    if (e.done || this.floorY === undefined) return;
+    e.done = true;
+    this.weightsCut++;
+    this.weightText?.setText(`✂ ${this.weightsCut}/3`);
+    AudioManager.sfx('snip');
+    AudioManager.sfx('paper');
+    burst(this, e.x, e.y, 0x72efdd, 18, 45);
+    const [sprite, thread, glow, cutTag] = e.parts;
+    thread?.destroy();
+    glow?.destroy();
+    cutTag?.destroy();
+    if (sprite) {
+      this.tweens.add({
+        targets: sprite,
+        y: this.floorY + 6,
+        angle: Phaser.Math.Between(-6, 6),
+        duration: 460,
+        ease: 'Bounce.out',
+      });
+    }
+    if (this.weightsCut >= 3) {
+      this.weightText?.setColor('#ffd166');
+      this.time.delayedCall(500, () => {
+        if (!this.landed) this.land();
+      });
+    }
   }
 
   private land(): void {
     if (this.landed || this.floorY === undefined) return;
     this.landed = true;
     this.running = false;
+    this.weightText?.setVisible(false);
     this.releaseBalloon();
     this.wind.stop();
     const floor = this.floorY;
@@ -847,56 +1182,55 @@ export class DreamFall extends Phaser.Scene {
     // En el departamento los personajes están abajo: el diálogo va arriba
     const top = new DialogueBox(this, 0xc0392b, 'paper', 'top');
     this.dialogue = top;
-    top.say(
-      [
-        { who: null, text: t('fall.land.1') },
-        { who: 'nadia', text: t('fall.land.2') },
-        { who: 'iris', text: t('fall.land.3') },
-        { who: 'nadia', text: t('fall.land.4') },
-        { who: 'iris', text: t('fall.land.5') },
-        { who: 'nadia', text: t('fall.land.6') },
-        { who: 'iris', text: t('fall.land.7') },
-        { who: 'nadia', text: t('fall.land.8'), mood: 'sad' },
-        { who: 'morfeo', text: t('fall.land.9'), mood: 'smug' },
-        {
-          who: null,
-          text: t('fall.land.10'),
-          action: () => {
-            AudioManager.sfx('knock');
-            nail.setAlpha(1);
-            const key = addStyled(this, this.iris.x, this.iris.y - 40, 'llave', STYLE).setDepth(46);
-            this.tweens.add({
-              targets: key,
-              x: nail.x,
-              y: nail.y + 16,
-              duration: 900,
-              ease: 'Sine.inOut',
-              onComplete: () => {
-                key.setAngle(90);
-                this.tweens.add({
-                  targets: key,
-                  angle: { from: 80, to: 100 },
-                  duration: 900,
-                  yoyo: true,
-                  repeat: -1,
-                  ease: 'Sine.inOut',
-                });
-              },
-            });
-            this.tweens.add({ targets: nadia, x: nail.x + 60, duration: 900 });
-          },
+    const lines = [
+      { who: null, text: t('fall.land.1') },
+      { who: 'nadia' as const, text: t('fall.land.2') },
+      { who: 'iris' as const, text: t('fall.land.3') },
+      { who: 'nadia' as const, text: t('fall.land.4') },
+      { who: 'iris' as const, text: t('fall.land.5') },
+      { who: 'nadia' as const, text: t('fall.land.6') },
+      { who: 'iris' as const, text: t('fall.land.7') },
+      { who: 'nadia' as const, text: t('fall.land.8'), mood: 'sad' as const },
+      { who: 'morfeo' as const, text: t('fall.land.9'), mood: 'smug' as const },
+      ...(this.secretFound ? [{ who: null, text: t('fall.secretText') }] : []),
+      {
+        who: null,
+        text: t('fall.land.10'),
+        action: () => {
+          AudioManager.sfx('knock');
+          nail.setAlpha(1);
+          const key = addStyled(this, this.iris.x, this.iris.y - 40, 'llave', STYLE).setDepth(46);
+          this.tweens.add({
+            targets: key,
+            x: nail.x,
+            y: nail.y + 16,
+            duration: 900,
+            ease: 'Sine.inOut',
+            onComplete: () => {
+              key.setAngle(90);
+              this.tweens.add({
+                targets: key,
+                angle: { from: 80, to: 100 },
+                duration: 900,
+                yoyo: true,
+                repeat: -1,
+                ease: 'Sine.inOut',
+              });
+            },
+          });
+          this.tweens.add({ targets: nadia, x: nail.x + 60, duration: 900 });
         },
-        { who: 'nadia', text: t('fall.land.11') },
-      ],
-      () => this.giveBack(),
-    );
+      },
+      { who: 'nadia' as const, text: t('fall.land.11') },
+    ];
+    top.say(lines, () => this.giveBack());
   }
 
   private giveBack(): void {
     AudioManager.sfx('key');
     AudioManager.sfx('win');
     showReturnCard(this, 'paper', t('fall.keyGet'), t('fall.fragment'), 'llave');
-    SaveManager.giveKey('fall');
+    SaveManager.markCompleted('fall', this.insomnia);
     SaveManager.recordFireflies('fall', this.fireflies);
     this.time.delayedCall(4200, () => fadeToScene(this, 'Hub', undefined, 900));
   }
