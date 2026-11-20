@@ -13,6 +13,7 @@ import { DreamEmbroidery } from './scenes/embroidery/DreamEmbroidery';
 import { DreamGlass } from './scenes/glass/DreamGlass';
 import { DreamChase } from './scenes/chase/DreamChase';
 import { DreamWoodcut } from './scenes/woodcut/DreamWoodcut';
+import { DreamChamber3D } from './scenes/chamber3d/DreamChamber3D';
 import { DreamSong } from './scenes/song/DreamSong';
 import { Ending } from './scenes/Ending';
 import { Gallery } from './scenes/Gallery';
@@ -57,6 +58,7 @@ const game = new Phaser.Game({
     DreamGlass,
     DreamChase,
     DreamWoodcut,
+    DreamChamber3D,
     DreamSong,
     Ending,
     Gallery,
