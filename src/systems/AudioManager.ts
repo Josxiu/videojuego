@@ -135,6 +135,7 @@ class AudioManagerClass {
   private synth?: Synth;
   private master?: GainNode;
   private musicBus?: GainNode;
+  private musicFilter?: BiquadFilterNode;
   private sfxBus?: GainNode;
   private echoIn?: GainNode;
   private echoDelay?: DelayNode;
@@ -166,7 +167,11 @@ class AudioManagerClass {
       comp.connect(this.ctx.destination);
       this.musicBus = this.ctx.createGain();
       this.musicBus.gain.value = 0.9;
-      this.musicBus.connect(this.master);
+      this.musicFilter = this.ctx.createBiquadFilter();
+      this.musicFilter.type = 'lowpass';
+      this.musicFilter.frequency.value = 20000;
+      this.musicBus.connect(this.musicFilter);
+      this.musicFilter.connect(this.master);
       this.sfxBus = this.ctx.createGain();
       this.sfxBus.connect(this.master);
       this.echoIn = this.ctx.createGain();
@@ -256,7 +261,14 @@ class AudioManagerClass {
     return { start: this.trackStart, stepDur: this.track.stepDur };
   }
 
+  /** Aplica filtro paso-bajas al bus musical (p. ej. sonido amortiguado por audífonos). */
+  setMuffle(hz: number | null): void {
+    if (!this.musicFilter || !this.ctx) return;
+    this.musicFilter.frequency.setTargetAtTime(hz ?? 20000, this.ctx.currentTime, 0.18);
+  }
+
   stopMusic(): void {
+    this.setMuffle(null);
     if (this.timer) clearInterval(this.timer);
     this.timer = undefined;
     this.current = undefined;
