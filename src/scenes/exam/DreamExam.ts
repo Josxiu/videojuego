@@ -15,8 +15,10 @@ import {
   showTitleCard,
   addPauseOverlay,
   showReturnCard,
+  showActBanner,
+  showSecretBanner,
 } from '../../systems/ui';
-import { floatingText } from '../../systems/Juice';
+import { burst, floatingText } from '../../systems/Juice';
 import { debug } from '../../systems/debug';
 import { EXAM_QUESTIONS, EXAM_COURSE, type ExamObstacle } from '../../data/examQuestions';
 import { paintExamArt, paintAnswer, ART, STEP_TEX_H, STEP_TOP, CHALK } from './art';
@@ -29,6 +31,8 @@ const STYLE = 'chalk';
 const S = EXAM_COURSE.stairs;
 const STAIRS_END = S.start + S.steps * ART.stepW;
 const TOTAL_RISE = S.steps * ART.stepRise;
+const STEP_56_X = S.start + 56 * ART.stepW;
+const STEP_80_X = S.start + 80 * ART.stepW;
 
 /** Distancia inicial entre el borrador e Iris, y la máxima. */
 const ERASER_START = 380;
@@ -39,9 +43,11 @@ type Pose = 'run' | 'jump' | 'drop' | 'slide' | 'idle';
 
 interface Obstacle {
   x: number;
-  kind: ExamObstacle;
+  kind: ExamObstacle | 'hangingDesk';
   sprite: Phaser.GameObjects.Image;
   extra?: Phaser.GameObjects.GameObject;
+  dropped?: boolean;
+  restY?: number;
 }
 
 interface Gate {
@@ -57,6 +63,7 @@ interface Gate {
 }
 
 interface Star {
+  index: number;
   x: number;
   y: number;
   sprite: Phaser.GameObjects.Image;
@@ -67,10 +74,11 @@ interface Star {
 /**
  * Sueño de Don Élmer: auto-runner dibujado con gis.
  *
- * - Salto de altura variable (mantener = más alto), barrida, caída en picada.
- * - El borrador persigue desde la izquierda y borra el mundo a su paso: cada
- *   tropiezo y cada respuesta equivocada lo acercan; cada acierto lo aleja.
- * - Huecos borrados en el piso, y la escalera de 112 escalones del Girasol.
+ * - Acto I: pasillo de conserjería y primeras preguntas del edificio.
+ * - Acto II (escalón 56): timbre y sorpresa — el borrador acelera, surgen
+ *   pupitres colgantes del techo y preguntas en gis rojo sobre el pasillo alto.
+ * - Acto III (Salón 3º B): romper la regla tomando el borrador para borrar
+ *   «TARDE · REPROBADO» y dejar que Élmer escriba su propio nombre.
  */
 export class DreamExam extends Phaser.Scene {
   private inp!: InputManager;
@@ -87,6 +95,7 @@ export class DreamExam extends Phaser.Scene {
   private toast!: Phaser.GameObjects.Text;
   private stepCounter!: Phaser.GameObjects.Text;
   private ffText!: Phaser.GameObjects.Text;
+  private actText!: Phaser.GameObjects.Text;
   private progress!: Phaser.GameObjects.Graphics;
   private answerSlots: Phaser.GameObjects.Image[] = [];
 
@@ -96,11 +105,15 @@ export class DreamExam extends Phaser.Scene {
 
   private running = false;
   private finished = false;
+  private insomnia = false;
+  private act: 1 | 2 | 3 = 1;
+  private twistDone = false;
   private dist = 0;
   private checkpoint = 0;
   private y = GROUND_Y;
   private vy = 0;
   private grounded = true;
+  private airJumps = 1;
   private coyote = 0;
   private jumpBuffer = 0;
   private sliding = 0;
@@ -113,6 +126,9 @@ export class DreamExam extends Phaser.Scene {
   private lastStep = 0;
   private stairsToldAt = -1;
   private sprintTold = false;
+  private secretPlat?: { x: number; y: number; w: number };
+  private secretCard?: { x: number; y: number; box: Phaser.GameObjects.Container; taken: boolean };
+  private foundSecret = false;
   /** Ya en el salón: el pasillo deja de actualizarse. */
   private inClass = false;
   private timesErased = 0;
@@ -121,8 +137,8 @@ export class DreamExam extends Phaser.Scene {
     super('DreamExam');
   }
 
-  create(): void {
-    this.resetState();
+  create(data: { insomnia?: boolean } = {}): void {
+    this.resetState(Boolean(data.insomnia) || debug.flag('insomnia'));
     this.cameras.main.setBackgroundColor(CHALK.board);
     applyWorldFX(this, 'exam');
     fadeIn(this);
@@ -146,12 +162,19 @@ export class DreamExam extends Phaser.Scene {
     this.dialogue = new DialogueBox(this, 0xffe08a, 'chalk');
     this.inp = new InputManager(this);
     this.inp.addRunnerGestures();
-    this.pause = addPauseOverlay(this, () => fadeToScene(this, 'Hub'));
+    this.pause = addPauseOverlay(this, () => fadeToScene(this, 'Hub'), {
+      onRestart: () => this.scene.restart({ insomnia: this.insomnia }),
+    });
 
     if (debug.flag('skip')) {
       this.dist = debug.num('at', 0);
       this.checkpoint = this.dist;
       this.y = this.floorAt(this.dist);
+      if (this.dist >= STEP_56_X) {
+        this.twistDone = true;
+        this.act = 2;
+        this.actText.setText(t('ui.act2'));
+      }
       this.syncCamera(true);
       this.running = true;
       AudioManager.setMusicLevel(1);
@@ -171,6 +194,7 @@ export class DreamExam extends Phaser.Scene {
             { who: 'morfeo', text: t('exam.intro.4') },
           ],
           () => {
+            showActBanner(this, `${t('ui.act1')} · 3º B`, CHALK.white);
             this.showToast(this.inp.isTouch ? t('exam.hint') : t('exam.hintKeys'), 3200);
             this.running = true;
             AudioManager.setMusicLevel(1);
@@ -178,33 +202,41 @@ export class DreamExam extends Phaser.Scene {
         );
       },
       'chalk',
+      this.insomnia ? t('exam.insomnia') : undefined,
     );
   }
 
-  private resetState(): void {
+  private resetState(insomnia: boolean): void {
     this.obstacles = [];
     this.gates = [];
     this.stars = [];
     this.answerSlots = [];
     this.running = false;
     this.finished = false;
+    this.insomnia = insomnia;
+    this.act = 1;
+    this.twistDone = false;
     this.dist = 0;
     this.checkpoint = 0;
     this.y = GROUND_Y;
     this.vy = 0;
     this.grounded = true;
+    this.airJumps = 1;
     this.coyote = 0;
     this.jumpBuffer = 0;
     this.sliding = 0;
     this.invuln = 0;
     this.slowed = 0;
-    this.eraserGap = ERASER_START;
+    this.eraserGap = insomnia ? ERASER_START - 60 : ERASER_START;
     this.camRise = 0;
     this.pose = 'idle';
     this.fireflies.clear();
     this.lastStep = 0;
     this.stairsToldAt = -1;
     this.sprintTold = false;
+    this.secretPlat = undefined;
+    this.secretCard = undefined;
+    this.foundSecret = false;
     this.inClass = false;
     this.timesErased = 0;
   }
@@ -319,6 +351,53 @@ export class DreamExam extends Phaser.Scene {
   private buildCourse(): void {
     for (const [x, kind] of EXAM_COURSE.obstacles) this.obstacles.push(this.makeObstacle(x, kind));
 
+    // Pupitres colgantes del techo (Sorpresa del Acto II tras cruzar el escalón 56)
+    for (const hx of [6480, 7780, 9450]) {
+      const g = this.floorAt(hx);
+      const restY = g - 36;
+      const sprite = this.add
+        .image(hx, g - 220, 'exam-desk')
+        .setOrigin(0.5, 1)
+        .setFlipY(true)
+        .setTint(0xffb3c6)
+        .setDepth(21);
+      const cord = this.add
+        .image(hx, g - 220 - 44, 'exam-cord')
+        .setOrigin(0.5, 1)
+        .setDisplaySize(5, 500)
+        .setDepth(20);
+      this.obstacles.push({
+        x: hx,
+        kind: 'hangingDesk',
+        sprite,
+        extra: cord,
+        dropped: false,
+        restY,
+      });
+    }
+
+    // Secreto del escalón 80: plataforma de tiza punteada casi borrada + boleta 3ºB
+    const secY = this.floorAt(STEP_80_X) - 102;
+    this.secretPlat = { x: STEP_80_X, y: secY, w: 148 };
+    const dashed = this.add.graphics().setDepth(18);
+    dashed.lineStyle(4, 0xffe08a, 0.7);
+    for (let dx = -70; dx < 70; dx += 18) {
+      dashed.lineBetween(STEP_80_X + dx, secY, STEP_80_X + dx + 10, secY);
+    }
+    const cardX = STEP_80_X + 12;
+    const cardY = secY - 26;
+    const cardGlow = this.add.image(0, 0, 'glow-gold').setScale(1.8).setAlpha(0.45);
+    const cardPaper = this.add.rectangle(0, 0, 26, 32, 0xf2efe6, 0.95).setStrokeStyle(2, 0xffe08a);
+    const cardLine1 = this.add.rectangle(0, -6, 16, 3, 0x23392f);
+    const cardLine2 = this.add.rectangle(0, 2, 14, 2, 0xff809a);
+    const cardSeal = this.add.circle(6, 9, 4, 0xff5d73);
+    const box = this.add
+      .container(cardX, cardY, [cardGlow, cardPaper, cardLine1, cardLine2, cardSeal])
+      .setDepth(35)
+      .setAlpha(SaveManager.data.secrets.exam ? 0.45 : 1);
+    this.tweens.add({ targets: box, y: cardY - 6, duration: 900, yoyo: true, repeat: -1 });
+    this.secretCard = { x: cardX, y: cardY, box, taken: false };
+
     EXAM_QUESTIONS.forEach((q, index) => {
       const g = this.floorAt(q.at);
       const upKey = `exam-ans-${index}-up`;
@@ -327,14 +406,20 @@ export class DreamExam extends Phaser.Scene {
       paintAnswer(this, downKey, t(q.lowerKey));
       const upperY = g - 178;
       const lowerY = g - 46;
+      const upImg = this.add.image(q.at, upperY, upKey).setDepth(30).setScale(0.85);
+      const downImg = this.add.image(q.at, lowerY, downKey).setDepth(30).setScale(0.85);
+      if (index >= 2) {
+        upImg.setTint(0xffc2c2);
+        downImg.setTint(0xffc2c2);
+      }
       const parts: Phaser.GameObjects.GameObject[] = [
-        this.add.image(q.at, upperY, upKey).setDepth(30).setScale(0.85),
-        this.add.image(q.at, lowerY, downKey).setDepth(30).setScale(0.85),
+        upImg,
+        downImg,
         this.add
           .text(q.at - 96, upperY - 42, '↑', {
             fontFamily: FONT_HAND,
             fontSize: '24px',
-            color: CHALK.yellow,
+            color: index >= 2 ? CHALK.pink : CHALK.yellow,
           })
           .setDepth(30),
       ];
@@ -343,8 +428,16 @@ export class DreamExam extends Phaser.Scene {
 
     EXAM_COURSE.fireflies.forEach(([x, h], i) => {
       const y = this.floorAt(x) - h;
-      const glow = this.add.image(x, y, 'glow-gold').setScale(1.6).setAlpha(0.45).setDepth(34);
-      const sprite = this.add.image(x, y, 'exam-star').setDepth(35);
+      const got = SaveManager.hasFirefly('exam', i);
+      const glow = this.add
+        .image(x, y, 'glow-gold')
+        .setScale(1.6)
+        .setAlpha(got ? 0.18 : 0.45)
+        .setDepth(34);
+      const sprite = this.add
+        .image(x, y, 'exam-star')
+        .setAlpha(got ? 0.35 : 1)
+        .setDepth(35);
       this.tweens.add({
         targets: [sprite, glow],
         y: y - 10,
@@ -355,7 +448,7 @@ export class DreamExam extends Phaser.Scene {
         delay: i * 120,
       });
       this.tweens.add({ targets: sprite, angle: 360, duration: 6000, repeat: -1 });
-      this.stars.push({ x, y, sprite, glow, taken: false });
+      this.stars.push({ index: i, x, y, sprite, glow, taken: false });
     });
 
     // La puerta del salón al final
@@ -472,8 +565,21 @@ export class DreamExam extends Phaser.Scene {
     hud(this.add.image(34, 34, 'exam-star').setScale(0.8));
     this.ffText = hud(
       this.add
-        .text(56, 34, '0/6', { fontFamily: FONT_CHALK, fontSize: '22px', color: CHALK.yellow })
+        .text(56, 34, `${SaveManager.data.fireflies.exam}/6`, {
+          fontFamily: FONT_CHALK,
+          fontSize: '22px',
+          color: CHALK.yellow,
+        })
         .setOrigin(0, 0.5),
+    );
+    this.actText = hud(
+      this.add
+        .text(GAME_WIDTH - 96, 30, this.insomnia ? `${t('ui.act1')} · ☾` : t('ui.act1'), {
+          fontFamily: FONT_CHALK,
+          fontSize: '16px',
+          color: this.insomnia ? '#ffb3c6' : CHALK.white,
+        })
+        .setOrigin(1, 0.5),
     );
     // Progreso hacia el salón: una línea de gis
     this.progress = hud(this.add.graphics());
@@ -538,7 +644,7 @@ export class DreamExam extends Phaser.Scene {
     g.clear();
     g.lineStyle(3, 0xf2efe6, 0.3);
     g.lineBetween(x0, 30, x0 + 420, 30);
-    g.lineStyle(4, 0xffe08a, 0.9);
+    g.lineStyle(4, this.act === 2 ? 0xff9aa8 : this.act === 3 ? 0xb8f0a8 : 0xffe08a, 0.9);
     g.lineBetween(x0, 30, x0 + 420 * p, 30);
     // el borrador, en la misma línea
     const e = Phaser.Math.Clamp((this.dist - this.eraserGap) / EXAM_COURSE.length, 0, 1);
@@ -612,22 +718,37 @@ export class DreamExam extends Phaser.Scene {
     if (this.inp.justDown('down')) this.onDown();
     this.jumpBuffer -= dt;
     this.coyote -= dt;
-    if (this.jumpBuffer > 0 && (this.grounded || this.coyote > 0)) this.jump();
+    if (this.jumpBuffer > 0 && (this.grounded || this.coyote > 0)) {
+      this.jump();
+    } else if (this.jumpBuffer > 0 && !this.grounded && this.airJumps > 0) {
+      this.airJump();
+    }
 
     // Avance
-    const speed = this.speedAt(this.dist) * (this.slowed > 0 ? 0.55 : 1);
+    const speed =
+      this.speedAt(this.dist) * (this.slowed > 0 ? 0.55 : 1) * (this.insomnia ? 1.2 : 1);
     this.slowed -= dt;
     this.dist += speed * dt;
 
-    // Física vertical
+    // Física vertical (incluye plataforma punteada secreta del escalón 80)
+    const plat = this.secretPlat;
+    const onPlat = plat ? Math.abs(this.dist - plat.x) <= plat.w * 0.5 : false;
     const ground = this.groundAt(this.dist);
+    const prevY = this.y;
     if (this.grounded) {
-      if (ground === Infinity) {
+      const standingOnSecret = plat && onPlat && Math.abs(this.y - plat.y) < 4;
+      if (standingOnSecret) {
+        this.y = plat.y;
+      } else if (ground === Infinity) {
         this.grounded = false;
         this.coyote = 0.09;
         this.vy = 0;
       } else {
         this.y = ground; // subir escalones es automático
+      }
+      if (plat && !onPlat && Math.abs(this.y - plat.y) < 4) {
+        this.grounded = false;
+        this.vy = 0;
       }
     }
     if (!this.grounded) {
@@ -635,10 +756,17 @@ export class DreamExam extends Phaser.Scene {
       const g = this.vy < 0 ? (holding ? 1250 : 3000) : 2000;
       this.vy += g * dt;
       this.y += this.vy * dt;
-      if (this.vy > 0 && ground !== Infinity && this.y >= ground) {
+      if (plat && onPlat && this.vy > 0 && prevY <= plat.y + 14 && this.y >= plat.y) {
+        this.y = plat.y;
+        this.vy = 0;
+        this.grounded = true;
+        this.airJumps = 1;
+        AudioManager.sfx('land');
+      } else if (this.vy > 0 && ground !== Infinity && this.y >= ground) {
         this.y = ground;
         this.vy = 0;
         this.grounded = true;
+        this.airJumps = 1;
         AudioManager.sfx('land');
       }
       // Cayó en un borrón
@@ -654,14 +782,18 @@ export class DreamExam extends Phaser.Scene {
     else this.setPose('run');
 
     // El borrador aprieta poco a poco (el primer tramo es para aprender)
-    const pressure = this.dist < EXAM_QUESTIONS[0].at ? 0 : this.dist > STAIRS_END ? 6 : 4;
+    const basePressure =
+      this.dist < EXAM_QUESTIONS[0].at ? (this.insomnia ? 2 : 0) : this.dist > STAIRS_END ? 6 : 4;
+    const pressure = this.insomnia ? basePressure * 1.4 : basePressure;
     this.eraserGap -= pressure * dt;
     if (debug.flag('god')) this.eraserGap = Math.max(this.eraserGap, 200);
     if (this.eraserGap < ERASER_CATCH) {
       this.erased();
       return;
     }
-    AudioManager.setMusicLevel(this.eraserGap < 150 ? 3 : this.dist > S.start ? 2 : 1);
+    AudioManager.setMusicLevel(
+      this.eraserGap < 150 ? 3 : this.dist >= STEP_56_X || this.dist > S.start ? 2 : 1,
+    );
 
     this.updateGates();
     this.checkCollisions();
@@ -683,6 +815,15 @@ export class DreamExam extends Phaser.Scene {
     this.grounded = false;
     this.sliding = 0;
     this.vy = -640;
+    AudioManager.sfx('jump');
+  }
+
+  private airJump(): void {
+    this.jumpBuffer = 0;
+    this.airJumps = 0;
+    this.sliding = 0;
+    this.vy = -560;
+    burst(this, this.dist, this.y - 8, 0xf2efe6, 8, 49);
     AudioManager.sfx('jump');
   }
 
@@ -734,7 +875,7 @@ export class DreamExam extends Phaser.Scene {
       const ahead = g.x - this.dist;
       if (!g.shown && ahead < 980 && ahead > 0) {
         g.shown = true;
-        this.writeQuestion(t(EXAM_QUESTIONS[g.index].textKey));
+        this.writeQuestion(t(EXAM_QUESTIONS[g.index].textKey), g.index >= 2);
         if (g.index === 0) this.showToast(t('exam.hintQuestion'), 2600);
       }
       if (ahead <= 0) this.resolveGate(g);
@@ -742,9 +883,12 @@ export class DreamExam extends Phaser.Scene {
   }
 
   /** El enunciado se escribe letra por letra, con su rechinido de gis. */
-  private writeQuestion(text: string): void {
+  private writeQuestion(text: string, redAct2 = false): void {
     this.tweens.killTweensOf(this.questionText);
-    this.questionText.setAlpha(1).setText('');
+    this.questionText
+      .setColor(redAct2 ? '#ff9aa8' : CHALK.white)
+      .setAlpha(1)
+      .setText('');
     let i = 0;
     this.time.addEvent({
       delay: 18,
@@ -799,11 +943,47 @@ export class DreamExam extends Phaser.Scene {
       ) {
         s.taken = true;
         this.fireflies.add(s.x);
-        this.ffText.setText(`${this.fireflies.size}/6`);
+        SaveManager.collectFirefly('exam', s.index);
+        this.ffText.setText(`${SaveManager.data.fireflies.exam}/6`);
         AudioManager.sfx('collect');
+        burst(this, s.x, s.y, 0xffe08a, 14, 40);
         this.tweens.add({ targets: [s.sprite, s.glow], scale: 2.4, alpha: 0, duration: 400 });
       }
     }
+    const card = this.secretCard;
+    if (card && !card.taken && Math.abs(card.x - this.dist) < 55) {
+      if (
+        Phaser.Geom.Intersects.RectangleToRectangle(
+          pr,
+          new Phaser.Geom.Rectangle(card.x - 24, card.y - 28, 48, 56),
+        )
+      ) {
+        card.taken = true;
+        this.foundSecret = true;
+        SaveManager.markSecret('exam');
+        showSecretBanner(this, t('exam.secret'));
+        burst(this, card.x, card.y, 0xffe08a, 24, 52);
+        this.tweens.add({ targets: card.box, scale: 1.8, alpha: 0, duration: 450 });
+      }
+    }
+
+    for (const o of this.obstacles) {
+      if (o.kind === 'hangingDesk' && this.twistDone && !o.dropped && o.x - this.dist < 420) {
+        o.dropped = true;
+        const targetY = o.restY ?? this.floorAt(o.x) - 36;
+        this.tweens.add({ targets: o.sprite, y: targetY, duration: 240, ease: 'Bounce.out' });
+        if (o.extra) {
+          this.tweens.add({
+            targets: o.extra,
+            y: targetY - 44,
+            duration: 240,
+            ease: 'Bounce.out',
+          });
+        }
+        AudioManager.sfx('chalk');
+      }
+    }
+
     if (this.invuln > 0) return;
     for (const o of this.obstacles) {
       if (Math.abs(o.x - this.dist) > 80) continue;
@@ -816,6 +996,11 @@ export class DreamExam extends Phaser.Scene {
         case 'desk':
           r = new Phaser.Geom.Rectangle(o.x - 30, g - 48, 60, 48);
           break;
+        case 'hangingDesk': {
+          const base = o.restY ?? g - 36;
+          r = new Phaser.Geom.Rectangle(o.x - 26, base - 46, 52, 46);
+          break;
+        }
         case 'books':
           r = new Phaser.Geom.Rectangle(o.x - 19, g - 84, 38, 84);
           break;
@@ -855,6 +1040,7 @@ export class DreamExam extends Phaser.Scene {
     this.y = this.floorAt(this.dist);
     this.vy = 0;
     this.grounded = true;
+    this.airJumps = 1;
     this.invuln = 1.2;
     this.showToast(t('exam.fell'), 1600);
     this.time.delayedCall(80, () => AudioManager.sfx('chalk'));
@@ -873,6 +1059,9 @@ export class DreamExam extends Phaser.Scene {
         this.stepCounter.setText(String(n)).setAlpha(0.9);
         if (n % 10 === 0) AudioManager.sfx('count');
       }
+      if (n >= 56 && !this.twistDone) {
+        this.triggerAct2Twist();
+      }
     } else if (this.lastStep > 0 && this.dist >= STAIRS_END && this.stepCounter.alpha > 0) {
       if (this.lastStep !== S.steps) {
         this.lastStep = S.steps;
@@ -882,6 +1071,27 @@ export class DreamExam extends Phaser.Scene {
         this.tweens.add({ targets: this.stepCounter, alpha: 0, delay: 1200, duration: 600 });
       }
     }
+  }
+
+  private triggerAct2Twist(): void {
+    this.twistDone = true;
+    this.act = 2;
+    this.actText.setText(this.insomnia ? `${t('ui.act2')} · ☾` : t('ui.act2')).setColor('#ff9aa8');
+    AudioManager.sfx('bell');
+    this.cameras.main.shake(280, 0.008);
+    this.eraserGap = Math.max(ERASER_CATCH + 120, this.eraserGap - 75);
+    showActBanner(this, t('exam.act2'), CHALK.pink);
+    this.showToast(t('exam.twist'), 3400);
+    // Marcas viejas de gis rojo en el pizarrón detrás de la escalera alta
+    this.add
+      .text(STEP_56_X + 260, this.floorAt(STEP_56_X) - 180, t('exam.board.absent'), {
+        fontFamily: FONT_CHALK,
+        fontSize: '20px',
+        color: '#ff9aa8',
+      })
+      .setAngle(-4)
+      .setAlpha(0.38)
+      .setDepth(4);
   }
 
   private updateCheckpoints(): void {
@@ -910,8 +1120,9 @@ export class DreamExam extends Phaser.Scene {
           this.y = this.floorAt(this.dist);
           this.vy = 0;
           this.grounded = true;
+          this.airJumps = 1;
           this.sliding = 0;
-          this.eraserGap = ERASER_START;
+          this.eraserGap = this.insomnia ? ERASER_START - 60 : ERASER_START;
           this.invuln = 1.2;
           this.lastStep = 0;
           this.stepCounter.setAlpha(0);
@@ -952,6 +1163,7 @@ export class DreamExam extends Phaser.Scene {
 
   private classroom(): void {
     this.inClass = true;
+    this.act = 3;
     this.halo.setVisible(false);
     // Todo el pasillo se esconde; el salón ocupa la pantalla
     this.children.list.forEach((c) => {
@@ -977,18 +1189,38 @@ export class DreamExam extends Phaser.Scene {
     morfeo.play(styledKey('morfeo-idle', STYLE));
     this.iris.setVisible(true).setAlpha(1).setPosition(-40, 400).setDepth(30);
     this.setPose('run');
-    const boardText = this.add
-      .text(370, 132, '', {
+
+    // En el pizarrón del aula ya viene escrito «TARDE · REPROBADO»
+    const tardeText = this.add
+      .text(370, 148, t('exam.board.tarde'), {
         fontFamily: FONT_CHALK,
-        fontSize: '26px',
+        fontSize: '28px',
+        color: '#ff9aa8',
+        align: 'center',
+      })
+      .setOrigin(0.5)
+      .setDepth(12);
+
+    const boardText = this.add
+      .text(370, 128, '', {
+        fontFamily: FONT_CHALK,
+        fontSize: '25px',
         color: CHALK.white,
         align: 'center',
         lineSpacing: 6,
       })
       .setOrigin(0.5, 0)
-      .setDepth(10);
+      .setDepth(11);
+
+    const classEraser = this.add
+      .image(-60, 392, 'exam-eraser')
+      .setOrigin(0.5, 1)
+      .setScale(0.85)
+      .setDepth(35)
+      .setAlpha(0);
 
     cam.fadeIn(700, 35, 57, 47);
+    showActBanner(this, t('exam.act3'), CHALK.yellow);
     this.tweens.add({
       targets: this.iris,
       x: 400,
@@ -996,7 +1228,7 @@ export class DreamExam extends Phaser.Scene {
       ease: 'Sine.out',
       onComplete: () => {
         this.setPose('idle');
-        this.classDialogue(elmer, morfeo, boardText);
+        this.classDialogue(elmer, morfeo, boardText, tardeText, classEraser);
       },
     });
   }
@@ -1005,6 +1237,8 @@ export class DreamExam extends Phaser.Scene {
     elmer: Phaser.GameObjects.Sprite,
     morfeo: Phaser.GameObjects.Sprite,
     boardText: Phaser.GameObjects.Text,
+    tardeText: Phaser.GameObjects.Text,
+    classEraser: Phaser.GameObjects.Image,
   ): void {
     const n = this.correctCount();
     SaveManager.recordExam(n);
@@ -1040,54 +1274,187 @@ export class DreamExam extends Phaser.Scene {
         { who: 'iris', text: t('exam.class.4') },
         { who: 'iris', text: t('exam.class.5') },
         {
-          who: 'morfeo',
+          who: 'elmer',
           text: t('exam.class.6'),
-          mood: 'smug',
-          action: () => this.tweens.add({ targets: morfeo, alpha: 1, duration: 600 }),
+          action: () => {
+            this.tweens.add({ targets: morfeo, alpha: 1, duration: 600 });
+            classEraser.setAlpha(1);
+            this.tweens.add({
+              targets: classEraser,
+              x: 205,
+              duration: 700,
+              ease: 'Sine.out',
+            });
+          },
         },
         {
           who: 'iris',
           text: t('exam.class.7'),
-          action: () => {
-            const gis = addStyled(this, this.iris.x + 20, this.iris.y - 50, 'gis', STYLE).setDepth(
-              40,
-            );
-            this.tweens.add({
-              targets: gis,
-              x: elmer.x,
-              y: elmer.y - 60,
-              duration: 800,
-              ease: 'Sine.inOut',
-              onComplete: () => gis.destroy(),
-            });
-          },
         },
-        { who: 'elmer', text: t('exam.class.8') },
-        {
-          who: null,
-          text: t('exam.class.9'),
-          action: () => {
-            elmer.anims.stop();
-            elmer.setTexture(styledKey('elmer', STYLE), '1');
-            this.tweens.add({ targets: elmer, x: 630, y: 290, duration: 900 });
-            write(t('exam.board.name'));
-          },
-        },
-        { who: 'elmer', text: t('exam.class.10') },
       ],
       () => {
-        write(`\n${t('exam.board.grade', { n })}\n${t(`exam.grade.${n}` as TextKey)}`, () => {
-          this.time.delayedCall(900, () => this.giveBack());
+        this.runWipeChallenge(tardeText, classEraser, () => {
+          const postLines: {
+            who: 'elmer' | 'morfeo' | 'iris' | null;
+            text: string;
+            action?: () => void;
+          }[] = [
+            {
+              who: 'elmer',
+              text: t('exam.class.8'),
+              action: () => {
+                const gis = addStyled(
+                  this,
+                  this.iris.x + 20,
+                  this.iris.y - 50,
+                  'gis',
+                  STYLE,
+                ).setDepth(40);
+                this.tweens.add({
+                  targets: gis,
+                  x: elmer.x,
+                  y: elmer.y - 60,
+                  duration: 750,
+                  ease: 'Sine.inOut',
+                  onComplete: () => gis.destroy(),
+                });
+              },
+            },
+          ];
+          if (this.foundSecret) {
+            postLines.push({ who: null, text: t('exam.secretTalk') });
+          }
+          postLines.push(
+            {
+              who: null,
+              text: t('exam.class.9'),
+              action: () => {
+                elmer.anims.stop();
+                elmer.setTexture(styledKey('elmer', STYLE), '1');
+                this.tweens.add({ targets: elmer, x: 630, y: 290, duration: 900 });
+                write(t('exam.board.name'));
+              },
+            },
+            { who: 'elmer', text: t('exam.class.10') },
+          );
+          this.dialogue.say(postLines, () => {
+            write(`\n${t('exam.board.grade', { n })}\n${t(`exam.grade.${n}` as TextKey)}`, () => {
+              this.time.delayedCall(900, () => this.giveBack());
+            });
+          });
         });
       },
     );
+  }
+
+  /** Clímax del Acto III: tomar el borrador enemigo y borrar «TARDE · REPROBADO». */
+  private runWipeChallenge(
+    tardeText: Phaser.GameObjects.Text,
+    classEraser: Phaser.GameObjects.Image,
+    onCleared: () => void,
+  ): void {
+    const promptBg = this.add
+      .rectangle(GAME_WIDTH / 2, 468, 720, 44, 0x16261f, 0.88)
+      .setStrokeStyle(2, 0xffe08a, 0.85)
+      .setDepth(65);
+    const promptTxt = this.add
+      .text(
+        GAME_WIDTH / 2,
+        468,
+        this.inp.isTouch ? t('exam.ruleBreakTouch') : t('exam.ruleBreakPrompt'),
+        { fontFamily: FONT_HAND, fontSize: '18px', color: CHALK.yellow, align: 'center' },
+      )
+      .setOrigin(0.5)
+      .setDepth(66);
+
+    const glow = this.add
+      .image(classEraser.x, classEraser.y - 26, 'glow-gold')
+      .setScale(2.4)
+      .setAlpha(0.75)
+      .setDepth(34);
+    this.tweens.add({
+      targets: glow,
+      scale: 3,
+      alpha: 0.35,
+      duration: 500,
+      yoyo: true,
+      repeat: -1,
+    });
+
+    let wiped = 0;
+    let done = false;
+    let dragging = false;
+
+    const advanceWipe = (amount: number, px = 370, py = 148) => {
+      if (done) return;
+      wiped = Math.min(1, wiped + amount);
+      tardeText.setAlpha(Math.max(0, 1 - wiped));
+      classEraser.setPosition(px, py + 14);
+      glow.setPosition(px, py);
+      burst(this, px + Phaser.Math.Between(-45, 45), py, 0xf2efe6, 6, 45);
+      AudioManager.sfx('erase');
+      if (wiped >= 1) {
+        done = true;
+        tardeText.destroy();
+        glow.destroy();
+        promptBg.destroy();
+        promptTxt.destroy();
+        classEraser.setOrigin(0.5, 1);
+        this.tweens.add({ targets: classEraser, alpha: 0, duration: 400 });
+        burst(this, 370, 148, 0xffe08a, 24, 48);
+        AudioManager.sfx('right');
+        this.time.delayedCall(350, onCleared);
+      }
+    };
+
+    const onDown = (p: Phaser.Input.Pointer) => {
+      dragging = true;
+      classEraser.setOrigin(0.5, 0.5);
+      advanceWipe(0.35, Phaser.Math.Clamp(p.x, 220, 520), Phaser.Math.Clamp(p.y, 110, 260));
+    };
+    const onMove = (p: Phaser.Input.Pointer) => {
+      if (!dragging || !p.isDown || done) return;
+      classEraser.setPosition(p.x, p.y);
+      glow.setPosition(p.x, p.y);
+      if (Math.abs(p.x - 370) < 170 && Math.abs(p.y - 155) < 75) {
+        advanceWipe(0.055, p.x, p.y);
+      }
+    };
+    const onUp = () => {
+      dragging = false;
+    };
+    const onKey = () => {
+      const rx = 310 + ((wiped * 180) % 120);
+      advanceWipe(0.35, rx, 148);
+    };
+
+    this.input.on('pointerdown', onDown);
+    this.input.on('pointermove', onMove);
+    this.input.on('pointerup', onUp);
+    const kb = this.input.keyboard;
+    kb?.on('keydown-SPACE', onKey);
+    kb?.on('keydown-ENTER', onKey);
+    kb?.on('keydown-E', onKey);
+    kb?.on('keydown-RIGHT', onKey);
+    kb?.on('keydown-UP', onKey);
+
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.input.off('pointerdown', onDown);
+      this.input.off('pointermove', onMove);
+      this.input.off('pointerup', onUp);
+      kb?.off('keydown-SPACE', onKey);
+      kb?.off('keydown-ENTER', onKey);
+      kb?.off('keydown-E', onKey);
+      kb?.off('keydown-RIGHT', onKey);
+      kb?.off('keydown-UP', onKey);
+    });
   }
 
   private giveBack(): void {
     AudioManager.sfx('key');
     AudioManager.sfx('win');
     showReturnCard(this, 'chalk', t('exam.keyGet'), t('exam.fragment'), 'gis');
-    SaveManager.giveKey('exam');
+    SaveManager.markCompleted('exam', this.insomnia);
     SaveManager.recordFireflies('exam', this.fireflies.size);
     this.time.delayedCall(4200, () => fadeToScene(this, 'Hub', undefined, 900));
   }

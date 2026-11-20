@@ -69,6 +69,7 @@ export const dreamsA = {
   'exam.board.name': 'Élmer Rosales · 3º B',
   'exam.board.grade': 'Aciertos: {n} de 5',
   'exam.board.tarde': 'TARDE · REPROBADO',
+  'exam.board.absent': 'NO SE PRESENTÓ — TRABAJA',
   'exam.grade.5': 'Diez. Con estrellita dorada.',
   'exam.grade.4': 'Nueve. Muy bien.',
   'exam.grade.3': 'Ocho. Bien.',

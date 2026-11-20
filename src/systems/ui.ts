@@ -478,8 +478,8 @@ export function showReturnCard(
   const style = artStyleOf(theme);
   const depth = DEPTH_HUD + 5;
   const panel = scene.add
-    .rectangle(GAME_WIDTH / 2, 180, 640, 250, look.bg, 0.94)
-    .setStrokeStyle(2, 0xffd166, 0.5)
+    .rectangle(GAME_WIDTH / 2, 180, 640, 250, look.bg, 0.99)
+    .setStrokeStyle(2, 0xffd166, 0.7)
     .setScrollFactor(0)
     .setDepth(depth)
     .setAlpha(0);
