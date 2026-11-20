@@ -36,20 +36,53 @@ describe('i18n', () => {
     // así que TypeScript no puede comprobarlas: lo hace este test.
     const needed = [
       ...[0, 1, 2, 3, 4, 5].map((n) => `exam.grade.${n}`),
+      ...[1, 2, 3, 4, 5].flatMap((n) => [`exam.q.${n}.text`, `exam.q.${n}.up`, `exam.q.${n}.down`]),
+      ...[0, 1, 2, 3, 4, 5, 6].map((n) => `fall.sky.${n}`),
+      ...[0, 1, 2, 3, 4, 5].flatMap((n) => [`fall.item.${n}.box`, `fall.item.${n}.note`]),
       ...[1, 2, 3].flatMap((n) => [`forest.memory.${n}`, `forest.memory.${n}b`]),
       ...[1, 2, 3].map((n) => `chase.caught.${n}`),
-      ...[1, 2, 3, 4, 5].map((n) => `song.section.${n}`),
+      ...Array.from({ length: 10 }, (_, i) => `song.section.${i + 1}`),
       ...[1, 2, 3, 4, 5, 6].map((n) => `intro.${n}`),
-      ...Array.from({ length: 11 }, (_, i) => `ending.${i + 1}`),
+      ...Array.from({ length: 8 }, (_, i) => `ending.${i + 1}`),
+      'ending.9.fragile',
+      'ending.9.breakfast',
+      'ending.9.sunflower',
+      'ending.10.sunflower',
+      'ending.11',
+      ...[1, 2, 3, 4].map((n) => `ending.silence.${n}`),
+      ...[
+        'exam',
+        'fall',
+        'forest',
+        'shadow',
+        'embroidery',
+        'glass',
+        'chase',
+        'woodcut',
+        'chamber3d',
+        'song',
+      ].flatMap((id) => [`album.${id}.title`, `album.${id}.mem1`, `album.${id}.mem2`]),
     ];
     const missing = needed.filter((k) => !(k in es));
     expect(missing).toEqual([]);
   });
 
-  it('el guion cubre a los cuatro vecinos por su nombre', () => {
+  it('el guion cubre a todos los vecinos del edificio, a Iris y a Morfeo por su nombre', () => {
     // La historia depende de que cada sueño tenga un dueño concreto, no genérico.
     const todo = Object.values(es).join(' ');
-    for (const nombre of ['Élmer', 'Nadia', 'Chuy', 'Tomás']) {
+    for (const nombre of [
+      'Élmer',
+      'Nadia',
+      'Chuy',
+      'Goyo',
+      'Renata',
+      'Paloma',
+      'Tomás',
+      'Mateo',
+      'Octavio',
+      'Iris',
+      'Morfeo',
+    ]) {
       expect(todo).toContain(nombre);
     }
   });

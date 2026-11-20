@@ -1,67 +1,86 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT, PIXEL_SCALE, FONT_HAND, textStyle, titleStyle } from '../config';
-import { t } from '../i18n';
-import type { TextKey } from '../i18n';
+import { t, type TextKey } from '../i18n';
 import { applyWorldFX } from '../gfx/postfx';
 import { Rng } from '../gfx/noise';
 import { paintTexture, grain } from '../gfx/brush';
 import { paintSong, BUILDING } from './song/art';
-import { SaveManager } from '../systems/SaveManager';
+import { SaveManager, type EndingKind } from '../systems/SaveManager';
 import { AudioManager } from '../systems/AudioManager';
 import { fadeIn, fadeToScene, makeTextButton } from '../systems/ui';
 
-type Shot = 'room' | 'hall' | 'dawn';
+type Shot = 'room' | 'hall' | 'dawn' | 'silence';
 
 interface Beat {
-  text: TextKey;
+  key: TextKey;
   shot: Shot;
-  /** Lo que se oye con esta línea. */
   sound?: () => void;
 }
 
-/** Epílogo: la mañana siguiente. Ahora Iris sí oye el edificio. */
+/**
+ * Epílogo dinámico con 4 desenlaces posibles según las decisiones y logros:
+ * - silence (Final Alternativo: aceptar a Octavio)
+ * - fragile (Final A: despertar sin suficiente escucha)
+ * - breakfast (Final B: desayuno en el 4B)
+ * - sunflower (Final Verdadero: el Girasol despierto en la azotea)
+ */
 export class Ending extends Phaser.Scene {
   private caption!: Phaser.GameObjects.Text;
-  private layers: Record<Shot, Phaser.GameObjects.GameObject[]> = { room: [], hall: [], dawn: [] };
+  private layers: Record<Shot, Phaser.GameObjects.GameObject[]> = {
+    room: [],
+    hall: [],
+    dawn: [],
+    silence: [],
+  };
   private shot?: Shot;
   private index = 0;
   private busy = false;
   private finished = false;
+  private kind: EndingKind = 'breakfast';
 
   constructor() {
     super('Ending');
   }
 
-  create(): void {
-    this.layers = { room: [], hall: [], dawn: [] };
+  create(data: { kind?: EndingKind } = {}): void {
+    this.kind = data.kind ?? SaveManager.determineEnding();
+    this.layers = { room: [], hall: [], dawn: [], silence: [] };
     this.shot = undefined;
     this.index = 0;
     this.busy = false;
     this.finished = false;
-    this.cameras.main.setBackgroundColor(0xfff3e0);
-    applyWorldFX(this, 'ending');
+
+    const isSilence = this.kind === 'silence';
+    this.cameras.main.setBackgroundColor(isSilence ? 0xd8dee9 : 0xfff3e0);
+    applyWorldFX(this, isSilence ? 'chamber3d' : 'ending');
     fadeIn(this, 1400);
-    AudioManager.playMusic('ending');
+    AudioManager.playMusic(isSilence ? 'silence' : 'ending');
     this.paint();
     this.buildRoom();
     this.buildHall();
     this.buildDawn();
+    this.buildSilence();
 
     this.caption = this.add
-      .text(GAME_WIDTH / 2, 70, '', {
+      .text(GAME_WIDTH / 2, 64, '', {
         fontFamily: FONT_HAND,
-        fontSize: '26px',
-        color: '#5a3a22',
+        fontSize: '25px',
+        color: isSilence ? '#1e2533' : '#5a3a22',
         align: 'center',
-        wordWrap: { width: 780 },
-        backgroundColor: '#fff6e8dd',
+        wordWrap: { width: 800 },
+        backgroundColor: isSilence ? '#eff3f8ee' : '#fff6e8e8',
         padding: { x: 18, y: 10 },
       })
       .setOrigin(0.5, 0)
       .setDepth(100)
       .setAlpha(0);
     this.add
-      .text(GAME_WIDTH - 16, GAME_HEIGHT - 12, t('intro.skip'), textStyle(12, '#b08a6a'))
+      .text(
+        GAME_WIDTH - 16,
+        GAME_HEIGHT - 12,
+        t('intro.skip'),
+        textStyle(12, isSilence ? '#333c4d' : '#6b5540'),
+      )
       .setOrigin(1, 1)
       .setDepth(100);
 
@@ -72,52 +91,67 @@ export class Ending extends Phaser.Scene {
   }
 
   private beats(): Beat[] {
+    if (this.kind === 'silence') {
+      return [
+        { key: 'ending.silence.1', shot: 'silence', sound: () => AudioManager.sfx('click') },
+        { key: 'ending.silence.2', shot: 'silence', sound: () => AudioManager.sfx('seal') },
+        { key: 'ending.silence.3', shot: 'silence' },
+        { key: 'ending.silence.4', shot: 'silence', sound: () => AudioManager.sfx('meow') },
+      ];
+    }
     const knock = (vol: number, pitch: number) =>
       [0, 280, 560].forEach((d) =>
         this.time.delayedCall(d, () => AudioManager.drum('knock', vol, pitch)),
       );
-    return [
-      { text: 'ending.1', shot: 'room' },
+    const list: Beat[] = [
+      { key: 'ending.1', shot: 'room' },
       {
-        text: 'ending.2',
+        key: 'ending.2',
         shot: 'room',
         sound: () =>
-          [0, 500, 1000].forEach((d) =>
+          [0, 450, 900].forEach((d) =>
             this.time.delayedCall(d, () => AudioManager.drum('broom', 0.25)),
           ),
       },
       {
-        text: 'ending.3',
+        key: 'ending.3',
         shot: 'room',
         sound: () =>
-          [0, 700].forEach((d) => this.time.delayedCall(d, () => AudioManager.drum('box', 0.35))),
+          [0, 650].forEach((d) => this.time.delayedCall(d, () => AudioManager.drum('box', 0.35))),
       },
       {
-        text: 'ending.4',
+        key: 'ending.4',
         shot: 'room',
         sound: () =>
-          [0, 400, 800, 1100].forEach((d, i) =>
+          [0, 380, 760, 1080].forEach((d, i) =>
             this.time.delayedCall(d, () => AudioManager.drum('drop', 0.12, 1 + i * 0.12)),
           ),
       },
       {
-        text: 'ending.5',
+        key: 'ending.5',
         shot: 'room',
         sound: () => {
           knock(0.35, 1);
-          this.time.delayedCall(1500, () => knock(0.18, 0.7));
+          this.time.delayedCall(1400, () => knock(0.18, 0.7));
         },
       },
-      { text: 'ending.6', shot: 'room', sound: () => AudioManager.sfx('click') },
-      { text: 'ending.7', shot: 'hall', sound: () => AudioManager.sfx('step') },
-      { text: 'ending.8', shot: 'hall', sound: () => knock(0.32, 1.1) },
-      { text: 'ending.9', shot: 'hall', sound: () => AudioManager.sfx('door') },
-      { text: 'ending.10', shot: 'hall' },
-      { text: 'ending.11', shot: 'dawn', sound: () => AudioManager.sfx('meow') },
+      { key: 'ending.6', shot: 'hall', sound: () => AudioManager.drum('snip', 0.25) },
+      { key: 'ending.7', shot: 'hall', sound: () => AudioManager.drum('chime', 0.2) },
+      { key: 'ending.8', shot: 'room', sound: () => AudioManager.sfx('click') },
     ];
+    if (this.kind === 'fragile') {
+      list.push({ key: 'ending.9.fragile', shot: 'hall', sound: () => AudioManager.sfx('step') });
+    } else if (this.kind === 'breakfast') {
+      list.push({ key: 'ending.9.breakfast', shot: 'hall', sound: () => AudioManager.sfx('door') });
+    } else {
+      list.push(
+        { key: 'ending.9.sunflower', shot: 'dawn', sound: () => AudioManager.sfx('bloom') },
+        { key: 'ending.10.sunflower', shot: 'dawn', sound: () => AudioManager.sfx('win') },
+      );
+    }
+    list.push({ key: 'ending.11', shot: 'dawn', sound: () => AudioManager.sfx('meow') });
+    return list;
   }
-
-  // ── Ilustraciones ──
 
   private paint(): void {
     paintSong(this);
@@ -129,7 +163,6 @@ export class Ending extends Phaser.Scene {
       ctx.fillRect(0, 410, w, h - 410);
       ctx.fillStyle = '#b07a48';
       for (let x = 0; x < w; x += 90) ctx.fillRect(x, 410, 2, h - 410);
-      // Ventana con cielo de mañana
       const g = ctx.createLinearGradient(0, 70, 0, 280);
       g.addColorStop(0, '#9ac8f0');
       g.addColorStop(1, '#ffe0b0');
@@ -141,7 +174,6 @@ export class Ending extends Phaser.Scene {
       ctx.fillRect(196, 70, 8, 210);
       ctx.fillRect(84, 64, 8, 222);
       ctx.fillRect(308, 64, 8, 222);
-      // La luz que entra
       ctx.fillStyle = 'rgba(255,230,160,0.35)';
       ctx.beginPath();
       ctx.moveTo(92, 280);
@@ -149,14 +181,12 @@ export class Ending extends Phaser.Scene {
       ctx.lineTo(560, 540);
       ctx.lineTo(260, 540);
       ctx.fill();
-      // Cajas sin abrir, también aquí
       ctx.fillStyle = '#b8864a';
       ctx.fillRect(760, 330, 110, 80);
       ctx.fillRect(790, 270, 80, 60);
       ctx.fillStyle = '#d6aa62';
       ctx.fillRect(810, 330, 10, 80);
       ctx.fillRect(826, 270, 8, 60);
-      // Buró
       ctx.fillStyle = '#8a5a3a';
       ctx.fillRect(560, 330, 110, 80);
       ctx.fillStyle = '#6a4228';
@@ -169,7 +199,6 @@ export class Ending extends Phaser.Scene {
       ctx.fillRect(0, 0, w, h);
       ctx.fillStyle = '#d0b898';
       ctx.fillRect(0, 300, w, 12);
-      // Piso de mosaico, como el del patio
       for (let y = 430; y < h; y += 30) {
         for (let x = 0; x < w; x += 30) {
           ctx.fillStyle =
@@ -177,7 +206,6 @@ export class Ending extends Phaser.Scene {
           ctx.fillRect(x, y, 30, 30);
         }
       }
-      // Puerta 4B
       ctx.fillStyle = '#4a8a7a';
       ctx.fillRect(560, 150, 150, 280);
       ctx.fillStyle = '#3a6a5c';
@@ -188,7 +216,6 @@ export class Ending extends Phaser.Scene {
       ctx.fillStyle = '#5a3a22';
       ctx.font = 'bold 26px Georgia, serif';
       ctx.fillText('4B', 615, 140);
-      // Macetas afuera
       for (const x of [460, 500, 760]) {
         ctx.fillStyle = '#c86a3a';
         ctx.fillRect(x, 396, 30, 34);
@@ -199,7 +226,6 @@ export class Ending extends Phaser.Scene {
         ctx.fillStyle = '#e8303a';
         ctx.fillRect(x + 8, 376, 6, 6);
       }
-      // Ventana al tiro de luz
       ctx.fillStyle = '#bfe0f0';
       ctx.fillRect(120, 110, 180, 150);
       ctx.fillStyle = '#e8d8c0';
@@ -225,7 +251,6 @@ export class Ending extends Phaser.Scene {
       repeat: -1,
       ease: 'Sine.inOut',
     });
-    // En el buró: los audífonos (sin usar) y la grabadora
     const phones = this.add.graphics().setDepth(3);
     phones.lineStyle(6, 0x39324f, 1);
     phones.beginPath();
@@ -280,22 +305,59 @@ export class Ending extends Phaser.Scene {
         .rectangle(GAME_WIDTH / 2, BUILDING.ground + 35, GAME_WIDTH, 70, 0x3a2a4a)
         .setDepth(1),
     );
-    // Un gato gris con ojos color agua, en la orilla de la azotea
+    const roofY = BUILDING.ground - BUILDING.floors * BUILDING.floorH - 4;
+    if (this.kind === 'sunflower') {
+      // Todo el elenco reunido arriba del edificio en el Final Verdadero
+      const cast: [string, number][] = [
+        ['elmer', BUILDING.x + 60],
+        ['nadia', BUILDING.x + 95],
+        ['chuy', BUILDING.x + 130],
+        ['goyo', BUILDING.x + 165],
+        ['renata', BUILDING.x + 200],
+        ['iris', BUILDING.x + 235],
+        ['paloma', BUILDING.x + 270],
+        ['tomas', BUILDING.x + 305],
+        ['mateo', BUILDING.x + 335],
+        ['octavio', BUILDING.x + 365],
+      ];
+      cast.forEach(([who, x]) => {
+        const s = this.add
+          .sprite(x, roofY + 2, who)
+          .setOrigin(0.5, 1)
+          .setScale(1.8)
+          .setDepth(4);
+        s.play(`${who}-idle`);
+        L.push(s);
+      });
+    }
     const cat = this.add
-      .sprite(
-        BUILDING.x + BUILDING.w - 40,
-        BUILDING.ground - BUILDING.floors * BUILDING.floorH - 4,
-        'morfeo',
-      )
+      .sprite(BUILDING.x + BUILDING.w - 30, roofY, 'morfeo')
       .setOrigin(0.5, 1)
       .setScale(2.4)
       .setTint(0xb8b8c8)
-      .setDepth(3);
+      .setDepth(5);
     cat.play('morfeo-idle');
     L.push(cat);
   }
 
-  // ── Relato ──
+  private buildSilence(): void {
+    const L = this.layers.silence;
+    const g = this.add.graphics().setDepth(0);
+    g.fillStyle(0xd8dee9, 1).fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+    g.fillStyle(0xb0bac9, 1).fillRect(0, 390, GAME_WIDTH, GAME_HEIGHT - 390);
+    // Cuñas de espuma anecoica sellando la ventana
+    g.fillStyle(0x4c566a, 1).fillRect(100, 90, 210, 180);
+    for (let x = 110; x < 300; x += 26) {
+      g.fillStyle(0x3b4252, 1).fillTriangle(x, 90, x + 26, 90, x + 13, 270);
+    }
+    L.push(g);
+    const bed = this.add
+      .image(420, 415, 'bed')
+      .setOrigin(0.5, 1)
+      .setScale(PIXEL_SCALE * 1.5)
+      .setDepth(2);
+    L.push(bed);
+  }
 
   private setShot(shot: Shot): void {
     if (this.shot === shot) return;
@@ -313,10 +375,11 @@ export class Ending extends Phaser.Scene {
       return;
     }
     this.busy = true;
-    this.cameras.main.fadeOut(500, 255, 243, 224);
+    const rgb = this.kind === 'silence' ? [216, 222, 233] : [255, 243, 224];
+    this.cameras.main.fadeOut(500, rgb[0], rgb[1], rgb[2]);
     this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
       apply();
-      this.cameras.main.fadeIn(600, 255, 243, 224);
+      this.cameras.main.fadeIn(600, rgb[0], rgb[1], rgb[2]);
       this.busy = false;
     });
   }
@@ -326,10 +389,10 @@ export class Ending extends Phaser.Scene {
     const changing = this.shot !== undefined && this.shot !== beat.shot;
     this.setShot(beat.shot);
     this.busy = true;
-    this.caption.setAlpha(0).setText(t(beat.text));
+    this.caption.setAlpha(0).setText(t(beat.key));
     this.time.delayedCall(changing ? 1150 : 150, () => {
       beat.sound?.();
-      if (beat.text === 'ending.9') this.chuyOpens();
+      if (beat.key === 'ending.9.breakfast') this.chuyOpens();
       this.tweens.add({
         targets: this.caption,
         alpha: 1,
@@ -366,50 +429,84 @@ export class Ending extends Phaser.Scene {
   private finale(): void {
     this.finished = true;
     SaveManager.data.endingSeen = true;
+    SaveManager.data.lastEnding = this.kind;
     SaveManager.save();
     this.tweens.add({ targets: this.caption, alpha: 0, duration: 500 });
+    const isSilence = this.kind === 'silence';
     const veil = this.add
-      .rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0xfff3e0, 0)
+      .rectangle(
+        GAME_WIDTH / 2,
+        GAME_HEIGHT / 2,
+        GAME_WIDTH,
+        GAME_HEIGHT,
+        isSilence ? 0x1e2533 : 0xfff3e0,
+        0,
+      )
       .setDepth(90);
-    this.tweens.add({ targets: veil, fillAlpha: 0.82, duration: 1400 });
+    this.tweens.add({ targets: veil, fillAlpha: 0.86, duration: 1400 });
+
+    const titleKey = `ending.title.${this.kind}` as TextKey;
+    const ink = isSilence ? '#eff3f8' : '#7a4a2a';
+    const subInk = isSilence ? '#93c5fd' : '#b8742c';
+
     const items: Phaser.GameObjects.GameObject[] = [
-      this.add
-        .text(GAME_WIDTH / 2, 150, t('ending.thanks'), titleStyle(40, '#7a4a2a'))
-        .setOrigin(0.5),
+      this.add.text(GAME_WIDTH / 2, 122, t(titleKey), titleStyle(24, ink)).setOrigin(0.5),
       this.add
         .text(
           GAME_WIDTH / 2,
-          215,
+          184,
           t('ending.stats', { n: SaveManager.fireflyCount(), total: SaveManager.fireflyTotal() }),
-          textStyle(18, '#b8742c'),
+          textStyle(17, subInk),
         )
         .setOrigin(0.5),
       this.add
         .text(
           GAME_WIDTH / 2,
-          245,
-          t('ending.exam', { n: SaveManager.data.examBest }),
-          textStyle(16, '#b8742c'),
+          216,
+          t('ending.secrets', { n: SaveManager.secretCount(), d: SaveManager.insomniaCount() }),
+          textStyle(15, subInk),
         )
         .setOrigin(0.5),
       this.add
-        .text(GAME_WIDTH / 2, 300, t('ending.continue'), {
+        .text(
+          GAME_WIDTH / 2,
+          248,
+          t('ending.exam', { n: SaveManager.data.examBest, s: SaveManager.data.songBest }),
+          textStyle(14, subInk),
+        )
+        .setOrigin(0.5),
+      this.add
+        .text(GAME_WIDTH / 2, 304, isSilence ? t('ending.silence.note') : t('ending.continue'), {
           fontFamily: FONT_HAND,
-          fontSize: '24px',
-          color: '#9d7bff',
+          fontSize: '23px',
+          color: isSilence ? '#5eead4' : '#9d7bff',
         })
         .setOrigin(0.5),
     ];
     items.forEach((o, i) => {
       const obj = o as Phaser.GameObjects.Text;
       obj.setDepth(95).setAlpha(0);
-      this.tweens.add({ targets: obj, alpha: 1, delay: 900 + i * 450, duration: 800 });
+      this.tweens.add({ targets: obj, alpha: 1, delay: 700 + i * 350, duration: 700 });
     });
-    this.time.delayedCall(2800, () => {
+    this.time.delayedCall(2200, () => {
+      if (isSilence) {
+        makeTextButton(
+          this,
+          GAME_WIDTH / 2,
+          376,
+          t('ending.rewind'),
+          () => {
+            SaveManager.data.octavioChoice = null;
+            SaveManager.save();
+            fadeToScene(this, 'Hub');
+          },
+          18,
+        ).setDepth(96);
+      }
       makeTextButton(
         this,
         GAME_WIDTH / 2,
-        390,
+        isSilence ? 436 : 386,
         t('ending.menu'),
         () => fadeToScene(this, 'MainMenu'),
         20,

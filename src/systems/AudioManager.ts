@@ -1,13 +1,3 @@
-/**
- * Música y efectos generados con Web Audio API. Sin archivos de audio.
- *
- * - La música se escribe como pasos (ver audio/tracks.ts) y se agenda con
- *   anticipación sobre el reloj del AudioContext, así no tiembla aunque el
- *   juego baje de cuadros.
- * - Cada pista tiene capas que se encienden con `setMusicLevel`: la música
- *   crece a medida que el jugador avanza dentro de un sueño.
- * - Un bus de eco da profundidad (los sueños suenan lejos).
- */
 import { Synth, noteFreq, type Instrument, type DrumKind } from './audio/synth';
 import {
   TRACKS,
@@ -56,10 +46,32 @@ export type SfxId =
   | 'step'
   | 'sit'
   | 'click'
-  | 'rewind';
+  | 'rewind'
+  | 'projector'
+  | 'snip'
+  | 'stitch'
+  | 'prism'
+  | 'shatter'
+  | 'gouge'
+  | 'press'
+  | 'sonar'
+  | 'seal'
+  | 'secret'
+  | 'insomnia';
 
-/** Voz de cada personaje al escribir su diálogo: tono y timbre. */
-export type VoiceId = 'iris' | 'morfeo' | 'kid' | 'old' | 'adult' | 'narrator';
+/** Voz de cada personaje al escribir su diálogo: tono y timbre únicos. */
+export type VoiceId =
+  | 'iris'
+  | 'morfeo'
+  | 'kid'
+  | 'old'
+  | 'adult'
+  | 'narrator'
+  | 'goyo'
+  | 'renata'
+  | 'paloma'
+  | 'mateo'
+  | 'octavio';
 
 interface CompiledVoice {
   inst: Instrument;
@@ -134,11 +146,9 @@ class AudioManagerClass {
   private nextStep = 0;
   private current?: MusicId;
   private level = 0;
-  /** Pausado a propósito: un toque cualquiera no debe reanudarlo. */
   private held = false;
   muted = false;
 
-  /** Crear/reanudar el contexto; llamar tras un gesto del usuario. */
   ensure(): void {
     if (!this.ctx) {
       const AC =
@@ -149,7 +159,6 @@ class AudioManagerClass {
       this.synth = new Synth(this.ctx);
       this.master = this.ctx.createGain();
       this.master.gain.value = this.muted ? 0 : 1;
-      // Un compresor suave evita saturar cuando suenan muchas cosas a la vez
       const comp = this.ctx.createDynamicsCompressor();
       comp.threshold.value = -14;
       comp.ratio.value = 3;
@@ -160,7 +169,6 @@ class AudioManagerClass {
       this.musicBus.connect(this.master);
       this.sfxBus = this.ctx.createGain();
       this.sfxBus.connect(this.master);
-      // Eco: retardo con realimentación filtrada
       this.echoIn = this.ctx.createGain();
       this.echoDelay = this.ctx.createDelay(1.5);
       this.echoFeedback = this.ctx.createGain();
@@ -174,7 +182,6 @@ class AudioManagerClass {
       damp.connect(this.master);
     }
     if (this.ctx.state === 'suspended' && !this.held) void this.ctx.resume();
-    // Si una escena pidió música antes del primer gesto del usuario, arrancarla ahora
     if (this.current && !this.timer) {
       const id = this.current;
       this.current = undefined;
@@ -182,7 +189,6 @@ class AudioManagerClass {
     }
   }
 
-  /** Congela todo el audio (y su reloj). Útil para pausar un ritmo sin desfasarlo. */
   suspend(): void {
     this.held = true;
     if (this.ctx && this.ctx.state === 'running') void this.ctx.suspend();
@@ -200,27 +206,19 @@ class AudioManagerClass {
     }
   }
 
-  /** Tiempo actual del reloj de audio (o del navegador si no hay audio). */
   now(): number {
     return this.ctx ? this.ctx.currentTime : performance.now() / 1000;
   }
 
-  /**
-   * Retraso entre agendar un sonido y oírlo (salida del dispositivo). Los ritmos
-   * lo restan al juzgar un toque, para que «a tiempo» signifique lo que se oye.
-   */
   latency(): number {
     const c = this.ctx as (AudioContext & { outputLatency?: number }) | undefined;
     if (!c) return 0;
     return Math.min(0.12, (c.outputLatency ?? 0) + (c.baseLatency ?? 0));
   }
 
-  /** ¿El audio está corriendo de verdad? (los ritmos dependen de esto) */
   get running(): boolean {
     return !!this.ctx && this.ctx.state === 'running';
   }
-
-  // ── Música ──
 
   playMusic(id: MusicId, level = 0): void {
     if (this.current === id) {
@@ -245,7 +243,6 @@ class AudioManagerClass {
     this.timer = setInterval(() => this.schedule(), 25);
   }
 
-  /** Enciende las capas de la pista hasta `n`. */
   setMusicLevel(n: number): void {
     this.level = n;
   }
@@ -254,7 +251,6 @@ class AudioManagerClass {
     return this.level;
   }
 
-  /** Reloj de la pista actual, para sincronizar juego y música. */
   musicClock(): { start: number; stepDur: number } | undefined {
     if (!this.track || !this.timer) return undefined;
     return { start: this.trackStart, stepDur: this.track.stepDur };
@@ -307,7 +303,6 @@ class AudioManagerClass {
 
   private sends = new Map<number, GainNode>();
 
-  /** Nodo de envío al eco (uno por cantidad, reutilizado). */
   private sendNode(amount: number): GainNode | undefined {
     if (!this.ctx || !this.echoIn) return undefined;
     const k = Math.round(amount * 100) / 100;
@@ -321,9 +316,6 @@ class AudioManagerClass {
     return g;
   }
 
-  // ── Instrumentos sueltos (para ritmos y momentos) ──
-
-  /** Toca una nota ya (o en `when`, tiempo de audio). */
   note(
     inst: Instrument,
     note: string | number,
@@ -346,7 +338,6 @@ class AudioManagerClass {
     );
   }
 
-  /** Percusión suelta. */
   drum(kind: DrumKind, vol = 0.3, pitch = 1, when?: number, echo = 0): void {
     this.ensure();
     if (!this.ctx || !this.synth || !this.sfxBus) return;
@@ -360,9 +351,6 @@ class AudioManagerClass {
     );
   }
 
-  // ── Efectos ──
-
-  /** «Voz» al escribir diálogo: un blip distinto por personaje. */
   voice(who: VoiceId): void {
     this.ensure();
     if (!this.ctx || !this.synth || !this.sfxBus) return;
@@ -384,6 +372,21 @@ class AudioManagerClass {
         break;
       case 'adult':
         this.synth.play('triangle', 420 * jitter, t, 0.025, 0.035, bus);
+        break;
+      case 'goyo':
+        this.synth.play('saw', 220 * jitter, t, 0.038, 0.028, bus);
+        break;
+      case 'renata':
+        this.synth.play('triangle', 385 * jitter, t, 0.022, 0.038, bus);
+        break;
+      case 'paloma':
+        this.synth.play('sine', 610 * jitter, t, 0.022, 0.035, bus);
+        break;
+      case 'mateo':
+        this.synth.play('triangle', 465 * jitter, t, 0.018, 0.03, bus);
+        break;
+      case 'octavio':
+        this.synth.play('sine', 165 * jitter, t, 0.042, 0.045, bus);
         break;
       case 'narrator':
         this.synth.play('sine', 880 * jitter, t, 0.012, 0.018, bus);
@@ -456,7 +459,6 @@ class AudioManagerClass {
         s.drum('knock', t + 0.1, 0.12, bus, 0.7);
         break;
       case 'chalk':
-        // Gis rechinando en el pizarrón
         s.noise(t, 0.09, 0.07, bus, { type: 'bandpass', freq: 3600, q: 4, sweepTo: 4800 });
         s.drum('tick', t, 0.15, bus);
         break;
@@ -464,7 +466,6 @@ class AudioManagerClass {
         s.noise(t, 0.35, 0.09, bus, { type: 'bandpass', freq: 900, q: 0.7, sweepTo: 1600 }, 0.05);
         break;
       case 'bell':
-        // Timbre escolar
         for (let i = 0; i < 6; i++) tone('square', i % 2 ? 1180 : 1240, 0.04, 0.035, i * 0.05);
         break;
       case 'count':
@@ -484,7 +485,6 @@ class AudioManagerClass {
         s.noise(t + 0.06, 0.1, 0.04, bus, { type: 'highpass', freq: 3500 });
         break;
       case 'rip':
-        // Cinta canela arrancándose
         s.noise(t, 0.28, 0.1, bus, { type: 'bandpass', freq: 1800, q: 0.6, sweepTo: 4200 }, 0.01);
         s.drum('box', t + 0.24, 0.2, bus, 1.2);
         break;
@@ -532,6 +532,44 @@ class AudioManagerClass {
       case 'rewind':
         s.play('saw', 900, t, 0.3, 0.05, bus);
         s.noise(t, 0.3, 0.05, bus, { type: 'bandpass', freq: 2200, q: 1, sweepTo: 500 });
+        break;
+      case 'projector':
+        s.drum('reel', t, 0.28, bus, 1.0);
+        s.noise(t + 0.04, 0.1, 0.03, bus, { type: 'bandpass', freq: 1400, q: 2 });
+        break;
+      case 'snip':
+        s.drum('snip', t, 0.28, bus, 1.0);
+        break;
+      case 'stitch':
+        s.noise(t, 0.05, 0.07, bus, { type: 'highpass', freq: 3200 });
+        tone('loom', 680 + Math.random() * 180, 0.08, 0.06);
+        break;
+      case 'prism':
+        s.drum('chime', t, 0.24, bus, 0.9 + Math.random() * 0.35);
+        break;
+      case 'shatter':
+        s.noise(t, 0.35, 0.11, bus, { type: 'highpass', freq: 3600 });
+        [1318, 1568, 2093, 2637].forEach((f, i) => tone('glassbell', f, 0.5, 0.07, i * 0.03));
+        break;
+      case 'gouge':
+        s.noise(t, 0.14, 0.09, bus, { type: 'bandpass', freq: 1100, q: 1.5, sweepTo: 2400 });
+        break;
+      case 'press':
+        s.drum('press', t, 0.36, bus, 0.9);
+        break;
+      case 'sonar':
+        tone('sonar', 587, 0.65, 0.11);
+        tone('sonar', 880, 0.55, 0.06, 0.06);
+        break;
+      case 'seal':
+        s.drum('press', t, 0.32, bus, 0.6);
+        tone('bass', 98, 0.4, 0.12);
+        break;
+      case 'secret':
+        [523, 659, 784, 987, 1318].forEach((f, i) => tone('glassbell', f, 0.45, 0.07, i * 0.07));
+        break;
+      case 'insomnia':
+        [293, 349, 440, 587].forEach((f, i) => tone('toypiano', f, 0.3, 0.08, i * 0.08));
         break;
     }
   }

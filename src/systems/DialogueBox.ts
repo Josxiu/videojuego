@@ -24,9 +24,31 @@ import {
   crayonFill,
   type Ctx,
 } from '../gfx/brush';
+import {
+  celluloidFrame,
+  linenWeave,
+  dashedStitch,
+  glassPane,
+  cottonPaper,
+  woodcutBlock,
+  waxSeal,
+} from '../gfx/brush2';
 import { stylizeTexture, STYLE_DISPLAY, type ArtStyle } from '../gfx/stylize';
 
-export type Speaker = 'iris' | 'morfeo' | 'elmer' | 'nadia' | 'chuy' | 'tomas' | 'shadow' | null; // null = narración
+export type Speaker =
+  | 'iris'
+  | 'morfeo'
+  | 'elmer'
+  | 'nadia'
+  | 'chuy'
+  | 'goyo'
+  | 'renata'
+  | 'paloma'
+  | 'tomas'
+  | 'mateo'
+  | 'octavio'
+  | 'shadow'
+  | null;
 
 export type Mood = 'wow' | 'sad' | 'smug';
 
@@ -38,8 +60,24 @@ export interface Line {
   action?: () => void;
 }
 
+export interface DialogueChoice {
+  label: string;
+  action: () => void;
+}
+
 /** Cada sueño enmarca el diálogo con su propio material. */
-export type DialogueTheme = 'night' | 'chalk' | 'paper' | 'watercolor' | 'crayon' | 'dawn';
+export type DialogueTheme =
+  | 'night'
+  | 'chalk'
+  | 'paper'
+  | 'watercolor'
+  | 'crayon'
+  | 'shadow'
+  | 'embroidery'
+  | 'stainedglass'
+  | 'woodcut'
+  | 'chamber3d'
+  | 'dawn';
 
 interface ThemeLook {
   body: string;
@@ -54,10 +92,15 @@ interface ThemeLook {
 const NAMES: Record<Exclude<Speaker, null>, string> = {
   iris: 'IRIS',
   morfeo: 'MORFEO',
-  elmer: 'ÉLMER',
+  elmer: 'DON ÉLMER',
   nadia: 'NADIA',
   chuy: 'DOÑA CHUY',
+  goyo: 'DON GOYO',
+  renata: 'RENATA',
+  paloma: 'PALOMA',
   tomas: 'TOMÁS',
+  mateo: 'MATEO',
+  octavio: 'OCTAVIO',
   shadow: '???',
 };
 
@@ -67,7 +110,7 @@ const LOOKS: Record<DialogueTheme, ThemeLook> = {
     bodyFont: FONT_BODY,
     bodySize: 17,
     nameFont: FONT_DISPLAY,
-    names: { iris: '#ffb3c6', morfeo: '#86f7ff', shadow: '#ff6b6b' },
+    names: { iris: '#ffb3c6', morfeo: '#86f7ff', octavio: '#5eead4', shadow: '#ff6b6b' },
     hint: '#9d7bff',
   },
   chalk: {
@@ -106,12 +149,56 @@ const LOOKS: Record<DialogueTheme, ThemeLook> = {
     hint: '#d8453a',
     style: 'crayon',
   },
+  shadow: {
+    body: '#ffeacc',
+    bodyFont: FONT_HAND,
+    bodySize: 21,
+    nameFont: FONT_DISPLAY,
+    names: { iris: '#ffd166', morfeo: '#86f7ff', goyo: '#ff9e44' },
+    hint: '#ffb84d',
+    style: 'shadow',
+  },
+  embroidery: {
+    body: '#3b2a22',
+    bodyFont: FONT_HAND,
+    bodySize: 21,
+    nameFont: FONT_HAND,
+    names: { iris: '#b83344', morfeo: '#365878', renata: '#a85a1c' },
+    hint: '#c84b5a',
+    style: 'embroidery',
+  },
+  stainedglass: {
+    body: '#f4f0ff',
+    bodyFont: FONT_HAND,
+    bodySize: 21,
+    nameFont: FONT_DISPLAY,
+    names: { iris: '#ff8fa3', morfeo: '#72efdd', paloma: '#ffc857' },
+    hint: '#4cc9f0',
+    style: 'stainedglass',
+  },
+  woodcut: {
+    body: '#181924',
+    bodyFont: FONT_HAND,
+    bodySize: 21,
+    nameFont: FONT_DISPLAY,
+    names: { iris: '#b8332a', morfeo: '#262a3d', mateo: '#181924' },
+    hint: '#b8332a',
+    style: 'woodcut',
+  },
+  chamber3d: {
+    body: '#1e2533',
+    bodyFont: FONT_BODY,
+    bodySize: 17,
+    nameFont: FONT_DISPLAY,
+    names: { iris: '#0f766e', morfeo: '#2563eb', octavio: '#334155' },
+    hint: '#0d9488',
+  },
   dawn: {
     body: '#6a4a2a',
     bodyFont: FONT_HAND,
     bodySize: 21,
     nameFont: FONT_HAND,
-    names: { iris: '#c0506a', morfeo: '#3a6a8a' },
+    names: { iris: '#c0506a', morfeo: '#3a6a8a', octavio: '#4c566a' },
     hint: '#e0902a',
   },
 };
@@ -119,27 +206,30 @@ const LOOKS: Record<DialogueTheme, ThemeLook> = {
 const VOICES: Record<Exclude<Speaker, null>, VoiceId> = {
   iris: 'iris',
   morfeo: 'morfeo',
-  elmer: 'kid',
+  elmer: 'old',
   nadia: 'adult',
   chuy: 'old',
+  goyo: 'goyo',
+  renata: 'renata',
+  paloma: 'paloma',
   tomas: 'kid',
+  mateo: 'mateo',
+  octavio: 'octavio',
   shadow: 'morfeo',
 };
 
 const BOX_W = 780;
-const BOX_H = 140;
+const BOX_H = 144;
 
-/** Pinta (una vez) el marco de un tema. */
 function frameTexture(scene: Phaser.Scene, theme: DialogueTheme): string | undefined {
   if (theme === 'night') return undefined;
   const key = `dlg-${theme}`;
-  const pad = 14;
+  const pad = 16;
   return paintTexture(scene, key, BOX_W + pad * 2, BOX_H + pad * 2, (ctx: Ctx) => {
     const rng = new Rng(key);
     ctx.translate(pad, pad);
     switch (theme) {
       case 'chalk': {
-        // Un pizarroncito con marco de madera
         ctx.fillStyle = '#6b4424';
         ctx.fillRect(-8, -8, BOX_W + 16, BOX_H + 16);
         ctx.fillStyle = '#8a5a2e';
@@ -234,6 +324,102 @@ function frameTexture(scene: Phaser.Scene, theme: DialogueTheme): string | undef
         );
         break;
       }
+      case 'shadow': {
+        ctx.fillStyle = '#180e07';
+        ctx.fillRect(0, 0, BOX_W, BOX_H);
+        celluloidFrame(ctx, BOX_W, BOX_H);
+        ctx.strokeStyle = 'rgba(255, 190, 85, 0.65)';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(8, 28, BOX_W - 16, BOX_H - 56);
+        break;
+      }
+      case 'embroidery': {
+        const tmp = document.createElement('canvas');
+        tmp.width = BOX_W;
+        tmp.height = BOX_H;
+        const tctx = tmp.getContext('2d');
+        if (tctx) {
+          linenWeave(tctx, BOX_W, BOX_H, '#faf3e6', rng);
+          ctx.drawImage(tmp, 0, 0);
+        }
+        ctx.strokeStyle = '#8b5e3c';
+        ctx.lineWidth = 6;
+        ctx.strokeRect(0, 0, BOX_W, BOX_H);
+        dashedStitch(
+          ctx,
+          [
+            [10, 10],
+            [BOX_W - 10, 10],
+            [BOX_W - 10, BOX_H - 10],
+            [10, BOX_H - 10],
+            [10, 10],
+          ],
+          '#c84b5a',
+          10,
+          6,
+          2.6,
+        );
+        break;
+      }
+      case 'stainedglass': {
+        ctx.fillStyle = '#13172b';
+        ctx.fillRect(0, 0, BOX_W, BOX_H);
+        glassPane(
+          ctx,
+          [
+            [0, 0],
+            [125, 0],
+            [125, BOX_H],
+            [0, BOX_H],
+          ],
+          '#1f3a60',
+          rng,
+          { alpha: 0.78, leadW: 4 },
+        );
+        glassPane(
+          ctx,
+          [
+            [125, 0],
+            [BOX_W, 0],
+            [BOX_W, BOX_H],
+            [125, BOX_H],
+          ],
+          '#171c36',
+          rng,
+          { alpha: 0.88, leadW: 4 },
+        );
+        ctx.strokeStyle = '#ffc857';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(6, 6, BOX_W - 12, BOX_H - 12);
+        break;
+      }
+      case 'woodcut': {
+        cottonPaper(ctx, BOX_W, BOX_H, rng, false);
+        ctx.strokeStyle = '#181924';
+        ctx.lineWidth = 6;
+        ctx.strokeRect(3, 3, BOX_W - 6, BOX_H - 6);
+        woodcutBlock(ctx, 10, 10, 12, BOX_H - 20, rng, { hatch: true });
+        waxSeal(ctx, BOX_W - 24, 24, 12, rng);
+        break;
+      }
+      case 'chamber3d': {
+        ctx.fillStyle = '#eff3f8';
+        ctx.fillRect(0, 0, BOX_W, BOX_H);
+        ctx.strokeStyle = '#4c566a';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(2, 2, BOX_W - 4, BOX_H - 4);
+        ctx.fillStyle = '#0d9488';
+        ctx.fillRect(2, 2, 10, BOX_H - 4);
+        ctx.strokeStyle = 'rgba(76,86,106,0.16)';
+        ctx.lineWidth = 1;
+        for (let x = 24; x < BOX_W; x += 24) {
+          ctx.beginPath();
+          ctx.moveTo(x, 0);
+          ctx.lineTo(x, BOX_H);
+          ctx.stroke();
+        }
+        break;
+      }
       case 'dawn': {
         const g = ctx.createLinearGradient(0, 0, 0, BOX_H);
         g.addColorStop(0, '#fff6e6');
@@ -251,10 +437,6 @@ function frameTexture(scene: Phaser.Scene, theme: DialogueTheme): string | undef
   });
 }
 
-/**
- * Caja de diálogo con retrato y efecto máquina de escribir.
- * Mientras `active` es true, la escena debe pausar su gameplay.
- */
 export class DialogueBox {
   active = false;
   private scene: Phaser.Scene;
@@ -270,8 +452,9 @@ export class DialogueBox {
   private charIndex = 0;
   private typing?: Phaser.Time.TimerEvent;
   private onDone?: () => void;
-  /** Cuenta las conversaciones: evita que el cierre de una apague la siguiente. */
   private sayId = 0;
+  private choiceItems: Phaser.GameObjects.GameObject[] = [];
+  private waitingChoice = false;
 
   constructor(
     scene: Phaser.Scene,
@@ -282,7 +465,7 @@ export class DialogueBox {
     this.scene = scene;
     this.look = LOOKS[theme];
     const x = GAME_WIDTH / 2;
-    const y = position === 'bottom' ? GAME_HEIGHT - BOX_H / 2 - 16 : BOX_H / 2 + 16;
+    const y = position === 'bottom' ? GAME_HEIGHT - BOX_H / 2 - 14 : BOX_H / 2 + 14;
 
     const parts: Phaser.GameObjects.GameObject[] = [];
     const frame = frameTexture(scene, theme);
@@ -305,7 +488,7 @@ export class DialogueBox {
     this.portrait = scene.add.image(-BOX_W / 2 + 64, 0, 'portrait-iris', '0');
     this.nameText = scene.add.text(-BOX_W / 2 + 130, -BOX_H / 2 + 12, '', {
       fontFamily: this.look.nameFont,
-      fontSize: theme === 'night' ? '15px' : '20px',
+      fontSize: theme === 'night' || theme === 'chamber3d' ? '15px' : '20px',
       color: this.look.hint,
     });
     this.bodyText = scene.add.text(-BOX_W / 2 + 130, -BOX_H / 2 + 40, '', {
@@ -313,7 +496,7 @@ export class DialogueBox {
       fontSize: `${this.look.bodySize}px`,
       color: this.look.body,
       wordWrap: { width: BOX_W - 170 },
-      lineSpacing: theme === 'night' ? 5 : 1,
+      lineSpacing: theme === 'night' || theme === 'chamber3d' ? 5 : 1,
     });
     this.nextHint = scene.add
       .text(BOX_W / 2 - 26, BOX_H / 2 - 22, '▼', {
@@ -337,7 +520,6 @@ export class DialogueBox {
       .setScrollFactor(0)
       .setVisible(false);
 
-    // Avance por toque o tecla
     const kb = scene.input.keyboard;
     scene.input.on('pointerdown', this.advance, this);
     kb?.on('keydown-SPACE', this.advance, this);
@@ -349,10 +531,13 @@ export class DialogueBox {
       kb?.off('keydown-ENTER', this.advance, this);
       kb?.off('keydown-E', this.advance, this);
       this.typing?.remove();
+      this.clearChoices();
     });
   }
 
   say(lines: Line[], onDone?: () => void): void {
+    this.clearChoices();
+    this.waitingChoice = false;
     this.sayId += 1;
     this.lines = lines;
     this.lineIndex = 0;
@@ -363,7 +548,51 @@ export class DialogueBox {
     this.showLine();
   }
 
-  /** Coloca el retrato adecuado (con expresión y en el estilo del sueño). */
+  /** Muestra un diálogo seguido de botones de decisión para el jugador. */
+  ask(promptLines: Line[], choices: DialogueChoice[]): void {
+    this.say(promptLines, () => {
+      this.active = true;
+      this.waitingChoice = true;
+      this.container.setVisible(true);
+      this.nextHint.setVisible(false);
+      this.clearChoices();
+      choices.forEach((ch, idx) => {
+        const y = GAME_HEIGHT / 2 - 50 + idx * 62;
+        const btn = this.scene.add
+          .text(GAME_WIDTH / 2, y, `✦ ${ch.label}`, {
+            fontFamily: FONT_BODY,
+            fontSize: '18px',
+            color: '#efe9ff',
+            backgroundColor: '#1f183d',
+            padding: { x: 22, y: 12 },
+          })
+          .setOrigin(0.5)
+          .setDepth(DEPTH_DIALOGUE + 10)
+          .setScrollFactor(0)
+          .setInteractive({ useHandCursor: true });
+        btn.on('pointerover', () => btn.setStyle({ backgroundColor: '#483882', color: '#ffd166' }));
+        btn.on('pointerout', () => btn.setStyle({ backgroundColor: '#1f183d', color: '#efe9ff' }));
+        btn.on('pointerdown', () => {
+          AudioManager.sfx('collect');
+          this.waitingChoice = false;
+          this.clearChoices();
+          this.container.setVisible(false);
+          const token = this.sayId;
+          this.scene.time.delayedCall(120, () => {
+            if (token === this.sayId) this.active = false;
+          });
+          ch.action();
+        });
+        this.choiceItems.push(btn);
+      });
+    });
+  }
+
+  private clearChoices(): void {
+    this.choiceItems.forEach((o) => o.destroy());
+    this.choiceItems = [];
+  }
+
   private setPortrait(who: Exclude<Speaker, null>, mood?: Mood): void {
     let key: string;
     let frame: string;
@@ -376,6 +605,17 @@ export class DialogueBox {
         break;
       case 'morfeo':
         key = 'portrait-morfeo';
+        frame = mood === 'smug' ? '1' : '0';
+        break;
+      case 'goyo':
+      case 'renata':
+      case 'paloma':
+      case 'mateo':
+        key = `portrait-${who}`;
+        frame = '0';
+        break;
+      case 'octavio':
+        key = 'portrait-octavio';
         frame = mood === 'smug' ? '1' : '0';
         break;
       default:
@@ -416,7 +656,7 @@ export class DialogueBox {
     const voice: VoiceId = who ? VOICES[who] : 'narrator';
     this.typing?.remove();
     this.typing = this.scene.time.addEvent({
-      delay: 18,
+      delay: 16,
       loop: true,
       callback: () => {
         this.charIndex += 1;
@@ -432,10 +672,9 @@ export class DialogueBox {
   }
 
   private advance(): void {
-    if (!this.active || !this.container.visible) return;
+    if (!this.active || !this.container.visible || this.waitingChoice) return;
     const line = this.lines[this.lineIndex];
     if (this.charIndex < line.text.length) {
-      // Completa la línea de inmediato
       this.charIndex = line.text.length;
       this.bodyText.setText(line.text);
       this.typing?.remove();
@@ -447,8 +686,6 @@ export class DialogueBox {
       this.showLine();
     } else {
       this.container.setVisible(false);
-      // Pequeña espera para que la escena no reciba el mismo toque como acción.
-      // Si onDone abre otra conversación, esta espera ya no la cierra.
       const token = this.sayId;
       this.scene.time.delayedCall(140, () => {
         if (token === this.sayId) this.active = false;

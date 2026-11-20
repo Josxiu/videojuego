@@ -8,12 +8,12 @@ import { SaveManager } from '../systems/SaveManager';
 import { AudioManager } from '../systems/AudioManager';
 import { fadeIn, fadeToScene } from '../systems/ui';
 
-type Shot = 'outside' | 'room';
+type Shot = 'outside' | 'room' | 'notice';
 
 /**
- * Intro: Iris se queda dormida.
- * El edificio de noche → Iris con audífonos → se acaba la batería → silencio
- * → el edificio suena → tres sueños se le meten por la ventana.
+ * Intro: Iris se queda dormida a las 3:14 a. m.
+ * Edificio → cuarto con audífonos y cajas de Cinta Roja → aviso del 6A → batería muerta
+ * → golpe de compuerta y edificio respirando → tres sueños se meten por su ventana.
  */
 export class Intro extends Phaser.Scene {
   private index = 0;
@@ -21,6 +21,7 @@ export class Intro extends Phaser.Scene {
   private caption!: Phaser.GameObjects.Text;
   private outside: Phaser.GameObjects.GameObject[] = [];
   private room: Phaser.GameObjects.GameObject[] = [];
+  private notice: Phaser.GameObjects.GameObject[] = [];
   private battery!: Phaser.GameObjects.Graphics;
   private batteryLevel = 1;
 
@@ -33,6 +34,7 @@ export class Intro extends Phaser.Scene {
     this.busy = false;
     this.outside = [];
     this.room = [];
+    this.notice = [];
     this.batteryLevel = 1;
     this.cameras.main.setBackgroundColor(0x0d0a2e);
     applyWorldFX(this, 'menu');
@@ -40,7 +42,7 @@ export class Intro extends Phaser.Scene {
     AudioManager.playMusic('menu');
     paintSong(this);
 
-    // Afuera
+    // Toma 1: Edificio Girasol por fuera
     this.outside.push(
       this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, 'song-night'),
       this.add.image(GAME_WIDTH / 2, BUILDING.ground + 4, 'song-skyline').setOrigin(0.5, 1),
@@ -52,11 +54,10 @@ export class Intro extends Phaser.Scene {
     this.outside.push(irisWin);
     this.tweens.add({ targets: irisWin, fillAlpha: 0.12, duration: 1500, yoyo: true, repeat: -1 });
 
-    // Adentro: el cuarto de Iris, a oscuras
+    // Toma 2: El cuarto de Iris con cajas de mudanza y casete «Cinta Roja»
     const roomGfx = this.add.graphics();
     roomGfx.fillStyle(0x120e28, 1).fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
     roomGfx.fillStyle(0x0c0920, 1).fillRect(0, 400, GAME_WIDTH, GAME_HEIGHT - 400);
-    // Ventana con luna y el edificio de enfrente
     roomGfx.fillStyle(0x1d1a44, 1).fillRect(90, 90, 210, 180);
     roomGfx.fillStyle(0xfff3d0, 0.9).fillCircle(240, 140, 22);
     roomGfx.fillStyle(0x1d1a44, 1).fillCircle(252, 134, 20);
@@ -64,9 +65,9 @@ export class Intro extends Phaser.Scene {
     roomGfx.fillStyle(0xffc070, 0.4).fillRect(125, 215, 14, 16);
     roomGfx.lineStyle(8, 0x2a2450, 1).strokeRect(90, 90, 210, 180);
     roomGfx.lineBetween(195, 90, 195, 270);
-    // Buró y cajas sin abrir
     roomGfx.fillStyle(0x2a1e3a, 1).fillRect(700, 330, 90, 70);
-    roomGfx.fillStyle(0x3a2a24, 1).fillRect(820, 300, 100, 100).fillRect(840, 250, 70, 50);
+    roomGfx.fillStyle(0x4a3222, 1).fillRect(820, 300, 100, 100).fillRect(840, 250, 70, 50);
+    roomGfx.fillStyle(0xd6aa62, 1).fillRect(865, 300, 10, 100);
     this.room.push(roomGfx);
     const bed = this.add
       .image(GAME_WIDTH / 2 - 40, 410, 'bed')
@@ -81,6 +82,7 @@ export class Intro extends Phaser.Scene {
       ease: 'Sine.inOut',
     });
     this.room.push(bed);
+    this.room.push(this.add.image(875, 232, 'grabadora').setScale(2).setAlpha(0.75));
     this.battery = this.add.graphics();
     this.room.push(this.battery);
     this.drawBattery();
@@ -88,13 +90,46 @@ export class Intro extends Phaser.Scene {
       (o as unknown as Phaser.GameObjects.Components.Visible).setVisible(false),
     );
 
-    this.caption = this.add
-      .text(GAME_WIDTH / 2, 474, '', {
+    // Toma 3: El aviso del vestíbulo firmado por 6A
+    const board = this.add.graphics();
+    board.fillStyle(0x140f24, 1).fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+    board.fillStyle(0x6b4424, 1).fillRect(210, 65, 540, 340);
+    board.fillStyle(0x8c6239, 1).fillRect(228, 83, 504, 304);
+    board.fillStyle(0xf6ecd4, 1).fillRect(290, 106, 380, 260);
+    board.fillStyle(0xd9503a, 1).fillCircle(480, 120, 9);
+    const noticeHeader = this.add
+      .text(480, 165, 'AVISO IMPORTANTE\nEDIFICIO GIRASOL', {
         fontFamily: FONT_HAND,
-        fontSize: '25px',
+        fontSize: '26px',
+        color: '#2a2238',
+        align: 'center',
+      })
+      .setOrigin(0.5);
+    const noticeBody = this.add
+      .text(
+        480,
+        260,
+        'Mañana 7:00 a. m.:\nClausura y sellado acústico\ndel tiro de luz central.\n\nAtte. Ing. Octavio Bravo · 6A',
+        {
+          fontFamily: FONT_HAND,
+          fontSize: '21px',
+          color: '#3c2e4a',
+          align: 'center',
+        },
+      )
+      .setOrigin(0.5);
+    this.notice.push(board, noticeHeader, noticeBody);
+    this.notice.forEach((o) =>
+      (o as unknown as Phaser.GameObjects.Components.Visible).setVisible(false),
+    );
+
+    this.caption = this.add
+      .text(GAME_WIDTH / 2, 466, '', {
+        fontFamily: FONT_HAND,
+        fontSize: '23px',
         color: '#efe9ff',
         align: 'center',
-        wordWrap: { width: 760 },
+        wordWrap: { width: 800 },
         stroke: '#0d0a2e',
         strokeThickness: 6,
       })
@@ -122,7 +157,6 @@ export class Intro extends Phaser.Scene {
     g.fillStyle(this.batteryLevel > 0 ? 0xcfc4ff : 0xff5d73, 0.9);
     g.fillRect(x + 46, y + 7, 4, 8);
     if (this.batteryLevel > 0) g.fillStyle(0xff5d73, 1).fillRect(x + 4, y + 4, 8, 14);
-    // audífonos dibujados junto a la batería
     g.lineStyle(4, 0xcfc4ff, 0.8);
     g.beginPath();
     g.arc(x - 30, y + 18, 16, Math.PI, 0);
@@ -136,6 +170,9 @@ export class Intro extends Phaser.Scene {
     this.room.forEach((o) =>
       (o as unknown as Phaser.GameObjects.Components.Visible).setVisible(shot === 'room'),
     );
+    this.notice.forEach((o) =>
+      (o as unknown as Phaser.GameObjects.Components.Visible).setVisible(shot === 'notice'),
+    );
   }
 
   private show(): void {
@@ -147,9 +184,8 @@ export class Intro extends Phaser.Scene {
       case 0:
         this.setShot('outside');
         break;
-      case 1: {
+      case 1:
         this.setShot('room');
-        // La batería parpadea
         this.tweens.add({
           targets: this.battery,
           alpha: 0.3,
@@ -158,40 +194,40 @@ export class Intro extends Phaser.Scene {
           repeat: 3,
         });
         break;
-      }
       case 2:
+        this.setShot('notice');
+        break;
+      case 3:
+        this.setShot('room');
         this.batteryLevel = 0;
         this.drawBattery();
         AudioManager.sfx('click');
+        AudioManager.sfx('seal');
         AudioManager.stopMusic();
         break;
-      case 3:
+      case 4:
         this.setShot('outside');
         this.buildingSounds();
         break;
-      case 4:
-        this.dreamsRise();
-        break;
       case 5: {
-        // Se duerme: la pantalla se oscurece (sin cerrar la cámara, eso lo hace la transición)
+        this.dreamsRise();
         const night = this.add
           .rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x0d0a1e, 0)
           .setDepth(45);
-        this.tweens.add({ targets: night, fillAlpha: 0.8, duration: 2600 });
+        this.tweens.add({ targets: night, fillAlpha: 0.82, duration: 2600 });
         break;
       }
     }
     this.tweens.add({
       targets: this.caption,
       alpha: 1,
-      duration: 600,
+      duration: 550,
       onComplete: () => {
         this.busy = false;
       },
     });
   }
 
-  /** Por primera vez, el edificio suena: cada vecino a su modo. */
   private buildingSounds(): void {
     const say = (
       win: readonly [number, number],
@@ -212,13 +248,13 @@ export class Intro extends Phaser.Scene {
         this.tweens.add({ targets: txt, alpha: 0, delay: 2600, duration: 800 });
       });
     };
-    say(NEIGHBOR_WINDOWS.exam, 'shh... shh...', 200, () => AudioManager.drum('broom', 0.3));
-    say(NEIGHBOR_WINDOWS.fall, 'tum', 900, () => AudioManager.drum('box', 0.4));
-    say(NEIGHBOR_WINDOWS.forest, 'plic', 1600, () => AudioManager.drum('drop', 0.15));
-    say(NEIGHBOR_WINDOWS.chase, 'snif', 2300, () => AudioManager.note('toypiano', 'E5', 0.05, 0.4));
+    say(NEIGHBOR_WINDOWS.exam, 'shh... shh...', 180, () => AudioManager.drum('broom', 0.3));
+    say(NEIGHBOR_WINDOWS.fall, 'tum', 750, () => AudioManager.drum('box', 0.4));
+    say(NEIGHBOR_WINDOWS.forest, 'plic', 1300, () => AudioManager.drum('drop', 0.15));
+    say(NEIGHBOR_WINDOWS.shadow, 'clac...', 1850, () => AudioManager.drum('reel', 0.18));
+    say(NEIGHBOR_WINDOWS.chase, 'snif', 2400, () => AudioManager.note('toypiano', 'E5', 0.05, 0.4));
   }
 
-  /** Cuarenta sueños suben por el tiro de luz; tres se meten por la ventana de Iris. */
   private dreamsRise(): void {
     const colors = [0x9d7bff, 0x86f7ff, 0xffd166, 0xff9ab0];
     allWindows().forEach(([l, c], i) => {
@@ -235,8 +271,8 @@ export class Intro extends Phaser.Scene {
         alpha: 0.9,
         y: -60,
         x: x + Phaser.Math.Between(-40, 40),
-        delay: i * 70,
-        duration: 3500,
+        delay: i * 60,
+        duration: 3200,
         ease: 'Sine.in',
       });
     });
@@ -250,8 +286,8 @@ export class Intro extends Phaser.Scene {
       this.tweens.add({
         targets: state,
         p: 1,
-        delay: 900 + k * 500,
-        duration: 2200,
+        delay: 700 + k * 450,
+        duration: 2000,
         ease: 'Sine.inOut',
         onStart: () => w.setAlpha(1),
         onUpdate: () => {

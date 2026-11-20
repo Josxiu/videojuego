@@ -1,8 +1,8 @@
 /**
  * Sintetizador: instrumentos y percusiones hechos con osciladores y ruido.
- * Cada sueño suena con su propio «material»: marimba de salón para la escuela,
- * caja de música para las mudanzas, guitarra de patio, piano de juguete
- * desafinado para la pesadilla.
+ * Cada sueño suena con su propio «material»: marimba escolar, caja de música,
+ * guitarra de patio, piano de juguete desafinado, órgano de cine mudo, telar,
+ * vidrio armónico, acordeón de grabado o pulso anecoico 3D.
  */
 
 export type Instrument =
@@ -17,11 +17,31 @@ export type Instrument =
   | 'pad'
   | 'bell'
   | 'hum'
+  | 'flute'
   | 'bass'
-  | 'flute';
+  | 'organ'
+  | 'cello'
+  | 'loom'
+  | 'glassbell'
+  | 'accordion'
+  | 'sonar';
 
 export type DrumKind =
-  'kick' | 'snare' | 'hat' | 'shaker' | 'box' | 'drop' | 'knock' | 'broom' | 'tick' | 'heart';
+  | 'kick'
+  | 'snare'
+  | 'hat'
+  | 'shaker'
+  | 'box'
+  | 'drop'
+  | 'knock'
+  | 'broom'
+  | 'tick'
+  | 'heart'
+  | 'reel'
+  | 'snip'
+  | 'chime'
+  | 'press'
+  | 'pendulum';
 
 const NOTE_INDEX: Record<string, number> = {
   C: 0,
@@ -66,13 +86,11 @@ export class Synth {
     return this.noiseBuf;
   }
 
-  /** Conecta un nodo a la mezcla seca y, si hay, a un envío de eco. */
   private out(node: AudioNode, dest: AudioNode, send?: AudioNode): void {
     node.connect(dest);
     if (send) node.connect(send);
   }
 
-  /** Oscilador con envolvente percusiva (ataque corto, caída exponencial). */
   private osc(
     type: OscillatorType,
     f: number,
@@ -100,7 +118,6 @@ export class Synth {
     return o;
   }
 
-  /** Ráfaga de ruido filtrado. */
   noise(
     when: number,
     dur: number,
@@ -127,7 +144,6 @@ export class Synth {
     src.start(when, offset, attack + dur + 0.05);
   }
 
-  /** Toca una nota con un instrumento. `dur` es la duración escrita en segundos. */
   play(
     inst: Instrument,
     f: number,
@@ -170,7 +186,6 @@ export class Synth {
         break;
       }
       case 'toypiano': {
-        // Ligeramente desafinado, distinto cada vez: inquieta sin que se note por qué
         const cents = (Math.random() - 0.5) * 26;
         this.osc('square', f, when, 0.45, vol * 0.35, bus, { attack: 0.002, detune: cents });
         this.osc('sine', f * 1.004, when, 0.7, vol * 0.8, bus, { attack: 0.002, detune: cents });
@@ -207,7 +222,6 @@ export class Synth {
         break;
       case 'hum':
       case 'flute': {
-        // Voz tarareada / flauta: vibrato que entra tarde, como alguien cantando bajito
         const o = this.ctx.createOscillator();
         const g = this.ctx.createGain();
         const lfo = this.ctx.createOscillator();
@@ -242,10 +256,63 @@ export class Synth {
         this.osc('triangle', f, when, Math.max(dur * 1.2, 0.2), vol, bus, { attack: 0.01 });
         this.osc('sine', f / 2, when, Math.max(dur, 0.2), vol * 0.5, bus, { attack: 0.01 });
         break;
+      case 'organ': {
+        // Órgano cálido de cine mudo: armónicos impares y leve vibrato
+        const lp = this.ctx.createBiquadFilter();
+        lp.type = 'lowpass';
+        lp.frequency.value = 1800;
+        lp.connect(bus);
+        const len = Math.max(dur * 1.1, 0.2);
+        this.osc('triangle', f, when, len, vol * 0.7, lp, { attack: 0.03 });
+        this.osc('sine', f * 2, when, len, vol * 0.35, lp, { attack: 0.03, detune: 5 });
+        this.osc('sine', f * 3, when, len * 0.8, vol * 0.14, lp, { attack: 0.03 });
+        break;
+      }
+      case 'cello': {
+        const lp = this.ctx.createBiquadFilter();
+        lp.type = 'lowpass';
+        lp.frequency.setValueAtTime(600, when);
+        lp.frequency.linearRampToValueAtTime(1600, when + 0.14);
+        lp.connect(bus);
+        const len = Math.max(dur * 1.15, 0.25);
+        this.osc('sawtooth', f, when, len, vol * 0.55, lp, { attack: 0.08, detune: -4 });
+        this.osc('triangle', f, when, len, vol * 0.55, lp, { attack: 0.06, detune: 4 });
+        break;
+      }
+      case 'loom': {
+        // Hilo tensado en bastidor: ataque seco, armónico agudo corto
+        this.osc('triangle', f, when, 0.22, vol, bus, { attack: 0.001 });
+        this.osc('sine', f * 2.5, when, 0.05, vol * 0.3, bus, { attack: 0.001 });
+        break;
+      }
+      case 'glassbell': {
+        // Vidrio emplomado: armónicos cristalinos puros muy largos
+        this.osc('sine', f, when, 2.5, vol * 0.8, bus, { attack: 0.004 });
+        this.osc('sine', f * 2, when, 1.8, vol * 0.4, bus, { attack: 0.004, detune: 3 });
+        this.osc('sine', f * 4.02, when, 0.7, vol * 0.15, bus, { attack: 0.002 });
+        break;
+      }
+      case 'accordion': {
+        // Fuelle de imprenta: doble lengüeta filtrada
+        const bp = this.ctx.createBiquadFilter();
+        bp.type = 'bandpass';
+        bp.frequency.value = Math.min(2600, f * 2.4);
+        bp.Q.value = 1.2;
+        bp.connect(bus);
+        const len = Math.max(dur, 0.18);
+        this.osc('sawtooth', f, when, len, vol * 0.45, bp, { attack: 0.025, detune: -6 });
+        this.osc('sawtooth', f, when, len, vol * 0.45, bp, { attack: 0.025, detune: 6 });
+        break;
+      }
+      case 'sonar': {
+        // Pulso limpio de cámara anecoica
+        this.osc('sine', f, when, 1.4, vol * 0.85, bus, { attack: 0.002 });
+        this.osc('sine', f * 1.5, when, 0.8, vol * 0.2, bus, { attack: 0.005 });
+        break;
+      }
     }
   }
 
-  /** Percusión. `pitch` opcional para las gotas y los golpes afinados. */
   drum(
     kind: DrumKind,
     when: number,
@@ -271,12 +338,10 @@ export class Synth {
         this.noise(when, 0.07, vol * 0.45, bus, { type: 'bandpass', freq: 5200, q: 1.3 }, 0.012);
         break;
       case 'box':
-        // Caja de cartón: golpe hueco
         this.osc('sine', 115 * pitch, when, 0.18, vol, bus, { slideTo: 68 * pitch, attack: 0.001 });
         this.noise(when, 0.09, vol * 0.5, bus, { type: 'lowpass', freq: 420 });
         break;
       case 'drop':
-        // Gota: un «plic» que sube de tono
         this.osc('sine', 700 * pitch, when, 0.12, vol, bus, {
           slideTo: 1500 * pitch,
           attack: 0.001,
@@ -290,7 +355,6 @@ export class Synth {
         });
         break;
       case 'broom':
-        // Escoba: un «shh» que barre
         this.noise(
           when,
           0.17,
@@ -307,6 +371,35 @@ export class Synth {
       case 'heart':
         this.osc('sine', 62, when, 0.1, vol, bus, { slideTo: 40 });
         this.osc('sine', 56, when + 0.16, 0.12, vol * 0.8, bus, { slideTo: 36 });
+        break;
+      case 'reel':
+        // Proyector de 35 mm: chasquido mecánico de uña
+        this.noise(when, 0.025, vol * 0.5, bus, { type: 'bandpass', freq: 2900 * pitch, q: 3.5 });
+        this.osc('square', 140 * pitch, when, 0.02, vol * 0.2, bus, { attack: 0.001 });
+        break;
+      case 'snip':
+        // Tijera de costura
+        this.noise(when, 0.06, vol * 0.7, bus, {
+          type: 'bandpass',
+          freq: 4200 * pitch,
+          q: 2.5,
+          sweepTo: 6800,
+        });
+        break;
+      case 'chime':
+        // Cristal tocado con uña
+        this.osc('sine', 1760 * pitch, when, 0.38, vol * 0.35, bus, { attack: 0.001 });
+        this.osc('sine', 2640 * pitch, when, 0.25, vol * 0.18, bus, { attack: 0.001 });
+        break;
+      case 'press':
+        // Golpe seco de prensa de grabado
+        this.osc('sine', 95 * pitch, when, 0.2, vol * 0.9, bus, { slideTo: 46, attack: 0.001 });
+        this.noise(when, 0.07, vol * 0.65, bus, { type: 'lowpass', freq: 620 });
+        break;
+      case 'pendulum':
+        // Tictac grave del reloj de pared de Elena
+        this.osc('triangle', 540 * pitch, when, 0.05, vol * 0.45, bus, { attack: 0.001 });
+        this.noise(when, 0.022, vol * 0.45, bus, { type: 'bandpass', freq: 1400, q: 2 });
         break;
     }
   }

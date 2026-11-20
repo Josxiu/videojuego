@@ -5,7 +5,7 @@ import type { Palette } from '../pixelart';
  * pocos elementos del mundo "real" (puertas, cama) que siguen en pixel art.
  */
 
-// ── Lo que se devuelve ──
+// ── Lo que se devuelve (10 sueños) ──
 
 /** El gis de Don Élmer: gastado hasta el tamaño de una uña. */
 export const GIS_PAL: Palette = { O: '#4a4a52', W: '#f7f5ee', w: '#d6d2c6' };
@@ -59,6 +59,66 @@ export const BOTE = [
   '......B.....',
 ];
 
+/** El boleto del Cine Alameda de Don Goyo. */
+export const BOLETO_PAL: Palette = {
+  O: '#2a1810',
+  A: '#f2b84b',
+  a: '#c9882c',
+  R: '#a83228',
+  W: '#fff4de',
+};
+export const BOLETO = [
+  '..............',
+  '.OOOOOOOOOOOO.',
+  '.OAAAAAAAAAAO.',
+  'OOARRRRRRRRAOO',
+  '.OARWWWWWWRAO.',
+  'OOARRRRRRRRAOO',
+  '.OAaaaaaaaaAO.',
+  '.OOOOOOOOOOOO.',
+  '..............',
+];
+
+/** El dedal de latón con hilo dorado de Renata. */
+export const DEDAL_PAL: Palette = {
+  O: '#3a2810',
+  Y: '#ffd166',
+  y: '#c9962c',
+  W: '#fff6d6',
+  R: '#c84b5a',
+};
+export const DEDAL = [
+  '..............',
+  '....OOOOOO....',
+  '...OYYYYYYO...',
+  '..OYWYyYyYYO..',
+  '..OYYyYyYyyO..',
+  '..OYYYYYYYYO..',
+  '..OyyYYYYyyO..',
+  '.OORRRRRRRRO..',
+  'OOR..OOOOOO...',
+  '.OO...........',
+];
+
+/** El prisma de vidrio catedral de Paloma. */
+export const PRISMA_PAL: Palette = {
+  O: '#14182a',
+  C: '#4cc9f0',
+  c: '#3a86ff',
+  A: '#ffc857',
+  W: '#ffffff',
+};
+export const PRISMA = [
+  '......OO......',
+  '.....OCCO.....',
+  '....OCWWCO....',
+  '...OCWAAWCO...',
+  '..OCCAAAACCO..',
+  '.OCcCCCCCCcCO.',
+  'OOccccccccccOO',
+  '.OOOOOOOOOOOO.',
+];
+
 /** El dibujo de Tomás: una vecina enorme, pero sonriendo. */
 export const DIBUJO_PAL: Palette = {
   O: '#8a8478',
@@ -82,6 +142,48 @@ export const DIBUJO = [
   'OWGGGGGGGGGGWO',
   'OWWWWWWWWWWWWO',
   'OOOOOOOOOOOOOO',
+];
+
+/** El rodillo de linóleo de Mateo. */
+export const RODILLO_PAL: Palette = {
+  O: '#161824',
+  K: '#262a3d',
+  k: '#10121c',
+  W: '#e8e0cc',
+  M: '#9a6a3a',
+};
+export const RODILLO = [
+  '..............',
+  '.OOOOOOOOOOOO.',
+  '.OKKKKKKKKKKO.',
+  '.OkkkkkkkkkkO.',
+  '.OOOOOOOOOOOO.',
+  '......OO......',
+  '....OOWWOO....',
+  '....OMMMMO....',
+  '....OMMMMO....',
+  '.....OOOO.....',
+];
+
+/** El péndulo del reloj de Elena (Octavio, 6A). */
+export const RELOJ_PAL: Palette = {
+  O: '#1e2533',
+  Y: '#f5b841',
+  y: '#b88220',
+  W: '#eff3f8',
+  C: '#5eead4',
+};
+export const RELOJ = [
+  '......OO......',
+  '.....OYYO.....',
+  '......OO......',
+  '......OYO.....',
+  '......OYO.....',
+  '....OOYYOO....',
+  '...OYYWWYYO...',
+  '...OYWCCWYO...',
+  '...OYYyyYYO...',
+  '....OOOOOO....',
 ];
 
 /** La grabadora de casete de Iris, a los nueve años. */

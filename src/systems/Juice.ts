@@ -1,11 +1,5 @@
 import Phaser from 'phaser';
 
-/**
- * «Game feel»: los pequeños efectos que hacen que una acción se sienta.
- * Todo es opcional y no altera la lógica del juego, solo su presentación.
- */
-
-/** Intensidad de un golpe: escala el temblor, el destello y la pausa. */
 export type Impact = 'soft' | 'medium' | 'hard';
 
 const IMPACT: Record<Impact, { shake: number; ms: number; freeze: number }> = {
@@ -14,17 +8,11 @@ const IMPACT: Record<Impact, { shake: number; ms: number; freeze: number }> = {
   hard: { shake: 0.02, ms: 340, freeze: 90 },
 };
 
-/**
- * Congela el juego unos milisegundos para dar peso a un impacto.
- * Se implementa bajando el `timeScale`, así los tweens y timers también se frenan.
- */
 export function hitStop(scene: Phaser.Scene, ms: number): void {
   if (ms <= 0) return;
   const { time, tweens } = scene;
   time.timeScale = 0.001;
   tweens.timeScale = 0.001;
-  // El temporizador de restauración usa el reloj real del navegador, no el de la escena,
-  // porque el de la escena está congelado.
   window.setTimeout(() => {
     if (!scene.scene.isActive()) return;
     time.timeScale = 1;
@@ -32,7 +20,6 @@ export function hitStop(scene: Phaser.Scene, ms: number): void {
   }, ms);
 }
 
-/** Golpe completo: temblor + destello opcional + micro-congelación. */
 export function impact(scene: Phaser.Scene, level: Impact = 'medium', flashColor?: number): void {
   const cfg = IMPACT[level];
   scene.cameras.main.shake(cfg.ms, cfg.shake);
@@ -45,10 +32,6 @@ export function impact(scene: Phaser.Scene, level: Impact = 'medium', flashColor
   hitStop(scene, cfg.freeze);
 }
 
-/**
- * Aplasta y estira un sprite: la deformación clásica de salto/aterrizaje.
- * `amount` positivo achata (aterrizar), negativo estira (despegar).
- */
 export function squash(
   scene: Phaser.Scene,
   target: Phaser.GameObjects.Sprite | Phaser.GameObjects.Image,
@@ -68,7 +51,6 @@ export function squash(
   });
 }
 
-/** Nubecilla de polvo, por ejemplo al aterrizar. */
 export function dust(scene: Phaser.Scene, x: number, y: number, color = 0xffffff, count = 8): void {
   for (let i = 0; i < count; i++) {
     const dir = i < count / 2 ? -1 : 1;
@@ -91,7 +73,37 @@ export function dust(scene: Phaser.Scene, x: number, y: number, color = 0xffffff
   }
 }
 
-/** Destello radial que se expande: recoger algo, activar una luz. */
+/** Estallido radial de chispas / fragmentos de color. */
+export function burst(
+  scene: Phaser.Scene,
+  x: number,
+  y: number,
+  color = 0xffd166,
+  count = 14,
+  depth = 65,
+): void {
+  for (let i = 0; i < count; i++) {
+    const a = (i / count) * Math.PI * 2 + Phaser.Math.FloatBetween(-0.2, 0.2);
+    const dist = Phaser.Math.Between(24, 72);
+    const p = scene.add
+      .image(x, y, 'px')
+      .setTint(color)
+      .setAlpha(0.9)
+      .setScale(Phaser.Math.FloatBetween(1.4, 2.8))
+      .setDepth(depth);
+    scene.tweens.add({
+      targets: p,
+      x: x + Math.cos(a) * dist,
+      y: y + Math.sin(a) * dist,
+      alpha: 0,
+      scale: 0.3,
+      duration: Phaser.Math.Between(360, 620),
+      ease: 'Cubic.out',
+      onComplete: () => p.destroy(),
+    });
+  }
+}
+
 export function pop(scene: Phaser.Scene, x: number, y: number, color = 0xffd166, scale = 3): void {
   const ring = scene.add
     .image(x, y, 'glow-white')
@@ -109,7 +121,6 @@ export function pop(scene: Phaser.Scene, x: number, y: number, color = 0xffd166,
   });
 }
 
-/** Texto que sube y se desvanece: «+1», «¡fragmento!». */
 export function floatingText(
   scene: Phaser.Scene,
   x: number,

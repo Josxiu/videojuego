@@ -4,8 +4,7 @@ import { GAME_WIDTH, GAME_HEIGHT, FONT, DEPTH_HUD } from '../config';
 export type Action = 'left' | 'right' | 'up' | 'down' | 'jump' | 'interact';
 
 /**
- * Unifica teclado y controles táctiles bajo una sola API de acciones.
- * Cada escena crea el suyo y llama a update() al inicio de su update().
+ * Unifica teclado y controles táctiles de un dedo bajo una sola API de acciones.
  */
 export class InputManager {
   private scene: Phaser.Scene;
@@ -13,15 +12,15 @@ export class InputManager {
   private touchState: Partial<Record<Action, boolean>> = {};
   private cur: Partial<Record<Action, boolean>> = {};
   private prev: Partial<Record<Action, boolean>> = {};
-  /** Acciones «pulsadas» por un gesto: cuentan como presionadas durante un cuadro. */
   private pulses = new Set<Action>();
 
-  // Joystick virtual
+  // Joystick virtual (esquina inferior izquierda o flotante de un dedo)
   joyX = 0;
   joyY = 0;
   private joyPointerId = -1;
   private joyBase?: Phaser.GameObjects.Arc;
   private joyThumb?: Phaser.GameObjects.Arc;
+  private floatingAnchor?: { x: number; y: number };
 
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
@@ -40,7 +39,6 @@ export class InputManager {
       add('space', K.SPACE);
       add('e', K.E);
       add('enter', K.ENTER);
-      // Una pulsación más corta que un cuadro no debe perderse: se registra como pulso
       const byCode: Record<number, Action[]> = {
         [K.LEFT]: ['left'],
         [K.A]: ['left'],
@@ -60,7 +58,6 @@ export class InputManager {
     }
   }
 
-  /** ¿Estamos en un dispositivo táctil? (para mostrar controles en pantalla) */
   get isTouch(): boolean {
     return this.scene.sys.game.device.input.touch;
   }
@@ -87,7 +84,6 @@ export class InputManager {
     }
   }
 
-  /** Llamar al inicio del update() de la escena para detectar flancos. */
   update(): void {
     const actions: Action[] = ['left', 'right', 'up', 'down', 'jump', 'interact'];
     for (const a of actions) {
@@ -97,7 +93,6 @@ export class InputManager {
     this.pulses.clear();
   }
 
-  /** Simula una pulsación breve (un cuadro) de una acción. */
   pulse(a: Action): void {
     this.pulses.add(a);
   }
@@ -112,7 +107,6 @@ export class InputManager {
 
   // ── Controles táctiles ──
 
-  /** Botón circular semitransparente fijo a la cámara. */
   addButton(x: number, y: number, radius: number, label: string, action: Action): void {
     const s = this.scene;
     const zone = s.add
@@ -147,7 +141,6 @@ export class InputManager {
     zone.on('pointerout', off);
   }
 
-  /** Joystick virtual en la esquina inferior izquierda. */
   addJoystick(): void {
     const s = this.scene;
     const bx = 110;
@@ -164,7 +157,6 @@ export class InputManager {
       .setDepth(DEPTH_HUD + 1);
 
     s.input.on('pointerdown', (p: Phaser.Input.Pointer) => {
-      // Solo la mitad izquierda de la pantalla controla el joystick
       if (this.joyPointerId === -1 && p.x < GAME_WIDTH * 0.45) {
         this.joyPointerId = p.id;
         this.moveJoy(p);
@@ -180,6 +172,68 @@ export class InputManager {
         this.joyY = 0;
         this.joyThumb?.setPosition(bx, by);
       }
+    };
+    s.input.on('pointerup', release);
+    s.input.on('pointerupoutside', release);
+  }
+
+  /**
+   * Stick flotante de UN SOLO DEDO: arrastrar en cualquier parte mueve `joyX`/`joyY`,
+   * y un toque corto sin arrastre dispara `onTap` (ideal para 3D o exploración pura).
+   */
+  addOneFingerStick(onTap?: (x: number, y: number) => void): void {
+    const s = this.scene;
+    let pointerId = -1;
+    let moved = false;
+    let downTime = 0;
+    this.joyBase = s.add
+      .circle(0, 0, 50, 0xffffff, 0.08)
+      .setScrollFactor(0)
+      .setDepth(DEPTH_HUD)
+      .setStrokeStyle(2, 0xffffff, 0.35)
+      .setVisible(false);
+    this.joyThumb = s.add
+      .circle(0, 0, 20, 0xffffff, 0.25)
+      .setScrollFactor(0)
+      .setDepth(DEPTH_HUD + 1)
+      .setVisible(false);
+
+    s.input.on('pointerdown', (p: Phaser.Input.Pointer) => {
+      if (p.y < 64 && p.x > GAME_WIDTH - 120) return;
+      if (pointerId !== -1) return;
+      pointerId = p.id;
+      moved = false;
+      downTime = p.time;
+      this.floatingAnchor = { x: p.x, y: p.y };
+      this.joyBase?.setPosition(p.x, p.y).setVisible(true);
+      this.joyThumb?.setPosition(p.x, p.y).setVisible(true);
+    });
+    s.input.on('pointermove', (p: Phaser.Input.Pointer) => {
+      if (p.id !== pointerId || !this.floatingAnchor) return;
+      const dx = p.x - this.floatingAnchor.x;
+      const dy = p.y - this.floatingAnchor.y;
+      const len = Math.hypot(dx, dy);
+      if (len > 14) moved = true;
+      const max = 48;
+      const cl = Math.min(len, max);
+      const nx = len > 0 ? dx / len : 0;
+      const ny = len > 0 ? dy / len : 0;
+      this.joyThumb?.setPosition(this.floatingAnchor.x + nx * cl, this.floatingAnchor.y + ny * cl);
+      this.joyX = (nx * cl) / max;
+      this.joyY = (ny * cl) / max;
+    });
+    const release = (p: Phaser.Input.Pointer) => {
+      if (p.id !== pointerId) return;
+      if (!moved && p.time - downTime < 280) {
+        onTap?.(p.x, p.y);
+        this.pulse('interact');
+      }
+      pointerId = -1;
+      this.floatingAnchor = undefined;
+      this.joyX = 0;
+      this.joyY = 0;
+      this.joyBase?.setVisible(false);
+      this.joyThumb?.setVisible(false);
     };
     s.input.on('pointerup', release);
     s.input.on('pointerupoutside', release);
@@ -201,17 +255,12 @@ export class InputManager {
     this.joyY = (ny * cl) / max;
   }
 
-  /**
-   * Gestos del runner: tocar = salto corto, mantener = salto alto,
-   * deslizar hacia abajo = barrerse (o caer en picada en el aire).
-   */
   addRunnerGestures(): void {
     const s = this.scene;
     let start: { y: number; id: number } | undefined;
     let decided = false;
     let holdTimer: Phaser.Time.TimerEvent | undefined;
     s.input.on('pointerdown', (p: Phaser.Input.Pointer) => {
-      // La esquina de pausa/sonido no cuenta como salto
       if (p.y < 60 && p.x > GAME_WIDTH - 110) return;
       start = { y: p.y, id: p.id };
       decided = false;
@@ -230,11 +279,10 @@ export class InputManager {
           decided = true;
           this.pulse('down');
         } else if (this.touchState.jump) {
-          // Ya saltando: deslizar hacia abajo es caer en picada
           this.touchState.jump = false;
           this.pulse('down');
         }
-        start.y = p.y + 999; // un deslizamiento por gesto
+        start.y = p.y + 999;
       }
     });
     const end = (p: Phaser.Input.Pointer) => {
@@ -248,7 +296,6 @@ export class InputManager {
     s.input.on('pointerupoutside', end);
   }
 
-  /** Detecta toques rápidos y deslizamientos hacia abajo (para el runner). */
   addTapAndSwipe(onTap: () => void, onSwipeDown: () => void): void {
     const s = this.scene;
     let startY = 0;

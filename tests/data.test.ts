@@ -5,6 +5,7 @@ import { PATIO_PLANTS, PATIO_MEMORIES, PATIO_FIREFLIES } from '../src/data/patio
 import { HIDE_SLOTS, LIGHT_SLOTS, CRAYON_SPOTS, DOOR_X } from '../src/data/chase';
 import { TRACKS } from '../src/systems/audio/tracks';
 import { FIREFLY_TOTALS } from '../src/systems/SaveManager';
+import { es } from '../src/i18n/es';
 
 describe('examen de Don Élmer', () => {
   it('las preguntas van en orden y dentro del recorrido', () => {
@@ -45,7 +46,7 @@ describe('la caída de Nadia', () => {
   });
 
   it('cada caja dice algo por fuera', () => {
-    for (const item of FALL_ITEMS) expect(item.box.trim()).not.toBe('');
+    for (const item of FALL_ITEMS) expect(es[item.boxKey].trim()).not.toBe('');
   });
 });
 
@@ -76,7 +77,12 @@ describe('la canción del edificio', () => {
     expect(layerOf('broom')).toBe(1);
     expect(layerOf('box')).toBe(2);
     expect(layerOf('drop')).toBe(3);
-    expect(layerOf('knock')).toBe(4);
-    expect(song.voices.find((v) => v.inst === 'hum')?.layer).toBe(5);
+    expect(layerOf('reel')).toBe(4);
+    expect(layerOf('snip')).toBe(5);
+    expect(layerOf('chime')).toBe(6);
+    expect(layerOf('knock')).toBe(7);
+    expect(layerOf('press')).toBe(8);
+    expect(layerOf('pendulum')).toBe(9);
+    expect(song.voices.find((v) => v.inst === 'hum')?.layer).toBe(10);
   });
 });

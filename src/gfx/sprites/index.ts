@@ -87,8 +87,18 @@ export function registerAllSprites(scene: Phaser.Scene): void {
     ],
     repeat: -1,
   });
-  // Los vecinos solo parpadean: están dormidos soñando, no hace falta más
-  for (const who of ['elmer', 'nadia', 'chuy', 'tomas']) {
+  // Los vecinos solo parpadean: están dormidos soñando
+  for (const who of [
+    'elmer',
+    'nadia',
+    'chuy',
+    'goyo',
+    'renata',
+    'paloma',
+    'tomas',
+    'mateo',
+    'octavio',
+  ]) {
     anims.create({
       key: `${who}-idle`,
       frames: [

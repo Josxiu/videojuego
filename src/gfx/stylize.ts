@@ -14,15 +14,19 @@ import {
 /**
  * «Transferencia de estilo» en runtime.
  *
- * Los personajes se dibujan una sola vez como pixel art (ver sprites.ts) y cada
- * sueño los re-interpreta con su propia técnica: gis sobre pizarrón, papel
- * recortado, acuarela o crayola. Es la misma Iris, pero en la mente de otra
- * persona: por eso se ve distinta en cada sueño.
- *
- * Cada textura estilizada se genera a mayor resolución (`STYLE_RES` píxeles por
- * píxel original) con filtrado lineal, así se ve suave y no pixelada.
+ * Los personajes se dibujan una sola vez como pixel art (ver sprites/) y cada
+ * sueño los re-interpreta con su propia técnica: gis, papel recortado, acuarela,
+ * crayola, teatro de sombras, bordado en cruz, vitral emplomado o xilografía.
  */
-export type ArtStyle = 'chalk' | 'paper' | 'watercolor' | 'crayon';
+export type ArtStyle =
+  | 'chalk'
+  | 'paper'
+  | 'watercolor'
+  | 'crayon'
+  | 'shadow'
+  | 'embroidery'
+  | 'stainedglass'
+  | 'woodcut';
 
 /** Píxeles de la textura estilizada por cada píxel del sprite original. */
 export const STYLE_RES = 4;
@@ -33,11 +37,8 @@ export const STYLE_DISPLAY = PIXEL_SCALE / STYLE_RES;
 
 export const styledKey = (base: string, style: ArtStyle): string => `${base}@${style}`;
 
-/** Parámetros de cada técnica. */
 interface StyleSpec {
-  /** Aspereza del borde (0 = corte limpio). */
   rough: number;
-  /** Escala del ruido del borde: grande = ondulado, pequeño = áspero. */
   roughScale: number;
 }
 
@@ -46,6 +47,10 @@ const SPECS: Record<ArtStyle, StyleSpec> = {
   paper: { rough: 0.14, roughScale: 6 },
   watercolor: { rough: 0.45, roughScale: 5 },
   crayon: { rough: 0.5, roughScale: 2.2 },
+  shadow: { rough: 0.08, roughScale: 7 },
+  embroidery: { rough: 0.1, roughScale: 2 },
+  stainedglass: { rough: 0.05, roughScale: 8 },
+  woodcut: { rough: 0.25, roughScale: 3 },
 };
 
 const CHALK_WHITE: RGB = [242, 239, 230];
@@ -53,17 +58,19 @@ const PAPER_WHITE: RGB = [251, 246, 234];
 const PAPER_CREAM: RGB = [250, 243, 226];
 const GRAPHITE: RGB = [70, 62, 60];
 const CRAYON_DARK: RGB = [43, 35, 64];
+const SHADOW_CORE: RGB = [18, 10, 6];
+const SHADOW_AMBER: RGB = [255, 190, 85];
+const LEAD_DARK: RGB = [16, 18, 30];
+const WOOD_INK: RGB = [24, 25, 36];
+const WOOD_PAPER: RGB = [242, 234, 215];
 
-/** Datos del cuadro original ya clasificados. */
 interface Source {
   w: number;
   h: number;
   opaque: Uint8Array;
   dark: Uint8Array;
-  /** Oscuro y tocando el exterior: contorno de silueta (no detalle interior). */
   rim: Uint8Array;
   color: RGB[];
-  /** Color de relleno más cercano (para pintar encima de los contornos). */
   fill: RGB[];
 }
 
@@ -91,7 +98,6 @@ function readSource(img: ImageData): Source {
       if (!at(x - 1, y) || !at(x + 1, y) || !at(x, y - 1) || !at(x, y + 1)) rim[i] = 1;
     }
   }
-  // Relleno: el color claro más cercano (radio 3), para que el contorno no ensucie
   const fill: RGB[] = new Array(n);
   for (let y = 0; y < h; y++) {
     for (let x = 0; x < w; x++) {
@@ -122,7 +128,6 @@ function readSource(img: ImageData): Source {
   return { w, h, opaque, dark, rim, color, fill };
 }
 
-/** Alfa bilineal del original en coordenadas continuas (fuera = 0). */
 function smoothAlpha(src: Source, sx: number, sy: number): number {
   const x0 = Math.floor(sx);
   const y0 = Math.floor(sy);
@@ -135,10 +140,6 @@ function smoothAlpha(src: Source, sx: number, sy: number): number {
   return top * (1 - fy) + bot * fy;
 }
 
-/**
- * Distancia de tablero de ajedrez hasta el píxel más cercano que NO vale `value`
- * (transformada de dos pasadas, lineal). Los píxeles que no valen `value` quedan en 0.
- */
 function chessDistance(mask: Uint8Array, w: number, h: number, value: number, cap: number) {
   const d = new Uint8Array(w * h);
   for (let i = 0; i < w * h; i++) d[i] = mask[i] === value ? cap : 0;
@@ -173,7 +174,6 @@ function chessDistance(mask: Uint8Array, w: number, h: number, value: number, ca
   return d;
 }
 
-/** Distancia (acotada) de cada píxel interior al exterior y de cada exterior al interior. */
 function distanceMaps(mask: Uint8Array, w: number, h: number, maxD: number) {
   return {
     toOut: chessDistance(mask, w, h, 1, maxD),
@@ -192,7 +192,6 @@ export function stylizeFrame(img: ImageData, style: ArtStyle, seed: number): Ima
   const out = new ImageData(W, H);
   const px = out.data;
 
-  // 1. Máscara suave con borde irregular según la técnica
   const mask = new Uint8Array(W * H);
   const nearest = new Int32Array(W * H).fill(-1);
   for (let y = 0; y < H; y++) {
@@ -208,7 +207,6 @@ export function stylizeFrame(img: ImageData, style: ArtStyle, seed: number): Ima
       if (ix >= 0 && iy >= 0 && ix < src.w && iy < src.h) nearest[i] = iy * src.w + ix;
     }
   }
-  // Un píxel de la máscara sin píxel original debajo toma el vecino opaco más cercano
   const srcIndexAt = (i: number): number => {
     const j = nearest[i];
     if (j >= 0 && src.opaque[j]) return j;
@@ -236,7 +234,6 @@ export function stylizeFrame(img: ImageData, style: ArtStyle, seed: number): Ima
   };
 
   const put = (i: number, c: RGB, a: number) => {
-    // Composición "sobre" lo ya pintado (para sombra, borde y figura en capas)
     const o = i * 4;
     const da = px[o + 3] / 255;
     const oa = a + da * (1 - a);
@@ -252,7 +249,6 @@ export function stylizeFrame(img: ImageData, style: ArtStyle, seed: number): Ima
 
   switch (style) {
     case 'chalk': {
-      // El gis es claro por naturaleza: todo color sube a pastel luminoso
       const chalkOf = (c: RGB): RGB => {
         let p = mixRgb(saturate(c, 1.3), CHALK_WHITE, 0.4);
         const l = luminance(p);
@@ -264,7 +260,6 @@ export function stylizeFrame(img: ImageData, style: ArtStyle, seed: number): Ima
         const y = (i / W) | 0;
         const grain = 0.6 + 0.4 * hash2(x, y, seed);
         if (!mask[i]) {
-          // Polvo de gis que se sale del trazo
           if (toIn[i] <= 2 && hash2(x, y, seed + 9) < 0.1) put(i, CHALK_WHITE, 0.35 * grain);
           continue;
         }
@@ -284,7 +279,6 @@ export function stylizeFrame(img: ImageData, style: ArtStyle, seed: number): Ima
       break;
     }
     case 'paper': {
-      // Sombra proyectada (desplazada), luego el borde blanco del recorte, luego la figura
       const SX = 3;
       const SY = 4;
       for (let i = 0; i < W * H; i++) {
@@ -318,7 +312,6 @@ export function stylizeFrame(img: ImageData, style: ArtStyle, seed: number): Ima
       break;
     }
     case 'watercolor': {
-      // Capa de color con sangrado (desenfoque de caja entre regiones vecinas)
       const layer: (RGB | undefined)[] = new Array(W * H);
       for (let i = 0; i < W * H; i++) {
         if (!mask[i]) continue;
@@ -355,7 +348,6 @@ export function stylizeFrame(img: ImageData, style: ArtStyle, seed: number): Ima
         const gran = 0.93 + 0.07 * hash2(x, y, seed + 5);
         let a = 0.72;
         if (toOut[i] <= 1) {
-          // El pigmento se acumula en el borde de la mancha
           c = scaleRgb(c, 0.74);
           a = 0.95;
         } else if (toOut[i] === 2) {
@@ -364,7 +356,6 @@ export function stylizeFrame(img: ImageData, style: ArtStyle, seed: number): Ima
         }
         put(i, scaleRgb(c, blotch * gran), a);
       }
-      // Trazo de lápiz por fuera, con huecos
       for (let i = 0; i < W * H; i++) {
         if (mask[i] || toIn[i] !== 1) continue;
         const x = i % W;
@@ -388,7 +379,6 @@ export function stylizeFrame(img: ImageData, style: ArtStyle, seed: number): Ima
           put(i, src.dark[j] && !src.rim[j] ? CRAYON_DARK : dark, 0.92);
           continue;
         }
-        // Veta de cera: rayas diagonales con el diente del papel asomando
         const tt = (x * 0.8 + y * 0.35) / 2.6 + vnoise(x / 6, y / 6, seed) * 1.2;
         const streak = tt - Math.floor(tt) < 0.7 ? 0.95 : 0.4;
         const tooth = hash2(x, y, seed + 6) < 0.13 ? 0.35 : 1;
@@ -396,14 +386,100 @@ export function stylizeFrame(img: ImageData, style: ArtStyle, seed: number): Ima
       }
       break;
     }
+    case 'shadow': {
+      // Títere de sombra chinesca: núcleo carbón + halo cálido de acetato en el borde
+      for (let i = 0; i < W * H; i++) {
+        if (!mask[i] && toIn[i] <= 2) {
+          put(i, SHADOW_AMBER, toIn[i] === 1 ? 0.48 : 0.2);
+          continue;
+        }
+        if (!mask[i]) continue;
+        const j = srcIndexAt(i);
+        if (j < 0) continue;
+        if (toOut[i] <= 1) {
+          put(i, mixRgb(SHADOW_AMBER, src.fill[j], 0.4), 0.95);
+        } else if (src.dark[j] && !src.rim[j]) {
+          // Ojos y detalles interiores brillan como corte en el acetato
+          put(i, SHADOW_AMBER, 0.88);
+        } else {
+          // Ligero tinte translúcido del color original sobre carbón
+          put(i, mixRgb(SHADOW_CORE, src.fill[j], 0.22), 0.96);
+        }
+      }
+      break;
+    }
+    case 'embroidery': {
+      // Punto de cruz 4×4 por cada píxel del sprite original
+      for (let y = 0; y < H; y++) {
+        for (let x = 0; x < W; x++) {
+          const i = y * W + x;
+          if (!mask[i]) continue;
+          const j = srcIndexAt(i);
+          if (j < 0) continue;
+          const cx = (x - P) % R;
+          const cy = (y - P) % R;
+          const onDiag = cx === cy || cx + cy === R - 1;
+          const nearDiag = Math.abs(cx - cy) <= 1 || Math.abs(cx + cy - (R - 1)) <= 1;
+          if (!nearDiag) {
+            // Fondo sutil de lino bajo la costura
+            put(i, mixRgb(src.color[j], PAPER_CREAM, 0.65), 0.35);
+            continue;
+          }
+          const c = src.dark[j] && !src.rim[j] ? [52, 34, 24] : saturate(src.color[j], 1.15);
+          const shade = onDiag ? 1.08 : 0.8;
+          put(i, scaleRgb(c as RGB, shade), onDiag ? 0.98 : 0.72);
+        }
+      }
+      break;
+    }
+    case 'stainedglass': {
+      // Vitral emplomado: teselas internas saturadas + plomo oscuro grueso
+      for (let i = 0; i < W * H; i++) {
+        if (!mask[i]) continue;
+        const j = srcIndexAt(i);
+        if (j < 0) continue;
+        const x = i % W;
+        const y = (i / W) | 0;
+        const cellA = Math.floor((x + y * 0.6) / 7);
+        const cellB = Math.floor((x * 0.5 - y) / 7);
+        const edgeX = (x + y * 0.6) % 7 < 1.1 || (x * 0.5 - y + 700) % 7 < 1.1;
+        if (toOut[i] <= 2 || edgeX || (src.dark[j] && !src.rim[j])) {
+          put(i, LEAD_DARK, 0.98);
+        } else {
+          const facet = 0.85 + 0.3 * hash2(cellA, cellB, seed);
+          const jewel = saturate(scaleRgb(src.fill[j], facet), 1.35);
+          put(i, jewel, 0.9);
+        }
+      }
+      break;
+    }
+    case 'woodcut': {
+      // Grabado en linóleo: alto contraste tinta/papel con tramas diagonales de gubia
+      for (let i = 0; i < W * H; i++) {
+        if (!mask[i]) continue;
+        const j = srcIndexAt(i);
+        if (j < 0) continue;
+        const x = i % W;
+        const y = (i / W) | 0;
+        const lum = luminance(src.color[j]);
+        const hatch = (x + y) % 4 === 0;
+        const cross = (x - y + 400) % 5 === 0;
+        if (toOut[i] <= 2 || src.dark[j]) {
+          put(i, WOOD_INK, 0.98);
+        } else if (lum > 0.65) {
+          put(i, hatch ? WOOD_INK : WOOD_PAPER, hatch ? 0.35 : 0.96);
+        } else if (lum > 0.38) {
+          put(i, hatch || cross ? WOOD_INK : WOOD_PAPER, 0.95);
+        } else {
+          put(i, (x + y * 2) % 5 === 0 ? WOOD_PAPER : WOOD_INK, 0.96);
+        }
+      }
+      break;
+    }
   }
   return out;
 }
 
-/**
- * Crea (una sola vez) la versión estilizada de una textura, con los mismos
- * nombres de cuadro que la original. Devuelve la clave nueva.
- */
 export function stylizeTexture(scene: Phaser.Scene, baseKey: string, style: ArtStyle): string {
   const key = styledKey(baseKey, style);
   const tm = scene.textures;
@@ -414,7 +490,6 @@ export function stylizeTexture(scene: Phaser.Scene, baseKey: string, style: ArtS
   const names = base.getFrameNames().filter((n) => n !== '__BASE');
   const frames = names.length ? names.map((n) => base.get(n)) : [base.get('__BASE')];
 
-  // Lectura de píxeles del original
   const probe = document.createElement('canvas');
   probe.width = img.width;
   probe.height = img.height;
@@ -448,7 +523,6 @@ export function stylizeTexture(scene: Phaser.Scene, baseKey: string, style: ArtS
   return key;
 }
 
-/** Duplica una animación apuntando a las texturas estilizadas. */
 export function stylizeAnim(scene: Phaser.Scene, animKey: string, style: ArtStyle): string {
   const key = styledKey(animKey, style);
   if (scene.anims.exists(key)) return key;
@@ -469,7 +543,6 @@ export function stylizeAnim(scene: Phaser.Scene, animKey: string, style: ArtStyl
   return key;
 }
 
-/** Prepara de una vez texturas y animaciones de un sueño. */
 export function ensureStyle(
   scene: Phaser.Scene,
   style: ArtStyle,
@@ -480,16 +553,11 @@ export function ensureStyle(
   anims.forEach((a) => stylizeAnim(scene, a, style));
 }
 
-/** Origen vertical que deja los pies de un sprite estilizado sobre el suelo. */
 export function footOriginY(frameHeightBase: number): number {
   const inner = frameHeightBase * STYLE_RES;
   return (STYLE_PAD + inner) / (inner + STYLE_PAD * 2);
 }
 
-/**
- * Crea un sprite estilizado a la misma escala visual que el pixel art original.
- * `feet` deja el origen en la base del dibujo (como setOrigin(0.5, 1)).
- */
 export function addStyled(
   scene: Phaser.Scene,
   x: number,

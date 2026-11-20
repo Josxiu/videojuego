@@ -14,6 +14,7 @@ import {
   type Pt,
 } from '../../gfx/brush';
 import { FALL_ITEMS } from '../../data/fallBiomes';
+import { t } from '../../i18n';
 
 /**
  * El arte de La Caída Sin Fin: un diorama de papel recortado.
@@ -544,10 +545,11 @@ export function paintFallProps(scene: Phaser.Scene): void {
       );
       tape(ctx, 55, 18, 26, 26, Math.PI / 2, rng);
       tape(ctx, 55, 30, 18, 36, 0, rng);
+      const boxLabel = t(item.boxKey);
       ctx.fillStyle = '#2a2a2a';
-      ctx.font = HAND(item.box.length > 7 ? 17 : 21);
+      ctx.font = HAND(boxLabel.length > 7 ? 17 : 21);
       ctx.textAlign = 'center';
-      ctx.fillText(item.box, 55, 70);
+      ctx.fillText(boxLabel, 55, 70);
     });
   });
   paintTexture(scene, 'fall-box-open', 110, 96, (ctx) => {

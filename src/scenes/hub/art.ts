@@ -16,14 +16,21 @@ import {
   grain,
   type Ctx,
 } from '../../gfx/brush';
+import {
+  amberBackdrop,
+  linenWeave,
+  crossStitchRect,
+  glassPane,
+  cottonPaper,
+  woodcutBlock,
+} from '../../gfx/brush2';
 
 /**
  * El arte del Entresueño: el tiro de luz del edificio visto desde adentro.
- * Es pixel art suave (el mundo «de en medio»); solo las mirillas de las
- * puertas dejan ver la técnica de cada sueño.
+ * Evoluciona por actos (cortinas acústicas de Octavio, frascos atrapados, álbum)
+ * y cada puerta muestra en su mirilla la técnica de su sueño.
  */
 
-/** Fondo lejano: la pared del tiro de luz con sus ventanas y ductos (mosaico). */
 export function paintHub(scene: Phaser.Scene): void {
   paintTexture(
     scene,
@@ -38,7 +45,6 @@ export function paintHub(scene: Phaser.Scene): void {
       g.addColorStop(1, '#221a48');
       ctx.fillStyle = g;
       ctx.fillRect(0, 0, w, h);
-      // Ventanas de los cuarenta departamentos, casi todas dormidas
       for (let y = 30; y < h - 150; y += 64) {
         for (let x = 24; x < w; x += 80) {
           const lit = rng.chance(0.1);
@@ -48,7 +54,6 @@ export function paintHub(scene: Phaser.Scene): void {
           ctx.fillRect(x + 13, y, 2, 34);
         }
       }
-      // Ductos por donde suben los sueños
       for (const x of [180, 520, 820]) {
         ctx.fillStyle = 'rgba(40,32,80,0.9)';
         ctx.fillRect(x, 0, 22, h);
@@ -64,28 +69,26 @@ export function paintHub(scene: Phaser.Scene): void {
     false,
   );
 
-  // La ventanilla de Morfeo
   paintTexture(
     scene,
     'hub-desk',
-    190,
+    210,
     120,
     (ctx) => {
       ctx.fillStyle = '#4a2e1c';
-      ctx.fillRect(10, 50, 170, 70);
+      ctx.fillRect(10, 50, 190, 70);
       ctx.fillStyle = '#6a4228';
-      ctx.fillRect(4, 44, 182, 10);
+      ctx.fillRect(4, 44, 202, 10);
       ctx.fillStyle = '#3a2214';
       ctx.fillRect(20, 62, 70, 50);
       ctx.fillStyle = '#8a5a3a';
       ctx.fillRect(50, 84, 10, 4);
-      // Expedientes de sueños
       const cols = ['#d8c8a0', '#c8b890', '#e8dcc0'];
       for (let i = 0; i < 6; i++) {
         ctx.fillStyle = cols[i % 3];
         ctx.fillRect(116 + (i % 2) * 3, 42 - i * 6, 46, 5);
       }
-      // Lámpara de escritorio
+      // Lámpara
       ctx.fillStyle = '#2a2a3a';
       ctx.fillRect(28, 20, 4, 26);
       ctx.fillStyle = '#86f7ff';
@@ -95,7 +98,12 @@ export function paintHub(scene: Phaser.Scene): void {
       ctx.lineTo(38, 10);
       ctx.lineTo(22, 10);
       ctx.fill();
-      // Sello y timbre
+      // Álbum del Entresueño sobre la esquina derecha del escritorio
+      ctx.fillStyle = '#6b2d46';
+      ctx.fillRect(166, 30, 32, 14);
+      ctx.fillStyle = '#ffd166';
+      ctx.fillRect(172, 34, 20, 4);
+      // Sello
       ctx.fillStyle = '#b83a3a';
       ctx.fillRect(96, 36, 12, 8);
       ctx.fillStyle = '#2a2a3a';
@@ -104,7 +112,7 @@ export function paintHub(scene: Phaser.Scene): void {
     false,
   );
 
-  // Tapetes de cada puerta
+  // Tapetes de todas las puertas
   const mat = (key: string, color: string, stripe: string) =>
     paintTexture(
       scene,
@@ -122,7 +130,12 @@ export function paintHub(scene: Phaser.Scene): void {
   mat('exam', '#5a4a3a', '#7a6a5a');
   mat('fall', '#8a5a3a', '#b8864a');
   mat('forest', '#6a3a5a', '#d83a8a');
+  mat('shadow', '#2d180a', '#ffb84d');
+  mat('embroidery', '#8b5e3c', '#c84b5a');
+  mat('glass', '#1a2748', '#4cc9f0');
   mat('chase', '#2a3a8a', '#ffd23a');
+  mat('woodcut', '#262a3d', '#b8332a');
+  mat('chamber3d', '#4c566a', '#5eead4');
   mat('wake', '#7a5a2a', '#ffd166');
 
   // Mirillas: cada puerta deja ver la técnica de su sueño
@@ -168,6 +181,66 @@ export function paintHub(scene: Phaser.Scene): void {
     blot(ctx, 28, 18, 10, '#d83a8a', rng, { layers: 5, alpha: 0.28 });
     blot(ctx, 22, 38, 7, '#5a9a4a', rng, { layers: 4, alpha: 0.3 });
   });
+  peep('shadow', (ctx, rng) => {
+    amberBackdrop(ctx, 40, 48, rng);
+    ctx.fillStyle = '#120a06';
+    ctx.beginPath();
+    ctx.arc(20, 26, 10, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#ffb84d';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(2, 2, 36, 44);
+  });
+  peep('embroidery', (ctx, rng) => {
+    linenWeave(ctx, 40, 48, '#efe6d5', rng);
+    crossStitchRect(ctx, 8, 10, 24, 28, '#c84b5a', 8);
+  });
+  peep('glass', (ctx, rng) => {
+    glassPane(
+      ctx,
+      [
+        [0, 0],
+        [40, 0],
+        [20, 24],
+      ],
+      '#ffc857',
+      rng,
+      { leadW: 3 },
+    );
+    glassPane(
+      ctx,
+      [
+        [0, 0],
+        [20, 24],
+        [0, 48],
+      ],
+      '#4cc9f0',
+      rng,
+      { leadW: 3 },
+    );
+    glassPane(
+      ctx,
+      [
+        [40, 0],
+        [40, 48],
+        [20, 24],
+      ],
+      '#f72585',
+      rng,
+      { leadW: 3 },
+    );
+    glassPane(
+      ctx,
+      [
+        [0, 48],
+        [20, 24],
+        [40, 48],
+      ],
+      '#4361ee',
+      rng,
+      { leadW: 3 },
+    );
+  });
   peep('chase', (ctx, rng) => {
     ctx.fillStyle = '#fffdf6';
     ctx.fillRect(0, 0, 40, 48);
@@ -175,6 +248,30 @@ export function paintHub(scene: Phaser.Scene): void {
     scribble(ctx, 20, 26, 12, 14, rng, { color: '#0c0a14', loops: 6, width: 2.4 });
     crayonFill(ctx, ellipsePoly(15, 22, 3, 3, 8), '#ff3b3b', rng, { coverage: 1, alpha: 1 });
     crayonFill(ctx, ellipsePoly(25, 22, 3, 3, 8), '#ff3b3b', rng, { coverage: 1, alpha: 1 });
+  });
+  peep('woodcut', (ctx, rng) => {
+    cottonPaper(ctx, 40, 48, rng, false);
+    woodcutBlock(ctx, 6, 6, 28, 36, rng, { hatch: true });
+    ctx.fillStyle = '#b8332a';
+    ctx.fillRect(14, 18, 12, 12);
+  });
+  peep('chamber3d', (ctx) => {
+    ctx.fillStyle = '#d8dee9';
+    ctx.fillRect(0, 0, 40, 48);
+    ctx.strokeStyle = '#3b4252';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(4, 4, 32, 40);
+    ctx.strokeRect(12, 14, 16, 20);
+    ctx.beginPath();
+    ctx.moveTo(4, 4);
+    ctx.lineTo(12, 14);
+    ctx.moveTo(36, 4);
+    ctx.lineTo(28, 14);
+    ctx.moveTo(4, 44);
+    ctx.lineTo(12, 34);
+    ctx.moveTo(36, 44);
+    ctx.lineTo(28, 34);
+    ctx.stroke();
   });
   peep('own', (ctx, rng) => {
     ctx.fillStyle = '#1a1640';
@@ -184,7 +281,7 @@ export function paintHub(scene: Phaser.Scene): void {
     ctx.fillRect(10, 8, 20, 22);
   });
 
-  // Adornos de cada vecino (pixel art pintado a mano)
+  // Adornos de puertas existentes
   paintTexture(
     scene,
     'hub-broom',
@@ -291,7 +388,6 @@ export function paintHub(scene: Phaser.Scene): void {
       ctx.restore();
     }
   });
-  // Polvo y telarañas para la puerta olvidada
   paintTexture(scene, 'hub-dust', 90, 130, (ctx) => {
     const rng = new Rng('polvo');
     ctx.strokeStyle = 'rgba(220,220,240,0.35)';
@@ -312,4 +408,133 @@ export function paintHub(scene: Phaser.Scene): void {
       ctx.fillRect(rng.range(0, 90), rng.range(0, 130), rng.range(1, 3), 1);
     }
   });
+
+  // Adornos nuevos: Acto II y III + sellos acústicos de Octavio
+  paintTexture(
+    scene,
+    'hub-reel',
+    46,
+    46,
+    (ctx) => {
+      ctx.fillStyle = '#2c221e';
+      ctx.beginPath();
+      ctx.arc(23, 23, 19, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#ffb84d';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.fillStyle = '#ffb84d';
+      ctx.beginPath();
+      ctx.arc(23, 23, 5, 0, Math.PI * 2);
+      ctx.fill();
+    },
+    false,
+  );
+  paintTexture(
+    scene,
+    'hub-spools',
+    52,
+    40,
+    (ctx) => {
+      const spool = (x: number, col: string) => {
+        ctx.fillStyle = '#8b5e3c';
+        ctx.fillRect(x, 8, 18, 4);
+        ctx.fillRect(x, 32, 18, 4);
+        ctx.fillStyle = col;
+        ctx.fillRect(x + 2, 12, 14, 20);
+      };
+      spool(4, '#c84b5a');
+      spool(28, '#446878');
+    },
+    false,
+  );
+  paintTexture(
+    scene,
+    'hub-lamp-sheet',
+    44,
+    66,
+    (ctx) => {
+      ctx.fillStyle = '#4c4c60';
+      ctx.fillRect(19, 34, 6, 30);
+      ctx.fillRect(10, 60, 24, 6);
+      ctx.fillStyle = '#d8d4e8';
+      ctx.beginPath();
+      ctx.moveTo(6, 36);
+      ctx.lineTo(14, 6);
+      ctx.lineTo(30, 6);
+      ctx.lineTo(38, 36);
+      ctx.closePath();
+      ctx.fill();
+    },
+    false,
+  );
+  paintTexture(
+    scene,
+    'hub-plates',
+    56,
+    48,
+    (ctx) => {
+      ctx.fillStyle = '#383c54';
+      ctx.fillRect(6, 18, 44, 28);
+      ctx.fillStyle = '#e8e0cc';
+      ctx.fillRect(12, 10, 32, 24);
+      ctx.fillStyle = '#b8332a';
+      ctx.fillRect(22, 18, 8, 8);
+    },
+    false,
+  );
+  // Sello acústico de Octavio sobre puertas del Acto II
+  paintTexture(
+    scene,
+    'hub-seal',
+    86,
+    110,
+    (ctx) => {
+      ctx.fillStyle = 'rgba(76, 86, 106, 0.85)';
+      ctx.fillRect(4, 34, 78, 16);
+      ctx.fillRect(4, 66, 78, 16);
+      ctx.fillStyle = '#ef4444';
+      ctx.fillRect(72, 39, 6, 6);
+      ctx.fillRect(72, 71, 6, 6);
+    },
+    false,
+  );
+  // Cortina de espuma anecoica de Octavio colgando arriba
+  paintTexture(
+    scene,
+    'hub-foam',
+    180,
+    90,
+    (ctx) => {
+      ctx.fillStyle = '#2e3440';
+      ctx.fillRect(0, 0, 180, 48);
+      for (let x = 0; x < 180; x += 20) {
+        ctx.fillStyle = x % 40 === 0 ? '#434c5e' : '#3b4252';
+        ctx.beginPath();
+        ctx.moveTo(x, 48);
+        ctx.lineTo(x + 20, 48);
+        ctx.lineTo(x + 10, 86);
+        ctx.closePath();
+        ctx.fill();
+      }
+    },
+    false,
+  );
+  // Frasco de vidrio con sueño encapsulado
+  paintTexture(
+    scene,
+    'hub-jar',
+    36,
+    48,
+    (ctx) => {
+      ctx.fillStyle = 'rgba(180, 225, 245, 0.35)';
+      ctx.fillRect(6, 10, 24, 34);
+      ctx.strokeStyle = 'rgba(220, 245, 255, 0.7)';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(6, 10, 24, 34);
+      ctx.fillStyle = '#4c566a';
+      ctx.fillRect(8, 4, 20, 6);
+    },
+    false,
+  );
 }

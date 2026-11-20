@@ -18,11 +18,18 @@ import {
   type Ctx,
   type Pt,
 } from '../../gfx/brush';
+import {
+  amberBackdrop,
+  linenWeave,
+  crossStitchRect,
+  glassPane,
+  cottonPaper,
+  woodcutBlock,
+} from '../../gfx/brush2';
 
 /**
  * El arte de La Canción del Edificio: el Girasol visto de frente, de noche.
- * Cada ventana de vecino está pintada con la técnica de su sueño; lo demás
- * es el edificio «real», en tonos de madrugada.
+ * Cada una de las 9 ventanas de vecinos está pintada con la técnica de su sueño.
  */
 
 export const BUILDING = { x: 270, w: 420, ground: 470, floorH: 70, floors: 6 };
@@ -30,19 +37,28 @@ const WIN_W = 50;
 const WIN_H = 40;
 const WIN_X = [30, 130, 250, 350];
 
-/** Centro de la ventana `col` del piso `level` (0 = planta baja). */
+/** Centro de la ventana `col` del piso `level` (0 = PB, 6 = Penthouse 6A en azotea). */
 export function windowCenter(level: number, col: number): [number, number] {
+  if (level >= BUILDING.floors) {
+    const roofY = BUILDING.ground - BUILDING.floors * BUILDING.floorH;
+    return [BUILDING.x + 250, roofY - 26];
+  }
   const top = BUILDING.ground - (level + 1) * BUILDING.floorH;
   return [BUILDING.x + WIN_X[col] + WIN_W / 2, top + 16 + WIN_H / 2];
 }
 
-/** Ventanas de los vecinos de esta historia: [piso, columna]. */
+/** Ventanas de los 10 personajes de esta historia: [piso, columna]. */
 export const NEIGHBOR_WINDOWS = {
   exam: [0, 0],
-  chase: [2, 1],
+  shadow: [1, 1],
+  chase: [2, 0],
+  embroidery: [2, 2],
+  woodcut: [3, 0],
   iris: [3, 2],
-  forest: [4, 1],
-  fall: [5, 3],
+  glass: [4, 0],
+  forest: [4, 2],
+  fall: [5, 1],
+  chamber3d: [6, 0],
 } as const;
 
 export function allWindows(): [number, number][] {
@@ -85,31 +101,31 @@ export function paintSong(scene: Phaser.Scene): void {
     sky(ctx, w, h, '#4a6ab8', '#f0a0a0', '#ffd8a0', new Rng('alba'), false),
   );
 
-  // El edificio Girasol
+  // El edificio Girasol (incluye caseta del Penthouse 6A en la azotea)
   paintTexture(
     scene,
     'song-building',
     BUILDING.w + 40,
     BUILDING.ground + 10,
     (ctx) => {
-      const rng = new Rng('girasol');
       const ox = 20;
       const top = BUILDING.ground - BUILDING.floors * BUILDING.floorH;
       ctx.translate(ox - BUILDING.x, 0);
-      // Tinacos y antenas en la azotea
+      // Tinaco y caseta del 6A en la azotea
       ctx.fillStyle = '#1a1433';
-      for (const x of [BUILDING.x + 40, BUILDING.x + 110]) {
-        ctx.fillRect(x, top - 44, 44, 40);
-        ctx.fillRect(x + 4, top - 50, 36, 8);
-      }
-      ctx.fillRect(BUILDING.x + 330, top - 70, 3, 66);
-      ctx.fillRect(BUILDING.x + 316, top - 60, 30, 3);
-      // Tendedero en la azotea
-      ctx.strokeStyle = '#2a2250';
-      ctx.beginPath();
-      ctx.moveTo(BUILDING.x + 180, top - 30);
-      ctx.lineTo(BUILDING.x + 300, top - 34);
-      ctx.stroke();
+      ctx.fillRect(BUILDING.x + 42, top - 42, 44, 38);
+      ctx.fillRect(BUILDING.x + 46, top - 48, 36, 8);
+      // Penthouse 6A (cuarto acústico de Octavio)
+      ctx.fillStyle = '#252147';
+      ctx.fillRect(BUILDING.x + 204, top - 48, 92, 48);
+      ctx.fillStyle = '#16132e';
+      ctx.fillRect(BUILDING.x + 198, top - 52, 104, 6);
+      ctx.fillStyle = '#121828';
+      ctx.fillRect(BUILDING.x + 225, top - 38, 50, 26);
+      // Antena
+      ctx.fillStyle = '#1a1433';
+      ctx.fillRect(BUILDING.x + 340, top - 58, 3, 54);
+      ctx.fillRect(BUILDING.x + 326, top - 48, 30, 3);
       // Fachada
       ctx.fillStyle = '#2a2250';
       ctx.fillRect(BUILDING.x, top, BUILDING.w, BUILDING.floors * BUILDING.floorH);
@@ -128,7 +144,7 @@ export function paintSong(scene: Phaser.Scene): void {
         ctx.fillStyle = '#3e3470';
         ctx.fillRect(cx - WIN_W / 2 - 3, cy + WIN_H / 2, WIN_W + 6, 4);
       }
-      // Balcón de Iris y de Doña Chuy
+      // Balcón de Iris (3B) y de Doña Chuy (4B)
       for (const [l, c] of [NEIGHBOR_WINDOWS.iris, NEIGHBOR_WINDOWS.forest]) {
         const [cx, cy] = windowCenter(l, c);
         ctx.fillStyle = '#3e3470';
@@ -136,14 +152,14 @@ export function paintSong(scene: Phaser.Scene): void {
         for (let k = 0; k < 9; k++) ctx.fillRect(cx - 42 + k * 10.5, cy + 4, 2, 18);
         ctx.fillRect(cx - 44, cy + 2, 88, 3);
       }
-      // Letrero y puerta de la entrada
+      // Entrada PB
       ctx.fillStyle = '#15102a';
       ctx.fillRect(BUILDING.x + 170, BUILDING.ground - 58, 80, 58);
       ctx.fillStyle = '#e0b040';
-      ctx.font = '15px "Silkscreen", monospace';
+      ctx.font = '13px "Silkscreen", monospace';
       ctx.textAlign = 'center';
-      ctx.fillText('EDIFICIO GIRASOL', BUILDING.x + BUILDING.w / 2, top + 2 + 0);
-      // Un girasol pequeño sobre la puerta
+      ctx.fillText('GIRASOL', BUILDING.x + BUILDING.w / 2, top + 12);
+      // Girasol sobre la entrada
       const fx = BUILDING.x + 210;
       const fy = BUILDING.ground - 70;
       for (let k = 0; k < 10; k++) {
@@ -157,12 +173,10 @@ export function paintSong(scene: Phaser.Scene): void {
       ctx.beginPath();
       ctx.arc(fx, fy, 5, 0, Math.PI * 2);
       ctx.fill();
-      void rng;
     },
     false,
   );
 
-  // La colonia alrededor: siluetas de otros edificios y un farol
   paintTexture(scene, 'song-skyline', 960, 300, (ctx, _w, h) => {
     const rng = new Rng('colonia');
     const blocks: [number, number, number][] = [
@@ -182,7 +196,6 @@ export function paintSong(scene: Phaser.Scene): void {
         }
       }
     }
-    // farol
     ctx.fillStyle = '#0e0a20';
     ctx.fillRect(760, h - 120, 5, 120);
     ctx.fillRect(740, h - 122, 30, 5);
@@ -193,7 +206,7 @@ export function paintSong(scene: Phaser.Scene): void {
     ctx.fillRect(680, h - 180, 130, 130);
   });
 
-  // Ventanas de los vecinos, cada una en su técnica
+  // ── Ventanas de los vecinos, cada una en su técnica ──
   const win = (key: string, draw: (ctx: Ctx, rng: Rng) => void) =>
     paintTexture(scene, `song-win-${key}`, WIN_W, WIN_H, (ctx) =>
       draw(ctx, new Rng(`ventana-${key}`)),
@@ -201,7 +214,6 @@ export function paintSong(scene: Phaser.Scene): void {
   win('exam', (ctx, rng) => {
     ctx.fillStyle = '#23392f';
     ctx.fillRect(0, 0, WIN_W, WIN_H);
-    // una escoba de gis
     chalkLine(ctx, 14, 6, 30, 30, rng, { width: 2, alpha: 1 });
     chalkStroke(
       ctx,
@@ -240,12 +252,69 @@ export function paintSong(scene: Phaser.Scene): void {
     blot(ctx, 34, 24, 10, '#d83a8a', rng, { layers: 5, alpha: 0.3 });
     blot(ctx, 25, 10, 5, '#4a9ad8', rng, { layers: 4, alpha: 0.4 });
   });
+  win('shadow', (ctx, rng) => {
+    amberBackdrop(ctx, WIN_W, WIN_H, rng);
+    ctx.fillStyle = '#120a06';
+    ctx.beginPath();
+    ctx.arc(18, 22, 10, 0, Math.PI * 2);
+    ctx.arc(34, 22, 8, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#ffb84d';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(2, 2, WIN_W - 4, WIN_H - 4);
+  });
+  win('embroidery', (ctx, rng) => {
+    linenWeave(ctx, WIN_W, WIN_H, '#efe6d5', rng);
+    crossStitchRect(ctx, 8, 8, 32, 24, '#c84b5a', 8);
+  });
+  win('glass', (ctx, rng) => {
+    glassPane(
+      ctx,
+      [
+        [2, 2],
+        [26, 2],
+        [20, 38],
+        [2, 38],
+      ],
+      '#4cc9f0',
+      rng,
+      { leadW: 3 },
+    );
+    glassPane(
+      ctx,
+      [
+        [26, 2],
+        [48, 2],
+        [48, 38],
+        [20, 38],
+      ],
+      '#ffc857',
+      rng,
+      { leadW: 3 },
+    );
+  });
   win('chase', (ctx, rng) => {
     ctx.fillStyle = '#fffdf6';
     ctx.fillRect(0, 0, WIN_W, WIN_H);
     crayonFill(ctx, rectPoly(0, 0, WIN_W, WIN_H), '#1f2560', rng, { coverage: 0.8, alpha: 0.8 });
     crayonFill(ctx, ellipsePoly(25, 20, 9, 9, 10), '#ffd23a', rng, { coverage: 1, alpha: 1 });
     crayonPoly(ctx, rectPoly(2, 2, WIN_W - 4, WIN_H - 4), rng, { color: '#e8433a', width: 3 });
+  });
+  win('woodcut', (ctx, rng) => {
+    cottonPaper(ctx, WIN_W, WIN_H, rng, false);
+    woodcutBlock(ctx, 6, 6, WIN_W - 12, WIN_H - 12, rng, { hatch: true });
+    ctx.fillStyle = '#b8332a';
+    ctx.fillRect(19, 14, 12, 12);
+  });
+  win('chamber3d', (ctx) => {
+    ctx.fillStyle = '#d8dee9';
+    ctx.fillRect(0, 0, WIN_W, WIN_H);
+    ctx.strokeStyle = '#0d9488';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(8, 6, 34, 16);
+    ctx.beginPath();
+    ctx.arc(25, 14, 5, 0, Math.PI * 2);
+    ctx.stroke();
   });
   win('iris', (ctx) => {
     ctx.fillStyle = '#ffd98a';
@@ -254,7 +323,7 @@ export function paintSong(scene: Phaser.Scene): void {
     ctx.fillRect(4, 4, WIN_W - 8, 10);
   });
 
-  // Íconos de los sonidos
+  // ── Íconos de los sonidos (9 vecinos + tarareo) ──
   const icon = (key: string, draw: (ctx: Ctx, rng: Rng) => void) =>
     paintTexture(scene, `song-note-${key}`, 48, 48, (ctx) => draw(ctx, new Rng(`nota-${key}`)));
   icon('broom', (ctx, rng) => {
@@ -294,6 +363,47 @@ export function paintSong(scene: Phaser.Scene): void {
     wash(ctx, pts, '#4a9ad8', rng, { layers: 8, alpha: 0.3, variance: 2 });
     blot(ctx, 20, 24, 4, '#e8f6ff', rng, { layers: 3, alpha: 0.6 });
   });
+  icon('reel', (ctx) => {
+    ctx.fillStyle = '#180e07';
+    ctx.beginPath();
+    ctx.arc(24, 24, 20, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#ffb84d';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+    ctx.fillStyle = '#ffb84d';
+    for (let k = 0; k < 4; k++) {
+      const a = (k / 4) * Math.PI * 2;
+      ctx.beginPath();
+      ctx.arc(24 + Math.cos(a) * 10, 24 + Math.sin(a) * 10, 4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  });
+  icon('snip', (ctx, rng) => {
+    linenWeave(ctx, 48, 48, '#faf3e6', rng);
+    ctx.strokeStyle = '#c84b5a';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(10, 10);
+    ctx.lineTo(38, 38);
+    ctx.moveTo(38, 10);
+    ctx.lineTo(10, 38);
+    ctx.stroke();
+  });
+  icon('chime', (ctx, rng) => {
+    glassPane(
+      ctx,
+      [
+        [24, 4],
+        [44, 24],
+        [24, 44],
+        [4, 24],
+      ],
+      '#4cc9f0',
+      rng,
+      { leadW: 3 },
+    );
+  });
   icon('knock', (ctx, rng) => {
     crayonFill(ctx, ellipsePoly(24, 24, 18, 16, 14), '#f0c09a', rng, { coverage: 1, alpha: 1 });
     for (let k = 0; k < 3; k++)
@@ -308,6 +418,26 @@ export function paintSong(scene: Phaser.Scene): void {
       );
     crayonPoly(ctx, ellipsePoly(24, 24, 18, 16, 14), rng, { color: '#2b2340', width: 3 });
   });
+  icon('press', (ctx, rng) => {
+    cottonPaper(ctx, 48, 48, rng, false);
+    woodcutBlock(ctx, 8, 8, 32, 32, rng, { hatch: true });
+    ctx.fillStyle = '#b8332a';
+    ctx.fillRect(18, 18, 12, 12);
+  });
+  icon('pendulum', (ctx) => {
+    ctx.fillStyle = '#d8dee9';
+    ctx.beginPath();
+    ctx.arc(24, 24, 20, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#0d9488';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+    ctx.fillStyle = '#f59e0b';
+    ctx.beginPath();
+    ctx.arc(24, 28, 7, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillRect(22, 8, 4, 16);
+  });
   icon('hum', (ctx) => {
     ctx.fillStyle = '#ffd166';
     ctx.beginPath();
@@ -317,7 +447,6 @@ export function paintSong(scene: Phaser.Scene): void {
     ctx.fillRect(25, 8, 12, 5);
   });
 
-  // La cinta del casete: por aquí se ven venir los sonidos
   paintTexture(scene, 'song-tape', 960, 34, (ctx, w, h) => {
     const g = ctx.createLinearGradient(0, 0, 0, h);
     g.addColorStop(0, '#4a2a1a');

@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { GAME_WIDTH, GAME_HEIGHT, textStyle, titleStyle } from '../config';
+import { ALL_DREAMS, DREAM_META, GAME_WIDTH, GAME_HEIGHT, textStyle, titleStyle } from '../config';
 import { t } from '../i18n';
 import { applyWorldFX } from '../gfx/postfx';
 import { paintSong, BUILDING, windowCenter, allWindows } from './song/art';
@@ -25,12 +25,12 @@ export class MainMenu extends Phaser.Scene {
     AudioManager.playMusic('menu');
     paintSong(this);
 
-    // El edificio Girasol de noche: cuarenta personas dormidas
     this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, 'song-night');
     this.add.image(GAME_WIDTH / 2 + 120, BUILDING.ground + 4, 'song-skyline').setOrigin(0.5, 1);
     this.add.rectangle(GAME_WIDTH / 2, BUILDING.ground + 35, GAME_WIDTH, 70, 0x15102a);
     this.add.image(BUILDING.x - 20 + SHIFT, 0, 'song-building').setOrigin(0, 0);
-    // La ventana de Iris, apenas encendida (la pantalla del celular)
+
+    // Ventana de Iris, apenas encendida
     const [ix, iy] = windowCenter(3, 2);
     const irisWin = this.add.rectangle(ix + SHIFT, iy, 50, 40, 0x9ad8ff, 0.25);
     this.tweens.add({ targets: irisWin, fillAlpha: 0.1, duration: 1800, yoyo: true, repeat: -1 });
@@ -62,13 +62,12 @@ export class MainMenu extends Phaser.Scene {
       });
     });
 
-    // Título
     const title = this.add
-      .text(250, 150, t('menu.title'), titleStyle(46, '#cfc4ff', { letterSpacing: 6 }))
+      .text(250, 138, t('menu.title'), titleStyle(46, '#cfc4ff', { letterSpacing: 6 }))
       .setOrigin(0.5);
     this.tweens.add({
       targets: title,
-      y: 144,
+      y: 132,
       duration: 2400,
       yoyo: true,
       repeat: -1,
@@ -77,14 +76,14 @@ export class MainMenu extends Phaser.Scene {
     this.add
       .text(
         250,
-        205,
+        192,
         t('menu.subtitle'),
         textStyle(16, '#8a7ac8', { align: 'center', wordWrap: { width: 380 } }),
       )
       .setOrigin(0.5);
     for (let i = 0; i < 3; i++) {
       const z = this.add
-        .text(420 + i * 18, 110 - i * 20, 'z', textStyle(16 + i * 5, '#7f6bb8'))
+        .text(420 + i * 18, 100 - i * 20, 'z', textStyle(16 + i * 5, '#7f6bb8'))
         .setAlpha(0.7);
       this.tweens.add({
         targets: z,
@@ -101,37 +100,40 @@ export class MainMenu extends Phaser.Scene {
     makeTextButton(
       this,
       250,
-      300,
+      284,
       hasProgress ? t('menu.continue') : t('menu.play'),
       () => fadeToScene(this, hasProgress ? 'Hub' : 'Intro', undefined, 700),
       24,
     );
 
     if (hasProgress) {
-      const got: [string, boolean][] = [
-        ['gis', data.keys.exam],
-        ['llave', data.keys.fall],
-        ['bote', data.keys.forest],
-        ['dibujo', data.nightmareDone],
-        ['grabadora', data.songDone],
-      ];
-      got.forEach(([key, has], i) =>
-        this.add
-          .image(170 + i * 40, 368, key)
-          .setScale(1.8)
-          .setAlpha(has ? 1 : 0.2),
+      makeTextButton(
+        this,
+        250,
+        340,
+        `📖 ${t('menu.album')}`,
+        () => fadeToScene(this, 'Album', undefined, 500),
+        16,
       );
+
+      ALL_DREAMS.forEach((id, i) => {
+        const has = data.completed[id];
+        this.add
+          .image(76 + i * 38, 392, DREAM_META[id].item)
+          .setScale(1.6)
+          .setAlpha(has ? 1 : 0.2);
+      });
       this.add
         .text(
           250,
-          400,
-          `✦ ${SaveManager.fireflyCount()}/${SaveManager.fireflyTotal()}`,
-          textStyle(15, '#ffd166'),
+          426,
+          `✦ ${SaveManager.fireflyCount()}/${SaveManager.fireflyTotal()}   ★ ${SaveManager.secretCount()}/10   ☾ ${SaveManager.insomniaCount()}/10`,
+          textStyle(14, '#ffd166'),
         )
         .setOrigin(0.5);
 
       const resetBtn = this.add
-        .text(250, 440, t('menu.reset'), textStyle(13, '#6a5a9a'))
+        .text(250, 462, t('menu.reset'), textStyle(13, '#6a5a9a'))
         .setOrigin(0.5)
         .setInteractive({ useHandCursor: true });
       resetBtn.on('pointerdown', () => {

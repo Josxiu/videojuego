@@ -4,6 +4,7 @@ import { Boot } from './scenes/Boot';
 import { MainMenu } from './scenes/MainMenu';
 import { Intro } from './scenes/Intro';
 import { Hub } from './scenes/hub/Hub';
+import { Album } from './scenes/Album';
 import { DreamExam } from './scenes/exam/DreamExam';
 import { DreamFall } from './scenes/fall/DreamFall';
 import { DreamForest } from './scenes/forest/DreamForest';
@@ -15,7 +16,6 @@ import { AudioManager } from './systems/AudioManager';
 import { SaveManager } from './systems/SaveManager';
 import { registerPostFX } from './gfx/postfx';
 
-// El audio del navegador solo puede arrancar tras un gesto del usuario
 const wakeAudio = () => {
   AudioManager.ensure();
   AudioManager.setMuted(SaveManager.data.muted);
@@ -44,6 +44,7 @@ const game = new Phaser.Game({
     MainMenu,
     Intro,
     Hub,
+    Album,
     DreamExam,
     DreamFall,
     DreamForest,
@@ -54,8 +55,6 @@ const game = new Phaser.Game({
   ],
 });
 
-// El post-procesado necesita el renderer ya creado
 game.events.once(Phaser.Core.Events.READY, () => registerPostFX(game));
 
-// Referencia para pruebas automatizadas
 (window as unknown as { __game: Phaser.Game }).__game = game;

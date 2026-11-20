@@ -1,59 +1,50 @@
+import type { TextKey } from '../i18n';
+
 /**
  * El examen de Don Élmer y el recorrido del pasillo.
- *
- * Él nunca supo qué le iban a preguntar, así que su sueño improvisa: el examen no
- * es de escuela, es sobre su propia vida. La respuesta correcta es siempre la que
- * él sabe de sobra, aunque nunca haya vuelto a pisar un aula.
- *
- * Son datos puros: mover obstáculos o añadir preguntas no toca la lógica del nivel.
+ * Todos los textos viven en `src/i18n/es/`.
  */
 export interface ExamQuestion {
-  /** El enunciado, que se escribe con gis en el pizarrón. */
-  text: string;
-  /** Respuesta del recuadro de arriba (se cruza saltando). */
-  upper: string;
-  /** Respuesta del recuadro de abajo (se cruza corriendo por el suelo). */
-  lower: string;
-  /** Cuál de las dos es la correcta. */
+  textKey: TextKey;
+  upperKey: TextKey;
+  lowerKey: TextKey;
   correct: 'upper' | 'lower';
-  /** Distancia del recorrido donde aparece. */
   at: number;
 }
 
 export const EXAM_QUESTIONS: ExamQuestion[] = [
   {
-    text: '¿A qué hora se atasca el elevador?',
-    upper: 'nunca se atasca',
-    lower: 'siempre a las 7',
+    textKey: 'exam.q.1.text',
+    upperKey: 'exam.q.1.up',
+    lowerKey: 'exam.q.1.down',
     correct: 'lower',
     at: 1900,
   },
   {
-    text: '¿Qué se hace cuando un niño llora de madrugada?',
-    upper: 'subir a ver',
-    lower: 'subirle al radio',
+    textKey: 'exam.q.2.text',
+    upperKey: 'exam.q.2.up',
+    lowerKey: 'exam.q.2.down',
     correct: 'upper',
     at: 3150,
   },
   {
-    // Justo después de la escalera: el jugador acaba de contarlos
-    text: '¿Cuántos escalones tiene el edificio Girasol?',
-    upper: 'ciento doce',
-    lower: 'nadie los cuenta',
+    textKey: 'exam.q.3.text',
+    upperKey: 'exam.q.3.up',
+    lowerKey: 'exam.q.3.down',
     correct: 'upper',
     at: 6250,
   },
   {
-    text: '¿Con qué se quita el óxido de una bisagra?',
-    upper: 'con agua',
-    lower: 'con paciencia',
+    textKey: 'exam.q.4.text',
+    upperKey: 'exam.q.4.up',
+    lowerKey: 'exam.q.4.down',
     correct: 'lower',
     at: 8000,
   },
   {
-    text: '¿Cuánto dura un gis?',
-    upper: 'treinta años',
-    lower: 'una clase',
+    textKey: 'exam.q.5.text',
+    upperKey: 'exam.q.5.up',
+    lowerKey: 'exam.q.5.down',
     correct: 'upper',
     at: 10150,
   },
@@ -61,25 +52,16 @@ export const EXAM_QUESTIONS: ExamQuestion[] = [
 
 export type ExamObstacle = 'desk' | 'books' | 'bag' | 'plane' | 'bell';
 
-/**
- * El recorrido completo. Las distancias son en píxeles del mundo.
- * Regla de diseño: entre dos peligros que piden acciones distintas hay al menos
- * ~1.2 s de carrera (un salto completo dura ~1.1 s).
- */
 export const EXAM_COURSE = {
   length: 11400,
-  /** La escalera del Girasol, metida en la escuela de su sueño. */
   stairs: { start: 3450, steps: 112 },
-  /** Dónde vuelves si el borrador te alcanza. */
   checkpoints: [0, 3450, 5950],
-  /** Velocidad de carrera por tramo: [desde, px/s]. */
   speeds: [
     [0, 330],
     [3450, 300],
     [5950, 370],
     [10150, 400],
   ] as [number, number][],
-  /** Huecos borrados en el piso: [inicio, ancho]. */
   gaps: [
     [1400, 110],
     [7100, 130],
@@ -90,7 +72,6 @@ export const EXAM_COURSE = {
     [1000, 'desk'],
     [2350, 'plane'],
     [2800, 'books'],
-    // escalera: se sube corriendo, solo hay que agacharse
     [3950, 'plane'],
     [4600, 'plane'],
     [5200, 'plane'],
@@ -103,7 +84,6 @@ export const EXAM_COURSE = {
     [10600, 'books'],
     [11000, 'bell'],
   ] as [number, ExamObstacle][],
-  /** Estrellas de gis (luciérnagas): [distancia, altura sobre el suelo]. */
   fireflies: [
     [1455, 150],
     [2800, 175],

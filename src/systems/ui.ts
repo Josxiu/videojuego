@@ -3,6 +3,7 @@ import {
   GAME_WIDTH,
   GAME_HEIGHT,
   FONT,
+  FONT_DISPLAY,
   FONT_HAND,
   FONT_KID,
   FONT_CHALK,
@@ -14,7 +15,7 @@ import { AudioManager } from './AudioManager';
 import { t } from '../i18n';
 import { SaveManager } from './SaveManager';
 import type { DialogueTheme } from './DialogueBox';
-import { stylizeTexture, STYLE_DISPLAY } from '../gfx/stylize';
+import { stylizeTexture, STYLE_DISPLAY, type ArtStyle } from '../gfx/stylize';
 import { paintTexture, blot } from '../gfx/brush';
 import { Rng } from '../gfx/noise';
 
@@ -67,13 +68,12 @@ export function addMuteButton(scene: Phaser.Scene): void {
 }
 
 /**
- * Botón de pausa con overlay (seguir / salir del sueño).
- * Devuelve un objeto para consultar si el juego está pausado.
+ * Botón de pausa con overlay (seguir / reiniciar opcional / salir del sueño).
  */
 export function addPauseOverlay(
   scene: Phaser.Scene,
   onExit: () => void,
-  hooks: { onPause?: () => void; onResume?: () => void } = {},
+  hooks: { onPause?: () => void; onResume?: () => void; onRestart?: () => void } = {},
 ): { paused: () => boolean } {
   let paused = false;
   const items: Phaser.GameObjects.GameObject[] = [];
@@ -99,21 +99,39 @@ export function addPauseOverlay(
     hooks.onPause?.();
     items.push(
       scene.add
-        .rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x0d0a1e, 0.75)
+        .rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x0d0a1e, 0.78)
         .setDepth(DEPTH_OVERLAY + 1)
         .setScrollFactor(0),
       scene.add
-        .text(GAME_WIDTH / 2, 190, t('ui.pause'), titleStyle(24, '#cfc4ff', { letterSpacing: 4 }))
+        .text(GAME_WIDTH / 2, 165, t('ui.pause'), titleStyle(24, '#cfc4ff', { letterSpacing: 4 }))
         .setOrigin(0.5)
         .setDepth(DEPTH_OVERLAY + 2)
         .setScrollFactor(0),
-      makeTextButton(scene, GAME_WIDTH / 2, 280, t('ui.resume'), close, 20).setDepth(
+      makeTextButton(scene, GAME_WIDTH / 2, 245, t('ui.resume'), close, 20).setDepth(
         DEPTH_OVERLAY + 2,
       ),
+    );
+    if (hooks.onRestart) {
+      const restart = hooks.onRestart;
+      items.push(
+        makeTextButton(
+          scene,
+          GAME_WIDTH / 2,
+          310,
+          t('ui.restart'),
+          () => {
+            hooks.onResume?.();
+            restart();
+          },
+          18,
+        ).setDepth(DEPTH_OVERLAY + 2),
+      );
+    }
+    items.push(
       makeTextButton(
         scene,
         GAME_WIDTH / 2,
-        350,
+        hooks.onRestart ? 375 : 320,
         t('ui.exitDream'),
         () => {
           hooks.onResume?.();
@@ -149,12 +167,10 @@ export function addStarfield(scene: Phaser.Scene, count = 70, depth = -10): void
   }
 }
 
-/** Fundido de entrada de la escena. */
 export function fadeIn(scene: Phaser.Scene, ms = 450): void {
   scene.cameras.main.fadeIn(ms, 13, 10, 30);
 }
 
-/** Fundido de salida y cambio de escena. */
 export function fadeToScene(scene: Phaser.Scene, key: string, data?: object, ms = 450): void {
   scene.cameras.main.fadeOut(ms, 13, 10, 30);
   scene.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
@@ -162,7 +178,6 @@ export function fadeToScene(scene: Phaser.Scene, key: string, data?: object, ms 
   });
 }
 
-/** Colores y tipografías de las tarjetas según el material de cada sueño. */
 const CARD: Record<
   DialogueTheme,
   { bg: number; title: string; name: string; titleFont: string; nameFont: string; nameSize: number }
@@ -171,8 +186,8 @@ const CARD: Record<
     bg: 0x0d0a1e,
     title: '#9d7bff',
     name: '#efe9ff',
-    titleFont: '"Silkscreen", monospace',
-    nameFont: '"Silkscreen", monospace',
+    titleFont: FONT_DISPLAY,
+    nameFont: FONT_DISPLAY,
     nameSize: 28,
   },
   chalk: {
@@ -207,6 +222,46 @@ const CARD: Record<
     nameFont: FONT_KID,
     nameSize: 52,
   },
+  shadow: {
+    bg: 0x180e07,
+    title: '#ffb84d',
+    name: '#ffeacc',
+    titleFont: FONT_DISPLAY,
+    nameFont: FONT_HAND,
+    nameSize: 48,
+  },
+  embroidery: {
+    bg: 0xefe6d5,
+    title: '#c84b5a',
+    name: '#3b2a22',
+    titleFont: FONT_HAND,
+    nameFont: FONT_HAND,
+    nameSize: 48,
+  },
+  stainedglass: {
+    bg: 0x121626,
+    title: '#4cc9f0',
+    name: '#ffc857',
+    titleFont: FONT_DISPLAY,
+    nameFont: FONT_HAND,
+    nameSize: 46,
+  },
+  woodcut: {
+    bg: 0xf2ead7,
+    title: '#b8332a',
+    name: '#181924',
+    titleFont: FONT_DISPLAY,
+    nameFont: FONT_HAND,
+    nameSize: 48,
+  },
+  chamber3d: {
+    bg: 0xd8dee9,
+    title: '#0d9488',
+    name: '#1e2533',
+    titleFont: FONT_DISPLAY,
+    nameFont: FONT_DISPLAY,
+    nameSize: 32,
+  },
   dawn: {
     bg: 0x1a1640,
     title: '#ffb070',
@@ -219,17 +274,13 @@ const CARD: Record<
 
 const CRAYON_COLORS = ['#ff5a4a', '#ffd23a', '#5ad86a', '#5a9aff', '#ff8ad0', '#ffa23a'];
 
-/**
- * Tarjeta de título al entrar a un sueño. Cada material la escribe a su modo:
- * gis que se subraya, letras de papel pegadas una a una, acuarela que se
- * extiende, crayolas de colores que tiemblan.
- */
 export function showTitleCard(
   scene: Phaser.Scene,
   title: string,
   name: string,
   onDone?: () => void,
   theme: DialogueTheme = 'night',
+  insomniaLabel?: string,
 ): void {
   const look = CARD[theme];
   const items: Phaser.GameObjects.GameObject[] = [];
@@ -264,9 +315,9 @@ export function showTitleCard(
 
   const t1 = add(
     scene.add
-      .text(GAME_WIDTH / 2, cy - 46, title, {
+      .text(GAME_WIDTH / 2, cy - 50, title, {
         fontFamily: look.titleFont,
-        fontSize: theme === 'night' ? '16px' : '22px',
+        fontSize: theme === 'night' || theme === 'chamber3d' ? '16px' : '22px',
         color: look.title,
         letterSpacing: theme === 'night' ? 4 : 2,
       })
@@ -282,7 +333,6 @@ export function showTitleCard(
   });
 
   if (theme === 'paper' || theme === 'crayon') {
-    // Letra por letra: recortes pegados / crayolas de colores
     const probe = scene.add.text(0, 0, name, nameStyle('#fff')).setVisible(false);
     const total = probe.width;
     probe.destroy();
@@ -326,7 +376,6 @@ export function showTitleCard(
         },
       });
       if (theme === 'crayon') {
-        // Las letras de crayola tiemblan (como la pesadilla)
         scene.time.addEvent({
           delay: 160,
           loop: true,
@@ -349,7 +398,6 @@ export function showTitleCard(
       delay: 200,
     });
     if (theme === 'chalk') {
-      // El subrayado se escribe con gis
       const w = (t2 as Phaser.GameObjects.Text).width;
       const line = add(scene.add.graphics());
       const g = line as Phaser.GameObjects.Graphics;
@@ -374,11 +422,27 @@ export function showTitleCard(
     }
   }
 
-  scene.time.delayedCall(2300, () => {
+  if (insomniaLabel) {
+    const badge = add(
+      scene.add
+        .text(GAME_WIDTH / 2, cy + 78, `☾ ${insomniaLabel}`, {
+          fontFamily: FONT_DISPLAY,
+          fontSize: '14px',
+          color: '#ff5d73',
+          backgroundColor: '#1a0a16',
+          padding: { x: 12, y: 5 },
+        })
+        .setOrigin(0.5)
+        .setAlpha(0),
+    );
+    scene.tweens.add({ targets: badge, alpha: 1, delay: 400, duration: 400 });
+  }
+
+  scene.time.delayedCall(2200, () => {
     scene.tweens.add({
       targets: items,
       alpha: 0,
-      duration: 600,
+      duration: 550,
       onComplete: () => {
         items.forEach((i) => i.destroy());
         onDone?.();
@@ -387,10 +451,22 @@ export function showTitleCard(
   });
 }
 
-/**
- * Tarjeta de «devuelto»: el objeto en grande, con su nombre y su historia,
- * dibujada con el material del sueño.
- */
+function artStyleOf(theme: DialogueTheme): ArtStyle | undefined {
+  if (
+    theme === 'chalk' ||
+    theme === 'paper' ||
+    theme === 'watercolor' ||
+    theme === 'crayon' ||
+    theme === 'shadow' ||
+    theme === 'embroidery' ||
+    theme === 'stainedglass' ||
+    theme === 'woodcut'
+  ) {
+    return theme;
+  }
+  return undefined;
+}
+
 export function showReturnCard(
   scene: Phaser.Scene,
   theme: DialogueTheme,
@@ -399,13 +475,11 @@ export function showReturnCard(
   itemKey: string,
 ): void {
   const look = CARD[theme];
-  const style =
-    theme === 'chalk' || theme === 'paper' || theme === 'watercolor' || theme === 'crayon'
-      ? theme
-      : undefined;
+  const style = artStyleOf(theme);
   const depth = DEPTH_HUD + 5;
   const panel = scene.add
-    .rectangle(GAME_WIDTH / 2, 180, 640, 250, look.bg, 0.92)
+    .rectangle(GAME_WIDTH / 2, 180, 640, 250, look.bg, 0.94)
+    .setStrokeStyle(2, 0xffd166, 0.5)
     .setScrollFactor(0)
     .setDepth(depth)
     .setAlpha(0);
@@ -426,7 +500,7 @@ export function showReturnCard(
   const h = scene.add
     .text(GAME_WIDTH / 2, 196, heading, {
       fontFamily: look.nameFont,
-      fontSize: theme === 'night' ? '20px' : '30px',
+      fontSize: theme === 'night' || theme === 'chamber3d' ? '20px' : '28px',
       color: look.title,
       align: 'center',
     })
@@ -436,8 +510,8 @@ export function showReturnCard(
     .setAlpha(0);
   const d = scene.add
     .text(GAME_WIDTH / 2, 250, desc, {
-      fontFamily: theme === 'night' ? FONT : FONT_HAND,
-      fontSize: theme === 'night' ? '15px' : '20px',
+      fontFamily: theme === 'night' || theme === 'chamber3d' ? FONT : FONT_HAND,
+      fontSize: theme === 'night' || theme === 'chamber3d' ? '15px' : '20px',
       color: look.name,
       align: 'center',
       wordWrap: { width: 560 },
@@ -455,5 +529,57 @@ export function showReturnCard(
     duration: 1400,
     yoyo: true,
     repeat: -1,
+  });
+}
+
+/** Aviso breve arriba para marcar el paso a Acto II / Acto III dentro de un sueño. */
+export function showActBanner(scene: Phaser.Scene, text: string, color = '#ffd166'): void {
+  const lbl = scene.add
+    .text(GAME_WIDTH / 2, 68, text, {
+      fontFamily: FONT_DISPLAY,
+      fontSize: '14px',
+      color,
+      backgroundColor: '#0d0a1ecc',
+      padding: { x: 16, y: 6 },
+      letterSpacing: 3,
+    })
+    .setOrigin(0.5)
+    .setScrollFactor(0)
+    .setDepth(DEPTH_HUD + 8)
+    .setAlpha(0);
+  scene.tweens.add({
+    targets: lbl,
+    alpha: 1,
+    y: 78,
+    duration: 380,
+    hold: 1600,
+    yoyo: true,
+    onComplete: () => lbl.destroy(),
+  });
+}
+
+/** Notificación dorada al descubrir el secreto de un sueño. */
+export function showSecretBanner(scene: Phaser.Scene, text: string): void {
+  AudioManager.sfx('secret');
+  const box = scene.add
+    .text(GAME_WIDTH / 2, 118, `★ ${text}`, {
+      fontFamily: FONT,
+      fontSize: '15px',
+      color: '#ffd166',
+      backgroundColor: '#1b1433ee',
+      padding: { x: 16, y: 8 },
+    })
+    .setOrigin(0.5)
+    .setScrollFactor(0)
+    .setDepth(DEPTH_HUD + 10)
+    .setAlpha(0);
+  scene.tweens.add({
+    targets: box,
+    alpha: 1,
+    y: 126,
+    duration: 350,
+    hold: 2600,
+    yoyo: true,
+    onComplete: () => box.destroy(),
   });
 }

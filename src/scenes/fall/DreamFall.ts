@@ -45,7 +45,7 @@ const FALL_SLOW = 140;
 const FALL_BASE = 240;
 const FALL_FAST = 470;
 const CHUNK = 540;
-const FIREFLIES = 8;
+const FIREFLIES = 6;
 
 type Kind = 'furniture' | 'tape' | 'box' | 'balloon' | 'firefly' | 'decor';
 
@@ -650,14 +650,14 @@ export class DreamFall extends Phaser.Scene {
       onComplete: () => item.destroy(),
     });
     const info = FALL_ITEMS[k];
-    floatingText(this, s.x, s.y - 170, info.label, {
+    floatingText(this, s.x, s.y - 170, t(info.labelKey), {
       fontFamily: FONT_HAND,
       fontSize: '24px',
       color: '#fbf5e4',
       stroke: '#2a2a44',
       strokeThickness: 5,
     });
-    this.showToast(`${info.label}: ${info.note}`, 2600);
+    this.showToast(`${t(info.labelKey)}: ${t(info.noteKey)}`, 2600);
     this.tweens.add({ targets: e.parts, alpha: 0, delay: 900, duration: 600 });
     this.unpack();
   }
@@ -720,7 +720,7 @@ export class DreamFall extends Phaser.Scene {
     }
     if (!instant) {
       AudioManager.sfx('paper');
-      floatingText(this, GAME_WIDTH / 2, this.depth + 120, sky.name, {
+      floatingText(this, GAME_WIDTH / 2, this.depth + 120, t(sky.nameKey), {
         fontFamily: FONT_HAND,
         fontSize: '34px',
         color: '#fbf5e4',

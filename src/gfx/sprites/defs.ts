@@ -1,6 +1,7 @@
 import type { Palette } from '../pixelart';
 import * as I from './iris';
 import * as C from './cast';
+import * as C2 from './cast2';
 import * as P from './props';
 
 /**
@@ -46,7 +47,12 @@ export const SPRITES: SpriteDef[] = [
   { key: 'chuynina', pal: C.CHUYNINA_PAL, frames: [C.CHUYNINA_0] },
   { key: 'chuymama', pal: C.CHUYMAMA_PAL, frames: [C.CHUYMAMA_0] },
   { key: 'hijo', pal: C.HIJO_PAL, frames: [C.HIJO_0] },
+  { key: 'goyo', pal: C2.GOYO_PAL, frames: [C2.GOYO_0, C2.GOYO_1] },
+  { key: 'renata', pal: C2.RENATA_PAL, frames: [C2.RENATA_0, C2.RENATA_1] },
+  { key: 'paloma', pal: C2.PALOMA_PAL, frames: [C2.PALOMA_0, C2.PALOMA_1] },
   { key: 'tomas', pal: C.TOMAS_PAL, frames: [C.TOMAS_0, C.TOMAS_1] },
+  { key: 'mateo', pal: C2.MATEO_PAL, frames: [C2.MATEO_0, C2.MATEO_1] },
+  { key: 'octavio', pal: C2.OCTAVIO_PAL, frames: [C2.OCTAVIO_0, C2.OCTAVIO_1] },
   {
     key: 'portrait-iris',
     pal: C.PORTRAIT_IRIS_PAL,
@@ -57,10 +63,24 @@ export const SPRITES: SpriteDef[] = [
     pal: C.PORTRAIT_MORFEO_PAL,
     frames: [C.PORTRAIT_MORFEO, C.PORTRAIT_MORFEO_SMUG],
   },
+  { key: 'portrait-goyo', pal: C2.PORTRAIT_GOYO_PAL, frames: [C2.PORTRAIT_GOYO] },
+  { key: 'portrait-renata', pal: C2.PORTRAIT_RENATA_PAL, frames: [C2.PORTRAIT_RENATA] },
+  { key: 'portrait-paloma', pal: C2.PORTRAIT_PALOMA_PAL, frames: [C2.PORTRAIT_PALOMA] },
+  { key: 'portrait-mateo', pal: C2.PORTRAIT_MATEO_PAL, frames: [C2.PORTRAIT_MATEO] },
+  {
+    key: 'portrait-octavio',
+    pal: C2.PORTRAIT_OCTAVIO_PAL,
+    frames: [C2.PORTRAIT_OCTAVIO, C2.PORTRAIT_OCTAVIO_COLD],
+  },
   { key: 'gis', pal: P.GIS_PAL, frames: [P.GIS] },
   { key: 'llave', pal: P.LLAVE_PAL, frames: [P.LLAVE] },
   { key: 'bote', pal: P.BOTE_PAL, frames: [P.BOTE] },
+  { key: 'boleto', pal: P.BOLETO_PAL, frames: [P.BOLETO] },
+  { key: 'dedal', pal: P.DEDAL_PAL, frames: [P.DEDAL] },
+  { key: 'prisma', pal: P.PRISMA_PAL, frames: [P.PRISMA] },
   { key: 'dibujo', pal: P.DIBUJO_PAL, frames: [P.DIBUJO] },
+  { key: 'rodillo', pal: P.RODILLO_PAL, frames: [P.RODILLO] },
+  { key: 'reloj', pal: P.RELOJ_PAL, frames: [P.RELOJ] },
   { key: 'grabadora', pal: P.GRABADORA_PAL, frames: [P.GRABADORA] },
   { key: 'firefly', pal: P.FIREFLY_PAL, frames: [P.FIREFLY] },
   { key: 'heart', pal: P.HEART_PAL, frames: [P.HEART] },

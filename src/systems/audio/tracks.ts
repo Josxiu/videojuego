@@ -1,21 +1,5 @@
 import type { Instrument, DrumKind } from './synth';
 
-/**
- * La música del juego, escrita en una notación de pasos muy compacta:
- *
- *   'C5 . E5 - G5+B5 | ...'
- *
- * - cada ficha es un paso (normalmente una corchea)
- * - `.` silencio, `-` sostiene la nota anterior un paso más
- * - `C4+E4+G4` acorde
- * - `|` separa compases (solo para leer mejor, se ignora)
- *
- * En las percusiones: `x` golpe, `X` acento, `.` silencio.
- *
- * Cada voz tiene un `layer`: el nivel de intensidad a partir del cual suena.
- * Así la música crece con el juego (cada caja desempacada, cada recuerdo…).
- */
-
 export interface NoteEvent {
   step: number;
   notes: string[];
@@ -28,7 +12,6 @@ export interface DrumEvent {
   accent: boolean;
 }
 
-/** Convierte la notación de pasos a eventos. Función pura (se prueba en tests). */
 export function parsePattern(src: string): { events: NoteEvent[]; length: number } {
   const tokens = src.split(/\s+/).filter((t) => t && t !== '|');
   const events: NoteEvent[] = [];
@@ -58,7 +41,6 @@ export interface VoiceDef {
   pattern: string;
   vol: number;
   layer?: number;
-  /** Cantidad enviada al eco (0..1). */
   send?: number;
 }
 
@@ -73,7 +55,6 @@ export interface DrumDef {
 
 export interface TrackDef {
   bpm: number;
-  /** Pasos por pulso: 2 = corcheas. */
   stepsPerBeat: number;
   voices: VoiceDef[];
   drums?: DrumDef[];
@@ -81,10 +62,22 @@ export interface TrackDef {
 }
 
 export type MusicId =
-  'menu' | 'hub' | 'exam' | 'fall' | 'forest' | 'chase' | 'song' | 'ending' | 'silence';
+  | 'menu'
+  | 'hub'
+  | 'exam'
+  | 'fall'
+  | 'forest'
+  | 'shadow'
+  | 'embroidery'
+  | 'glass'
+  | 'chase'
+  | 'woodcut'
+  | 'chamber3d'
+  | 'song'
+  | 'ending'
+  | 'silence';
 
 export const TRACKS: Record<MusicId, TrackDef> = {
-  // Menú: el edificio de noche, una caja de música sobre un colchón de acordes
   menu: {
     bpm: 76,
     stepsPerBeat: 2,
@@ -111,7 +104,6 @@ export const TRACKS: Record<MusicId, TrackDef> = {
     ],
   },
 
-  // El Entresueño: campanas lejanas bajo el agua
   hub: {
     bpm: 70,
     stepsPerBeat: 2,
@@ -137,7 +129,7 @@ export const TRACKS: Record<MusicId, TrackDef> = {
     ],
   },
 
-  // Don Élmer: marimba de salón de clases, tiza marcando el pulso
+  // 1. Don Élmer: marimba escolar
   exam: {
     bpm: 144,
     stepsPerBeat: 2,
@@ -171,7 +163,7 @@ export const TRACKS: Record<MusicId, TrackDef> = {
     ],
   },
 
-  // Nadia: caja de música que va sumando instrumentos con cada caja abierta
+  // 2. Nadia: caja de música
   fall: {
     bpm: 92,
     stepsPerBeat: 2,
@@ -219,7 +211,7 @@ export const TRACKS: Record<MusicId, TrackDef> = {
     ],
   },
 
-  // Doña Chuy: un vals de patio con guitarra, «um-pa-pa»
+  // 3. Doña Chuy: vals 3/4 de patio
   forest: {
     bpm: 120,
     stepsPerBeat: 2,
@@ -258,7 +250,106 @@ export const TRACKS: Record<MusicId, TrackDef> = {
     ],
   },
 
-  // Tomás: una canción de cuna en piano de juguete, desafinada, casi rota
+  // 4. Don Goyo: órgano de cine mudo y chelo con traqueteo de 35 mm
+  shadow: {
+    bpm: 84,
+    stepsPerBeat: 2,
+    echo: { time: 0.38, feedback: 0.36 },
+    voices: [
+      {
+        inst: 'organ',
+        vol: 0.065,
+        send: 0.35,
+        pattern:
+          'D3+F3+A3 - - - - - - - | Bb2+D3+F3 - - - - - - - | G2+Bb2+D3 - - - - - - - | A2+C#3+E3 - - - - - - -',
+      },
+      {
+        inst: 'cello',
+        vol: 0.085,
+        layer: 1,
+        send: 0.3,
+        pattern:
+          'A3 - - - D4 - C4 - | Bb3 - - - A3 - G3 - | Bb3 - - - A3 - G3 - | E3 - - - - - . .',
+      },
+      {
+        inst: 'musicbox',
+        vol: 0.06,
+        layer: 2,
+        send: 0.45,
+        pattern: 'D5 . . . F5 . . . | D5 . . . Bb4 . . . | G5 . . . D5 . . . | E5 . C#5 . A4 . . .',
+      },
+    ],
+    drums: [
+      { kind: 'reel', vol: 0.2, pattern: 'x.x.x.x. x.x.x.x. x.x.x.x. x.x.x.x.' },
+      { kind: 'tick', vol: 0.14, layer: 2, pattern: '.x.x.x.x .x.x.x.x .x.x.x.x .x.x.x.x' },
+    ],
+  },
+
+  // 5. Renata: telar y puntadas rítmicas en pizzicato de cuerda
+  embroidery: {
+    bpm: 108,
+    stepsPerBeat: 2,
+    echo: { time: 0.24, feedback: 0.25 },
+    voices: [
+      {
+        inst: 'loom',
+        vol: 0.11,
+        pattern:
+          'E4 . G4 . B4 . G4 . | C4 . E4 . G4 . E4 . | A3 . C4 . E4 . C4 . | B3 . D#4 . F#4 . B3 .',
+      },
+      {
+        inst: 'flute',
+        vol: 0.08,
+        layer: 1,
+        send: 0.28,
+        pattern: 'B4 - - - A4 - G4 - | E4 - - - . . G4 - | A4 - - - G4 - E4 - | F#4 - - - - - . .',
+      },
+      {
+        inst: 'bass',
+        vol: 0.1,
+        layer: 2,
+        pattern: 'E2 . . . . . E2 . | C2 . . . . . C2 . | A2 . . . . . A2 . | B2 . . . . . B2 .',
+      },
+    ],
+    drums: [
+      { kind: 'snip', vol: 0.16, layer: 1, pattern: '....x... ....x... ....x... ....x.x.' },
+      { kind: 'shaker', vol: 0.14, layer: 2, pattern: 'x.x.x.x. x.x.x.x. x.x.x.x. x.x.x.x.' },
+    ],
+  },
+
+  // 6. Paloma: vidrio emplomado, campanas cristalinas
+  glass: {
+    bpm: 80,
+    stepsPerBeat: 2,
+    echo: { time: 0.45, feedback: 0.48 },
+    voices: [
+      {
+        inst: 'glassbell',
+        vol: 0.08,
+        send: 0.55,
+        pattern:
+          'F#5 . . . A5 . . . | E5 . . . G#5 . . . | D5 . . . F#5 . . . | C#5 . . . E5 . . .',
+      },
+      {
+        inst: 'pad',
+        vol: 0.04,
+        layer: 1,
+        pattern:
+          'F#3+A3+C#4 - - - - - - - | E3+G#3+B3 - - - - - - - | D3+F#3+A3 - - - - - - - | C#3+E3+G#3 - - - - - - -',
+      },
+      {
+        inst: 'glassbell',
+        vol: 0.06,
+        layer: 2,
+        send: 0.6,
+        pattern:
+          'C#6 . A5 . . . . . | B5 . G#5 . . . . . | A5 . F#5 . . . . . | G#5 . E5 . C#6 . . .',
+      },
+    ],
+    drums: [{ kind: 'chime', vol: 0.15, layer: 1, pattern: 'x....... ....x... x....... ....x...' }],
+  },
+
+  // 7. Tomás: piano de juguete desafinado
   chase: {
     bpm: 58,
     stepsPerBeat: 2,
@@ -288,7 +379,72 @@ export const TRACKS: Record<MusicId, TrackDef> = {
     drums: [{ kind: 'heart', vol: 0.35, layer: 1, pattern: 'x...x... x...x... x...x... x...x...' }],
   },
 
-  // El sueño de Iris: cada vecino suma su sonido (la escena controla las capas)
+  // 8. Mateo: acordeón seco de taller y golpe de prensa tipográfica
+  woodcut: {
+    bpm: 96,
+    stepsPerBeat: 2,
+    echo: { time: 0.28, feedback: 0.28 },
+    voices: [
+      {
+        inst: 'accordion',
+        vol: 0.075,
+        send: 0.25,
+        pattern:
+          'C4 - Eb4 - G4 . F4 . | Eb4 - D4 - C4 . G3 . | Ab3 - C4 - Eb4 . D4 . | G3 - B3 - D4 . . .',
+      },
+      {
+        inst: 'bass',
+        vol: 0.11,
+        layer: 1,
+        pattern: 'C2 . . . G2 . . . | C2 . . . G2 . . . | Ab2 . . . Eb2 . . . | G2 . . . D2 . . .',
+      },
+      {
+        inst: 'pluck',
+        vol: 0.08,
+        layer: 2,
+        pattern:
+          'G4 . Eb4 . C4 . . . | G4 . D4 . B3 . . . | Eb4 . C4 . Ab3 . . . | D4 . B3 . G3 . . .',
+      },
+    ],
+    drums: [
+      { kind: 'press', vol: 0.24, layer: 1, pattern: 'x....... x....... x....... x...x...' },
+      { kind: 'tick', vol: 0.18, layer: 2, pattern: '..x...x. ..x...x. ..x...x. ..x.x.x.' },
+    ],
+  },
+
+  // 9. Octavio (3D): pulso anecoico y péndulo de Elena
+  chamber3d: {
+    bpm: 72,
+    stepsPerBeat: 2,
+    echo: { time: 0.56, feedback: 0.52 },
+    voices: [
+      {
+        inst: 'bass',
+        vol: 0.11,
+        pattern: 'F2 - - - - - - - | Db2 - - - - - - - | Ab1 - - - - - - - | C2 - - - - - - -',
+      },
+      {
+        inst: 'sonar',
+        vol: 0.07,
+        layer: 1,
+        send: 0.6,
+        pattern: 'C5 . . . . . . . | Ab4 . . . . . . . | Eb5 . . . . . . . | G4 . . . . . . .',
+      },
+      {
+        inst: 'cello',
+        vol: 0.06,
+        layer: 2,
+        send: 0.4,
+        pattern:
+          'F3 - - - Ab3 - G3 - | F3 - - - Db3 - - - | Eb3 - - - Ab3 - G3 - | E3 - - - - - . .',
+      },
+    ],
+    drums: [
+      { kind: 'pendulum', vol: 0.25, layer: 1, pattern: 'x...x... x...x... x...x... x...x...' },
+    ],
+  },
+
+  // 10. El sueño de Iris: sinfonía con los 9 vecinos + tarareo
   song: {
     bpm: 96,
     stepsPerBeat: 2,
@@ -309,7 +465,7 @@ export const TRACKS: Record<MusicId, TrackDef> = {
       {
         inst: 'musicbox',
         vol: 0.07,
-        layer: 3,
+        layer: 5,
         send: 0.4,
         pattern:
           'E5 . G5 . C6 . G5 . | E5 . A5 . C6 . A5 . | F5 . A5 . C6 . A5 . | D5 . G5 . B5 . D6 .',
@@ -317,14 +473,14 @@ export const TRACKS: Record<MusicId, TrackDef> = {
       {
         inst: 'hum',
         vol: 0.1,
-        layer: 5,
+        layer: 10,
         send: 0.35,
         pattern: 'G5 - - - E5 - C5 - | C5 - - - D5 - E5 - | F5 - - - E5 - D5 - | D5 - - - - - . .',
       },
     ],
     drums: [
-      { kind: 'broom', vol: 0.3, layer: 1, pattern: '..x...x. ..x...x. ..x...x. ..x...x.' },
-      { kind: 'box', vol: 0.34, layer: 2, pattern: 'x...x... x...x... x...x... x...x.x.' },
+      { kind: 'broom', vol: 0.28, layer: 1, pattern: '..x...x. ..x...x. ..x...x. ..x...x.' },
+      { kind: 'box', vol: 0.32, layer: 2, pattern: 'x...x... x...x... x...x... x...x.x.' },
       {
         kind: 'drop',
         vol: 0.12,
@@ -332,11 +488,21 @@ export const TRACKS: Record<MusicId, TrackDef> = {
         pattern: '.x.x...x .x.x...x .x.x...x .x.x.x.x',
         send: 0.4,
       },
-      { kind: 'knock', vol: 0.28, layer: 4, pattern: '........ .....xxx ........ .....xxx' },
+      { kind: 'reel', vol: 0.16, layer: 4, pattern: 'x.x.x.x. x.x.x.x. x.x.x.x. x.x.x.x.' },
+      { kind: 'snip', vol: 0.15, layer: 5, pattern: '....x... ....x... ....x... ....x.x.' },
+      {
+        kind: 'chime',
+        vol: 0.16,
+        layer: 6,
+        pattern: 'x....... ....x... x....... ....x...',
+        send: 0.4,
+      },
+      { kind: 'knock', vol: 0.26, layer: 7, pattern: '........ .....xxx ........ .....xxx' },
+      { kind: 'press', vol: 0.24, layer: 8, pattern: 'x....... ....x... x....... ..x.x...' },
+      { kind: 'pendulum', vol: 0.2, layer: 9, pattern: 'x...x... x...x... x...x... x...x...' },
     ],
   },
 
-  // Amanecer
   ending: {
     bpm: 84,
     stepsPerBeat: 2,

@@ -323,8 +323,8 @@ export class DreamExam extends Phaser.Scene {
       const g = this.floorAt(q.at);
       const upKey = `exam-ans-${index}-up`;
       const downKey = `exam-ans-${index}-down`;
-      paintAnswer(this, upKey, q.upper);
-      paintAnswer(this, downKey, q.lower);
+      paintAnswer(this, upKey, t(q.upperKey));
+      paintAnswer(this, downKey, t(q.lowerKey));
       const upperY = g - 178;
       const lowerY = g - 46;
       const parts: Phaser.GameObjects.GameObject[] = [
@@ -734,7 +734,7 @@ export class DreamExam extends Phaser.Scene {
       const ahead = g.x - this.dist;
       if (!g.shown && ahead < 980 && ahead > 0) {
         g.shown = true;
-        this.writeQuestion(EXAM_QUESTIONS[g.index].text);
+        this.writeQuestion(t(EXAM_QUESTIONS[g.index].textKey));
         if (g.index === 0) this.showToast(t('exam.hintQuestion'), 2600);
       }
       if (ahead <= 0) this.resolveGate(g);
