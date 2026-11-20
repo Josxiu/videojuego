@@ -9,6 +9,7 @@ import { DreamExam } from './scenes/exam/DreamExam';
 import { DreamFall } from './scenes/fall/DreamFall';
 import { DreamForest } from './scenes/forest/DreamForest';
 import { DreamShadow } from './scenes/shadow/DreamShadow';
+import { DreamEmbroidery } from './scenes/embroidery/DreamEmbroidery';
 import { DreamChase } from './scenes/chase/DreamChase';
 import { DreamSong } from './scenes/song/DreamSong';
 import { Ending } from './scenes/Ending';
@@ -50,6 +51,7 @@ const game = new Phaser.Game({
     DreamFall,
     DreamForest,
     DreamShadow,
+    DreamEmbroidery,
     DreamChase,
     DreamSong,
     Ending,
