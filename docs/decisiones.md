@@ -55,3 +55,7 @@ Decisiones creativas y técnicas tomadas sin consultar, como pide el brief, con 
 ## D13 — Modo de prueba `?auto`
 - **Decisión**: cada sueño acepta `?auto` para jugarse solo (y los diálogos avanzan solos), además de `?skip`, `?act=N` y `?madrugada`.
 - **Por qué**: el brief pide jugar cada nivel con el navegador automatizado y tomar capturas. Un bot dentro del propio sueño recorre los tres actos de forma reproducible.
+
+## D14 — Sueño 2: maletas verificadas por un solucionador
+- **Decisión**: las maletas son poliominós sobre una rejilla. Un solucionador por búsqueda exhaustiva (`src/data/samu.ts`) se usa en los tests para garantizar que cada maleta tiene solución contando los tiquetes, y que la del Acto III es imposible a propósito; el mismo solucionador juega el modo `?auto`. En PC se arrastra con el ratón; `R` gira la pieza que se arrastra.
+- **Por qué**: un rompecabezas sin solución por error arruina el sueño, y el giro del Acto III («la maleta no cierra») solo funciona si de verdad no cierra. El ratón es el equivalente natural del dedo para arrastrar; un control de teclado completo para empacar se dejó fuera por costo.

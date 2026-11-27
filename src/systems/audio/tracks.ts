@@ -93,6 +93,15 @@ const REME_MEL = [
   'D5~4 . . . . . . .',
 ].join(' ');
 
+// ----- Samu: currulao en 6/8 (marimba de chonta, cununo, bombo, guasá) -----
+const SAMU_OST = [
+  'A4 C5 E5 A4 C5 E5',
+  'G4 B4 D5 G4 B4 D5',
+  'F4 A4 C5 F4 A4 C5',
+  'E4 G#4 B4 E4 G#4 B4',
+].join(' ');
+const SAMU_MEL = ['E5~2 . D5 C5 .', 'B4~2 . G4 . .', 'A4 C5 E5 F5~2 .', 'E5~3 . . .'].join(' ');
+
 export const TRACKS = {
   menu: {
     bpm: 58,
@@ -157,6 +166,26 @@ export const TRACKS = {
       L('bass', 0.38, 0, REME_BASS),
       L('tiple', 0.26, 1, REME_MEL),
       D('guacharaca', 0.14, 2, 'x . x x x . x x'),
+    ],
+  },
+  samu: {
+    bpm: 96,
+    spb: 3,
+    steps: 24,
+    layers: [
+      L('marimba', 0.36, 0, SAMU_OST),
+      L('bass', 0.4, 0, 'A2 . . E2 . . G2 . . D2 . . F2 . . C2 . . E2 . . B1 . .'),
+      D('cununo', 0.32, 1, 'x . o x o .'),
+      D('kick', 0.4, 1, 'X . . . . x'),
+      D('shaker', 0.16, 2, 'x x x x x x'),
+      L(
+        'marimba',
+        0.26,
+        2,
+        SAMU_MEL.split(' ')
+          .map((t) => t.replace(/(\d)/, (d) => String(Number(d) + 1)))
+          .join(' '),
+      ),
     ],
   },
 } satisfies Record<string, Track>;

@@ -62,6 +62,42 @@ export const samu = {
     secret:
       'Samu se baja corriendo. Wílmer se ríe torcido, igualito a la foto, y le pide que le enseñe a hacer vacas.',
   },
+  // ----- Propios de este sueño -----
+  hintDrag: 'Arrastra para empacar · toca una pieza para girarla',
+  hintLatch: 'Toca los broches',
+  hintGive: 'Lleva la vaca hasta Wílmer',
+  levelLines: [
+    [['samu', 'Primero lo importante: la vaca, el balón, el superhéroe que hice yo.']],
+    [['samu', 'Ahora el cuaderno de dibujos y la chaqueta. La de la cremallera dañada.']],
+    [['samu', 'Todo, todo. La marimba grande también, que eso es del Chocó.']],
+    [],
+    [],
+  ] as Line[][],
+  listLines: [
+    ['samu', 'Mi mamá me escribió esto. «Lo que le gusta a tu papá.»'],
+    ['samu', 'Vallenato. El Unión Magdalena. El picó a todo volumen. La vaca no está en la lista.'],
+    ['celeste', 'Las listas nunca traen vacas.'],
+    ['samu', 'Entonces empaco lo de él. Así le caigo bien de una.'],
+  ] as Line[],
+  hideLines: [
+    ['samu', '¿Y si me empaco yo? Me meto en la maleta y él me abre cuando quiera.'],
+    ['celeste', 'A las personas no se les empaca, Samu.'],
+    ['samu', 'Yo soy chiquito. Quepo.'],
+  ] as Line[],
+  act3Lines: [
+    ['samu', 'Esta no cierra. Nada cabe, revisora.'],
+    ['samu', 'Si no cabe, se queda. Eso dijimos.'],
+  ] as Line[],
+  stuckLines: [
+    ['celeste', 'Samu. ¿Y si no la cerramos?'],
+    ['samu', '¿Una maleta abierta? Eso es para cuando uno ya llegó.'],
+  ] as Line[],
+  spillLines: [
+    ['samu', '¡Se salieron! ¡La vaca está caminando sola!'],
+    ['wilmer', '¿Samuel? Perdone. Es que traje muchas cosas. No sabía qué le gustaba a usted.'],
+  ] as Line[],
+  timeUp: '¡Pitó el tren! Otra vez.',
+  noFit: 'Ahí no cabe',
 };
 
 export const _samuCheck: DreamTexts = samu;
