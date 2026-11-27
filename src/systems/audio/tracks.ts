@@ -298,6 +298,18 @@ export const TRACKS = {
       ),
     ],
   },
+  abel: {
+    bpm: 66,
+    spb: 3,
+    steps: 48,
+    layers: [
+      L('musicbox', 0.34, 0, TRAIN_MELODY),
+      D('clack', 0.25, 0, 'x . . x . .'),
+      L('tiple', 0.22, 1, strum('C . . C . .')),
+      L('bass', 0.3, 1, TRAIN_BASS),
+      L('pad', 0.18, 2, TRAIN_CHORDS.map((c) => `${c}~6 . . . . .`).join(' ')),
+    ],
+  },
 } satisfies Record<string, Track>;
 
 export type TrackId = keyof typeof TRACKS;

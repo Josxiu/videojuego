@@ -74,6 +74,27 @@ export const abel = {
     secret:
       'Abel le enseña a su nieto a frenar en la maqueta. «Frenar también es manejar», le dice.',
   },
+  // ----- Propios de este sueño -----
+  hintSwitch: 'Toca las agujas 1, 2 y 3 para cambiar la vía · arrastra para girar la maqueta',
+  hintBrake: 'Mantén presionado para frenar',
+  terminal: 'Santa Marta',
+  laps: 'Vueltas: {n} de 3',
+  stopped: 'El tren se paró en la vía muerta. Otra vez, ¿sí me entiende?',
+  derailed: 'Se descarriló: ahí ya no hay vía.',
+  crashed: 'Se estrelló de frente.',
+  tooFast: 'Muy rápido: chocó contra el tope.',
+  ghostWarn: '¡Viene un tren de frente!',
+  act2Lines: [
+    ['abel', 'Esos trenes son míos. El de carbón del noventa y uno. El del entierro.'],
+    ['abel', 'Y esas manos están desarmando la línea. Así la cierran: tablita por tablita.'],
+  ] as Line[],
+  handsLine: [
+    ['abel', 'Se llevaron el tramo de arriba. Por el desvío, mija, por el desvío.'],
+  ] as Line[],
+  act3Lines: [
+    ['abel', 'Ya no hay vuelta. Se llevaron Gamarra.'],
+    ['abel', 'Lo único que queda es el ramal. El que yo llamaba vía muerta.'],
+  ] as Line[],
 };
 
 export const _abelCheck: DreamTexts = abel;
