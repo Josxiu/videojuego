@@ -1,8 +1,8 @@
 {
-  "name": "duermevela",
+  "name": "trasnocho",
   "private": true,
-  "version": "0.2.0",
-  "description": "Duermevela — un juego sobre sueños de los que no puedes despertar",
+  "version": "1.0.0",
+  "description": "Trasnocho — el último tren nocturno y los sueños de sus pasajeros",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -16,10 +16,22 @@
     "check": "npm run lint && npm run test && npm run build"
   },
   "dependencies": {
-    "phaser": "^3.90.0"
+    "@fontsource/architects-daughter": "^5.3.0",
+    "@fontsource/atkinson-hyperlegible": "^5.3.0",
+    "@fontsource/big-shoulders-display": "^5.3.0",
+    "@fontsource/cinzel-decorative": "^5.3.0",
+    "@fontsource/cormorant-garamond": "^5.3.0",
+    "@fontsource/fraunces": "^5.3.0",
+    "@fontsource/fredoka": "^5.3.0",
+    "@fontsource/monoton": "^5.3.0",
+    "@fontsource/sancreek": "^5.3.0",
+    "@fontsource/yellowtail": "^5.3.0",
+    "phaser": "^3.90.0",
+    "three": "^0.187.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@types/three": "^0.187.0",
     "eslint": "^10.8.0",
     "eslint-config-prettier": "^10.1.8",
     "jsdom": "^29.1.1",

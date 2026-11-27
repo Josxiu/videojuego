@@ -6,89 +6,69 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
     />
-    <meta name="theme-color" content="#0d0a1e" />
+    <meta name="theme-color" content="#14162e" />
+    <meta name="description" content="Trasnocho: el último tren nocturno de Bogotá a Santa Marta y los sueños de sus pasajeros." />
     <link
       rel="icon"
-      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌙</text></svg>"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2244%22 fill=%22%2314162e%22/><circle cx=%2250%22 cy=%2250%22 r=%2216%22 fill=%22%23ff5fa2%22/></svg>"
     />
-    <title>Duermevela</title>
+    <title>Trasnocho</title>
     <style>
-      /* Fuentes pixel auto-alojadas (OFL, ver public/fonts/LICENSE.md) */
-      @font-face {
-        font-family: 'Silkscreen';
-        src: url('./fonts/Silkscreen-Regular.ttf') format('truetype');
-        font-display: block;
-      }
-      @font-face {
-        font-family: 'Pixelify Sans';
-        src: url('./fonts/PixelifySans-Regular.ttf') format('truetype');
-        font-display: block;
-      }
-      @font-face {
-        font-family: 'Cabin Sketch';
-        src: url('./fonts/CabinSketch-Regular.ttf') format('truetype');
-        font-display: block;
-      }
-      @font-face {
-        font-family: 'Patrick Hand';
-        src: url('./fonts/PatrickHand-Regular.ttf') format('truetype');
-        font-display: block;
-      }
-      @font-face {
-        font-family: 'Gochi Hand';
-        src: url('./fonts/GochiHand-Regular.ttf') format('truetype');
-        font-display: block;
-      }
       html,
       body {
         margin: 0;
         padding: 0;
         width: 100%;
         height: 100%;
-        background: #0d0a1e;
+        background: #14162e;
         overflow: hidden;
         touch-action: none;
         -webkit-user-select: none;
         user-select: none;
+        -webkit-tap-highlight-color: transparent;
       }
       #game {
         width: 100%;
         height: 100%;
+        position: relative;
       }
-      #game canvas {
-        image-rendering: pixelated;
-        image-rendering: crisp-edges;
+      /* El sueño en 3D dibuja en un lienzo debajo del de Phaser. */
+      #three {
+        position: absolute;
+        pointer-events: none;
       }
-      /* Aviso para girar el celular a horizontal */
       #rotate-overlay {
         display: none;
         position: fixed;
         inset: 0;
         z-index: 100;
-        background: #0d0a1e;
-        color: #cfc4ff;
+        background: #14162e;
+        color: #ff5fa2;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 16px;
-        font-family: monospace;
+        gap: 18px;
+        font: 600 20px 'Trebuchet MS', sans-serif;
         text-align: center;
       }
       #rotate-overlay .phone {
-        font-size: 48px;
-        animation: rotate-hint 1.6s ease-in-out infinite;
+        width: 46px;
+        height: 80px;
+        border: 5px solid #ffd23f;
+        border-radius: 10px;
+        animation: rotate-hint 1.8s ease-in-out infinite;
       }
       @keyframes rotate-hint {
         0%,
-        20% {
+        25% {
           transform: rotate(0deg);
         }
-        60%,
+        65%,
         100% {
           transform: rotate(90deg);
         }
       }
-      @media (orientation: portrait) and (max-width: 600px) {
+      @media (orientation: portrait) and (max-width: 700px) {
         #rotate-overlay {
           display: flex;
         }
@@ -98,8 +78,8 @@
   <body>
     <div id="game"></div>
     <div id="rotate-overlay">
-      <div class="phone">📱</div>
-      <div>Gira tu celular para jugar<br />(horizontal)</div>
+      <div class="phone"></div>
+      <div>Gira el celular<br />El Lucero viaja en horizontal</div>
     </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
