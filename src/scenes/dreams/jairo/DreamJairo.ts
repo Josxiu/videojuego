@@ -470,7 +470,7 @@ export class DreamJairo extends DreamScene {
 
   private updateClave(): void {
     const c = Audio.clock();
-    let on = false;
+    let on: boolean;
     if (c) {
       const pos = (Audio.now() - c.start) / c.stepDur;
       const step = ((pos % 32) + 32) % 32;
