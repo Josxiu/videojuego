@@ -69,6 +69,33 @@ export const chepe = {
     secret:
       'Chepe se baja y bota los agüeros en la caneca de la estación, menos el billete del noventa y ocho. Ese lo enmarca.',
   },
+  // ----- Propios de este sueño -----
+  hintFlip: 'Toca la mitad izquierda o derecha para mover cada paleta',
+  word: 'SUERTE',
+  consentida: 'La Consentida',
+  laura: 'Laura',
+  money: 'Plata',
+  route: 'Ruta Bucaramanga — Girón',
+  drain: [
+    '¡Ah, mano! Esa no contaba.',
+    'Tranquilo, que ya viene la buena.',
+    'Calzoncillo amarillo, no me falle.',
+    'Esa se la regalé.',
+  ],
+  jackpot: '¡PREMIO MAYOR!',
+  jackpotLine: "¡Ganamos! …¿Y la plata pa'dónde se va?",
+  act2Lines: [
+    ['chepe', 'Ojo, que ahora juegan los agüeros, mano. La mesa se ladea sola.'],
+    ['celeste', 'Las paletas se están moviendo sin usted.'],
+    ['chepe', 'Así es la suerte: uno cree que juega y lo juegan.'],
+  ] as Line[],
+  facesLine: [['chepe', 'Esa es Gladys. Y esa es Laura. ¿Qué hacen en los medallones?']] as Line[],
+  act3Lines: [
+    ['chepe', 'Una más y ya. La última, mano. Esta sí cae.'],
+    ['celeste', 'Chepe. ¿Y si la deja caer?'],
+  ] as Line[],
+  tempt: ['¡Una más y ya!', '¡La última, la última!', '¡Esta sí es la buena!'],
+  letGo: [['chepe', 'No. Ya no.']] as Line[],
 };
 
 export const _chepeCheck: DreamTexts = chepe;

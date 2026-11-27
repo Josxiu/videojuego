@@ -119,6 +119,18 @@ const claveTokens = Array.from({ length: 32 }, (_v, i) =>
   CLAVE_STEPS.includes(i) ? 'X' : '.',
 ).join(' ');
 
+// ----- Chepe: cumbia con acordeón y guacharaca -----
+const CUMBIA_CH = [
+  'G3,B3,D4',
+  'G3,B3,D4',
+  'D3,F#3,A3',
+  'D3,F#3,A3',
+  'C3,E3,G3',
+  'C3,E3,G3',
+  'D3,F#3,A3',
+  'G3,B3,D4',
+];
+
 export const TRACKS = {
   menu: {
     bpm: 58,
@@ -243,6 +255,23 @@ export const TRACKS = {
         0.3,
         2,
         '. . . . . . E5,A5 . . . . . E5,A5~2 . . . . . . . . . D5,G#5 . . . . . E5,B5~3 . . .',
+      ),
+    ],
+  },
+  chepe: {
+    bpm: 104,
+    spb: 4,
+    steps: 64,
+    layers: [
+      D('guacharaca', 0.22, 0, 'x . x x x . x x'),
+      L('bass', 0.42, 0, bars(['G2', 'G2', 'D2', 'D2', 'C2', 'C2', 'D2', 'G2'], 'C . . . C . . .')),
+      D('tambora', 0.3, 0, 'X . . . o . . . X . . . o . o .'),
+      L('accordion', 0.28, 1, bars(CUMBIA_CH, '. . C . . . C .')),
+      L(
+        'accordion',
+        0.24,
+        2,
+        'D5 . B4 . G4 . B4 . D5 . E5 . D5 . B4 . A4 . F#4 . D4 . F#4 . A4 . B4 . A4 . . . G4 . E4 . C4 . E4 . G4 . A4 . G4 . E4 . F#4 . A4 . D5 . C5 . B4~4 . . . . . . .',
       ),
     ],
   },

@@ -71,3 +71,7 @@ Decisiones creativas y técnicas tomadas sin consultar, como pide el brief, con 
 ## D17 — Sueño 4: columpio de un dedo con impulso automático
 - **Decisión**: mantener presionado engancha el letrero más conveniente por delante (marcado con un anillo); soltar suelta con un 8 % de impulso extra. Mientras cuelga, Celeste recibe un empuje tangencial hacia adelante. En el Acto II los letreros que solo encienden con la clave se sincronizan con el reloj real del audio (ventana de ~0,7 s por golpe) y se puede «adelantar» el toque: si se mantiene presionado, engancha en cuanto el letrero prende.
 - **Por qué**: con un solo dedo no hay forma de «bombear» el columpio; el empuje automático deja la decisión en lo que importa (cuándo soltar). Ligar la mecánica a la clave 3-2 hace que la salsa no sea decoración sino la regla del acto.
+
+## D18 — Sueño 5: pinball con paletas de velocidad real y una ruptura pasiva
+- **Decisión**: las paletas son segmentos que giran; al chocar, la bola recibe la velocidad de la superficie de la paleta en el punto de contacto (no un rebote fijo). Un dedo en la mitad izquierda o derecha mueve esa paleta. En el Acto III solo se avanza dejando caer la bola sin tocar nada: la máquina tienta tres veces («¡Una más y ya!») y una bola en la que se tocó una paleta no cuenta.
+- **Por qué**: un pinball sin golpe de paleta creíble no divierte. La ruptura tenía que ser lo contrario de la regla del sueño (mantener la bola viva) y de la adicción de Chepe (una más): ganar es no jugar.

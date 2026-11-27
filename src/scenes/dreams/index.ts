@@ -3,6 +3,7 @@ import { DreamReme } from './reme/DreamReme';
 import { DreamSamu } from './samu/DreamSamu';
 import { DreamMarisol } from './marisol/DreamMarisol';
 import { DreamJairo } from './jairo/DreamJairo';
+import { DreamChepe } from './chepe/DreamChepe';
 
 /**
  * Registro de las escenas de sueño. Cada sueño se agrega aquí cuando está terminado;
@@ -13,7 +14,7 @@ export const DREAM_SCENES: (typeof Phaser.Scene)[] = [
   DreamSamu,
   DreamMarisol,
   DreamJairo,
-  DreamPlaceholder.for('chepe'),
+  DreamChepe,
   DreamPlaceholder.for('efrain'),
   DreamPlaceholder.for('abel'),
   DreamPlaceholder.for('celeste'),
