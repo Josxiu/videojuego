@@ -26,6 +26,9 @@ export const Juice = {
 
   vibrate(pattern: number | number[] = 15): void {
     try {
+      const ua = (navigator as Navigator & { userActivation?: { hasBeenActive: boolean } })
+        .userActivation;
+      if (ua && !ua.hasBeenActive) return;
       navigator.vibrate?.(pattern);
     } catch {
       // no todos los navegadores lo permiten

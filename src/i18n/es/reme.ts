@@ -128,6 +128,7 @@ export const reme = {
   listen: 'Escucha. Toca donde suene.',
   seaAsk: 'Ya solo falta una cosa, sumercé. La que nunca he visto.',
   hintLens: 'Arrastra la lupa · toca para recoger',
+  costal: 'En el costal:',
 };
 
 // Comprobación de tipo: el sueño cumple la forma común.

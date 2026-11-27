@@ -1,6 +1,9 @@
 import { DEPTH, FONT, H, W, txt } from '../config';
 import { T, type Line } from '../i18n';
 import { Audio, type Speaker } from './audio/Audio';
+import { debug } from './debug';
+
+const AUTO = debug.flag('auto');
 
 export interface DialogueTheme {
   bg: number;
@@ -241,7 +244,17 @@ export class Dialogue {
     this.arrow.setVisible(false);
   }
 
+  private autoWait = 0;
+
   private tick(dt: number): void {
+    if (AUTO && this.open && !this.choiceObjs.length && this.shown >= this.full.length) {
+      this.autoWait += dt;
+      if (this.autoWait > 450) {
+        this.autoWait = 0;
+        this.advance();
+      }
+      return;
+    }
     if (!this.open || this.shown >= this.full.length) return;
     this.acc += dt;
     const per = 22;
@@ -309,6 +322,7 @@ export class Dialogue {
       if (n >= 1 && n <= options.length) pick(options[n - 1]);
     };
     this.scene.input.keyboard?.on('keydown', onKey);
+    if (AUTO) this.scene.time.delayedCall(600, () => pick(options[0]));
     options.forEach((o, i) => {
       const y = startY + i * 64;
       const bg = this.scene.add

@@ -67,6 +67,32 @@ const TRAIN_MELODY = [
   'G4~2 . F#4 E4~3 . .',
 ].join(' ');
 
+// ----- Reme: carranga lenta en Re mayor (2/4, semicorcheas) -----
+const bars = (chords: string[], pat: string) => chords.map((c) => pat.replaceAll('C', c)).join(' ');
+const REME_CH = [
+  'D4,F#4,A4',
+  'D4,F#4,A4',
+  'C#4,E4,A4',
+  'C#4,E4,A4',
+  'D4,G4,B4',
+  'C#4,E4,A4',
+  'D4,F#4,A4',
+  'D4,F#4,A4',
+];
+const REME_BASS = ['D2', 'D2', 'A1', 'A1', 'G1', 'A1', 'D2', 'D2']
+  .map((r) => `${r} . . . ${r === 'D2' ? 'A1' : r === 'A1' ? 'E2' : 'D2'} . . .`)
+  .join(' ');
+const REME_MEL = [
+  'F#5 . A5 . F#5 E5 D5 .',
+  'E5 . F#5 . A5~3 . . .',
+  'G5 . E5 . C#5 . E5 .',
+  'A4~3 . . . E5 . F#5 G5',
+  'B5 . G5 . D5 . G5 .',
+  'A5 . E5 . C#5 . A4 .',
+  'D5 . F#5 . A5 . F#5 .',
+  'D5~4 . . . . . . .',
+].join(' ');
+
 export const TRACKS = {
   menu: {
     bpm: 58,
@@ -120,6 +146,17 @@ export const TRACKS = {
       L('gaita', 0.24, 0, TRAIN_MELODY),
       L('marimba', 0.2, 1, TRAIN_MELODY.replaceAll('4', '5')),
       D('guacharaca', 0.15, 1, '. x x . x x'),
+    ],
+  },
+  reme: {
+    bpm: 92,
+    spb: 4,
+    steps: 64,
+    layers: [
+      L('tiple', 0.3, 0, bars(REME_CH, '. C . C . C . C')),
+      L('bass', 0.38, 0, REME_BASS),
+      L('tiple', 0.26, 1, REME_MEL),
+      D('guacharaca', 0.14, 2, 'x . x x x . x x'),
     ],
   },
 } satisfies Record<string, Track>;

@@ -47,3 +47,11 @@ Decisiones creativas y técnicas tomadas sin consultar, como pide el brief, con 
 ## D11 — Textos fuera del código, como datos tipados
 - **Decisión**: todo texto vive en `src/i18n/es/` como objetos tipados (interfaz, tren, un archivo por sueño). Las escenas solo leen claves. Un test verifica que no haya cadenas vacías, que los diálogos respeten el máximo de dos líneas y que los marcadores `{x}` coincidan.
 - **Por qué**: el brief exige textos en español separados del código, y el plan pide «máximo dos líneas por globo».
+
+## D12 — Sueño 1: la lupa como punto de vista
+- **Decisión**: la escena de Reme existe en dos capas de puntos: la que ella ve (puntos grandes, ralos y corridos con ruido) y la nítida, que solo aparece dentro de la lupa (máscara circular). Los tiquetes solo existen en la capa nítida. En el Acto III la lupa se raja y la búsqueda pasa al oído: cada objeto suena con volumen y paneo según la distancia, y un anillo pulsante alrededor de la lupa da la misma información a quien juega sin sonido.
+- **Por qué**: la mecánica tenía que ser la metáfora de la degeneración macular (el centro deshecho en puntos) y su ruptura, la aceptación («ahora estamos iguales las dos»). El anillo visual evita que el Acto III sea imposible para personas sordas o con el celular en silencio.
+
+## D13 — Modo de prueba `?auto`
+- **Decisión**: cada sueño acepta `?auto` para jugarse solo (y los diálogos avanzan solos), además de `?skip`, `?act=N` y `?madrugada`.
+- **Por qué**: el brief pide jugar cada nivel con el navegador automatizado y tomar capturas. Un bot dentro del propio sueño recorre los tres actos de forma reproducible.

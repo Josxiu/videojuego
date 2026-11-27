@@ -412,6 +412,64 @@ class AudioEngine {
     }
   }
 
+  /** Sonido ubicado en el espacio (izquierda/derecha) para encontrar cosas a oído. */
+  cue(kind: 'tick' | 'clink' | 'wave' | 'hen' | 'hum', vol: number, pan: number): void {
+    if (!this.ctx || !this.sfxBus || !this.synth || vol <= 0.001) return;
+    const c = this.ctx;
+    const t = c.currentTime;
+    const p = c.createStereoPanner();
+    p.pan.value = Math.max(-1, Math.min(1, pan));
+    const g = c.createGain();
+    g.gain.value = vol;
+    g.connect(p);
+    p.connect(this.sfxBus);
+    switch (kind) {
+      case 'tick':
+        this.synth.drum('clave', t, 0.6, g);
+        break;
+      case 'clink':
+        this.synth.note('bell', freq('A6'), t, 0.1, 0.5, g);
+        break;
+      case 'hen': {
+        const o = c.createOscillator();
+        const og = c.createGain();
+        o.type = 'sawtooth';
+        o.frequency.setValueAtTime(700, t);
+        o.frequency.exponentialRampToValueAtTime(1100, t + 0.08);
+        o.frequency.exponentialRampToValueAtTime(600, t + 0.2);
+        og.gain.setValueAtTime(0.0001, t);
+        og.gain.linearRampToValueAtTime(0.12, t + 0.02);
+        og.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
+        o.connect(og);
+        og.connect(g);
+        o.start(t);
+        o.stop(t + 0.25);
+        break;
+      }
+      case 'hum':
+        this.synth.note('organ', freq('D4'), t, 0.5, 0.6, g);
+        break;
+      case 'wave': {
+        const s = c.createBufferSource();
+        s.buffer = this.synth.noiseBuffer();
+        const f = c.createBiquadFilter();
+        f.type = 'lowpass';
+        f.frequency.setValueAtTime(400, t);
+        f.frequency.linearRampToValueAtTime(1400, t + 1.1);
+        f.frequency.linearRampToValueAtTime(300, t + 2.4);
+        const wg = c.createGain();
+        wg.gain.setValueAtTime(0.0001, t);
+        wg.gain.linearRampToValueAtTime(0.5, t + 1.0);
+        wg.gain.linearRampToValueAtTime(0.0001, t + 2.5);
+        s.connect(f);
+        f.connect(wg);
+        wg.connect(g);
+        s.start(t, Math.random() * 0.3, 2.6);
+        break;
+      }
+    }
+  }
+
   /** «Blip» de voz: un sonido corto por sílaba aproximada. */
   voice(who: Speaker): void {
     if (!this.ctx || !this.sfxBus) return;
