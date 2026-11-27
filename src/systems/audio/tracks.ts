@@ -110,6 +110,15 @@ const MARI_ARP = [
   'G3 B3 D4 G4 B4 G4 D4 B3',
 ].join(' ');
 
+// ----- Jairo: salsa (montuno, tumbao, clave 3-2) -----
+const MONT_A = '. A4,C5,E5 . A4,C5,E5 . . A4,C5,E5 . A4,C5,E5 . . A4,C5,E5 . A4,C5,E5 . .';
+const MONT_E = '. G#4,B4,E5 . G#4,B4,E5 . . G#4,B4,E5 . G#4,B4,E5 . . G#4,B4,E5 . G#4,B4,E5 . .';
+/** Clave de son 3-2 en semicorcheas sobre dos compases. */
+export const CLAVE_STEPS = [0, 6, 12, 20, 24];
+const claveTokens = Array.from({ length: 32 }, (_v, i) =>
+  CLAVE_STEPS.includes(i) ? 'X' : '.',
+).join(' ');
+
 export const TRACKS = {
   menu: {
     bpm: 58,
@@ -216,6 +225,25 @@ export const TRACKS = {
         'C2~4 . . . . . . . A1~4 . . . . . . . F1~4 . . . . . . . G1~4 . . . . . . .',
       ),
       L('bell', 0.12, 2, 'E6 . . . . . . . . . . . C6 . . . . . . . . . . . A5 . . . B5 . . .'),
+    ],
+  },
+  jairo: {
+    bpm: 96,
+    spb: 4,
+    steps: 32,
+    layers: [
+      D('clave', 0.5, 0, claveTokens),
+      L('piano', 0.3, 0, `${MONT_A} ${MONT_E}`),
+      L('bass', 0.45, 0, '. . . . . . A2 . . . . . E2 . . . . . . . . . E2 . . . . . B1 . . .'),
+      D('conga', 0.35, 1, 'o . . . x . X . o . . . x . X .'),
+      D('congaLow', 0.3, 1, '. . . . . . . . . . . . . . . X'),
+      D('cowbell', 0.22, 1, 'x . x . x . x . x . x . x . x .'),
+      L(
+        'brass',
+        0.3,
+        2,
+        '. . . . . . E5,A5 . . . . . E5,A5~2 . . . . . . . . . D5,G#5 . . . . . E5,B5~3 . . .',
+      ),
     ],
   },
 } satisfies Record<string, Track>;

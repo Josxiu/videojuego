@@ -67,3 +67,7 @@ Decisiones creativas y técnicas tomadas sin consultar, como pide el brief, con 
 ## D16 — Los intentos fallidos se guardan como borradores
 - **Decisión**: cada intento fallido deja sus líneas como borrador. En el Acto III (sin tinta) aparecen los borradores de Marisol más los del jugador; tocarlos los pasa en limpio. El plano siempre trae borradores suficientes para cruzar, aunque el jugador no haya fallado nunca.
 - **Por qué**: «el puente se hace con los errores» solo es verdad si los errores son del jugador; los borradores de base garantizan que el acto no dependa de haber fallado.
+
+## D17 — Sueño 4: columpio de un dedo con impulso automático
+- **Decisión**: mantener presionado engancha el letrero más conveniente por delante (marcado con un anillo); soltar suelta con un 8 % de impulso extra. Mientras cuelga, Celeste recibe un empuje tangencial hacia adelante. En el Acto II los letreros que solo encienden con la clave se sincronizan con el reloj real del audio (ventana de ~0,7 s por golpe) y se puede «adelantar» el toque: si se mantiene presionado, engancha en cuanto el letrero prende.
+- **Por qué**: con un solo dedo no hay forma de «bombear» el columpio; el empuje automático deja la decisión en lo que importa (cuándo soltar). Ligar la mecánica a la clave 3-2 hace que la salsa no sea decoración sino la regla del acto.

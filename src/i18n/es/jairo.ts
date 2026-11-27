@@ -66,6 +66,44 @@ export const jairo = {
     secret:
       'Jairo se baja con el acetato rayado bajo el brazo. Lo ponen en el matrimonio, y en el rayón canta todo el mundo.',
   },
+  // ----- Propios de este sueño -----
+  hintSwing: 'Mantén presionado para engancharte · suelta para volar · no toques la calle',
+  hintKnock: 'Toca la puerta: cinco golpes',
+  signs: [
+    'SALSOTECA',
+    'HOTEL',
+    'DISCOS',
+    'FARMACIA 24H',
+    'BAILE',
+    'AZÚCAR',
+    'JUANCHITO',
+    'LA SEXTA',
+    'BAR',
+    'TEMPLO',
+    'ORQUESTA',
+    'RUMBA',
+  ],
+  moon: 'LA LUNA',
+  fell: [
+    'Pisó, mija. Otra vez desde la tarima.',
+    'El piso no, el piso no.',
+    'Arriba, arriba, que la gente mira.',
+  ],
+  silence: 'Se la comió el silencio.',
+  act2Lines: [
+    ['jairo', 'Uy. Ese letrero se fundió. Así se me fue la voz: un aplauso a la vez.'],
+    ['jairo', 'Y ahora prenden solo en la clave. Uno, dos, tres… uno, dos.'],
+  ] as Line[],
+  silenceLines: [['jairo', 'Mirá atrás. Eso negro es el silencio. No lo dejés llegar.']] as Line[],
+  act3Lines: [
+    ['jairo', 'Se acabaron los letreros, mija.'],
+    ['jairo', 'Abajo está la calle. Treinta años sin pisarla.'],
+  ] as Line[],
+  landLines: [
+    ['jairo', 'Ah. Era blandita.'],
+    ['jairo', 'Esa es la casa de Daniela. Ahí no hay tarima.'],
+  ] as Line[],
+  notes: 'Notas',
 };
 
 export const _jairoCheck: DreamTexts = jairo;
