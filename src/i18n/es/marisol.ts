@@ -68,6 +68,41 @@ export const marisol = {
     secret:
       'Marisol se baja sin abrir el tubo. Se toma un jugo de corozo en la estación antes de ir al puente.',
   },
+  // ----- Propios de este sueño -----
+  hintDraw:
+    'Arrastra para dibujar · «Soltar» echa a rodar la canica · toca una línea para borrarla',
+  release: 'Soltar',
+  undo: 'Deshacer',
+  ink: 'Tinta',
+  plans: [
+    'Plano 1 · Cruce simple',
+    'Plano 2 · La pila',
+    'Plano 3 · El valle',
+    'Plano 4 · De vuelta',
+    'Plano 5 · Fatiga',
+    'Plano 6 · Dos tramos',
+    'Plano 7 · San Rafael',
+  ],
+  fail: [
+    'Qué pena. Otra vez.',
+    'Dos milímetros. Siempre son dos milímetros.',
+    'No pasa nada. Sí pasa. Otra vez.',
+    'Eso no estaba en el cálculo.',
+  ],
+  ok: ['Cruzó.', 'Aguantó. Por ahora.', 'Bien. Qué susto.', 'Pasó. Revíselo otra vez.'],
+  act2Lines: [
+    ['marisol', '¿Vio eso? La línea se cansó. «El hierro también se cansa», decía mi papá.'],
+    ['marisol', 'Y el río está creciendo. Yo nunca dibujo el río creciendo.'],
+  ] as Line[],
+  act3Lines: [
+    ['marisol', 'Se acabó la tinta. No puedo dibujar el último tramo.'],
+    ['celeste', 'Hay líneas por toda la hoja.'],
+    ['marisol', 'Son borradores. Los intentos que no sirvieron. Quince años de borradores.'],
+  ] as Line[],
+  ghostHint: 'Toca los borradores para pasarlos en limpio',
+  joint: 'JUNTA DE DILATACIÓN · 4 cm',
+  scaleFig: 'figura humana · 1,60 m',
+  titleBlock: 'PUENTE SAN RAFAEL · ING. M. ORTEGÓN · ESC 1:200',
 };
 
 export const _marisolCheck: DreamTexts = marisol;

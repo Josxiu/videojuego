@@ -102,6 +102,14 @@ const SAMU_OST = [
 ].join(' ');
 const SAMU_MEL = ['E5~2 . D5 C5 .', 'B4~2 . G4 . .', 'A4 C5 E5 F5~2 .', 'E5~3 . . .'].join(' ');
 
+// ----- Marisol: piano mínimo y metrónomo -----
+const MARI_ARP = [
+  'C4 E4 G4 C5 E5 C5 G4 E4',
+  'A3 C4 E4 A4 C5 A4 E4 C4',
+  'F3 A3 C4 F4 A4 F4 C4 A3',
+  'G3 B3 D4 G4 B4 G4 D4 B3',
+].join(' ');
+
 export const TRACKS = {
   menu: {
     bpm: 58,
@@ -186,6 +194,28 @@ export const TRACKS = {
           .map((t) => t.replace(/(\d)/, (d) => String(Number(d) + 1)))
           .join(' '),
       ),
+    ],
+  },
+  marisol: {
+    bpm: 76,
+    spb: 4,
+    steps: 32,
+    layers: [
+      L('piano', 0.26, 0, MARI_ARP),
+      D('rim', 0.25, 0, 'x . . . o . . . o . . . o . . .'),
+      L(
+        'pad',
+        0.3,
+        1,
+        'C4,E4,G4~8 . . . . . . . A3,C4,E4~8 . . . . . . . F3,A3,C4~8 . . . . . . . G3,B3,D4~8 . . . . . . .',
+      ),
+      L(
+        'bass',
+        0.3,
+        1,
+        'C2~4 . . . . . . . A1~4 . . . . . . . F1~4 . . . . . . . G1~4 . . . . . . .',
+      ),
+      L('bell', 0.12, 2, 'E6 . . . . . . . . . . . C6 . . . . . . . . . . . A5 . . . B5 . . .'),
     ],
   },
 } satisfies Record<string, Track>;

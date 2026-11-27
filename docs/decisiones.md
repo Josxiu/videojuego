@@ -59,3 +59,11 @@ Decisiones creativas y técnicas tomadas sin consultar, como pide el brief, con 
 ## D14 — Sueño 2: maletas verificadas por un solucionador
 - **Decisión**: las maletas son poliominós sobre una rejilla. Un solucionador por búsqueda exhaustiva (`src/data/samu.ts`) se usa en los tests para garantizar que cada maleta tiene solución contando los tiquetes, y que la del Acto III es imposible a propósito; el mismo solucionador juega el modo `?auto`. En PC se arrastra con el ratón; `R` gira la pieza que se arrastra.
 - **Por qué**: un rompecabezas sin solución por error arruina el sueño, y el giro del Acto III («la maleta no cierra») solo funciona si de verdad no cierra. El ratón es el equivalente natural del dedo para arrastrar; un control de teclado completo para empacar se dejó fuera por costo.
+
+## D15 — Sueño 3: física propia y planos verificados por simulación
+- **Decisión**: la canica usa una física mínima de bola contra segmentos (`src/systems/physics2d.ts`, que también usará el pinball). Cada plano trae una solución de referencia y un test la simula para comprobar que se puede cruzar dentro de la tinta disponible, que no se cruza sin dibujar, y que en el Acto II (líneas que se rompen tras 1,2 s de contacto) la solución en tramos aguanta. Al soltar, la canica recibe un empujoncito hacia la meta.
+- **Por qué**: un rompecabezas de física se rompe con cualquier ajuste de números; la simulación en los tests lo detecta antes que un jugador. La fatiga enseña sin decirlo que un puente largo se hace por tramos.
+
+## D16 — Los intentos fallidos se guardan como borradores
+- **Decisión**: cada intento fallido deja sus líneas como borrador. En el Acto III (sin tinta) aparecen los borradores de Marisol más los del jugador; tocarlos los pasa en limpio. El plano siempre trae borradores suficientes para cruzar, aunque el jugador no haya fallado nunca.
+- **Por qué**: «el puente se hace con los errores» solo es verdad si los errores son del jugador; los borradores de base garantizan que el acto no dependa de haber fallado.
