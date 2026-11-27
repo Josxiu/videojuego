@@ -75,3 +75,7 @@ Decisiones creativas y técnicas tomadas sin consultar, como pide el brief, con 
 ## D18 — Sueño 5: pinball con paletas de velocidad real y una ruptura pasiva
 - **Decisión**: las paletas son segmentos que giran; al chocar, la bola recibe la velocidad de la superficie de la paleta en el punto de contacto (no un rebote fijo). Un dedo en la mitad izquierda o derecha mueve esa paleta. En el Acto III solo se avanza dejando caer la bola sin tocar nada: la máquina tienta tres veces («¡Una más y ya!») y una bola en la que se tocó una paleta no cuenta.
 - **Por qué**: un pinball sin golpe de paleta creíble no divierte. La ruptura tenía que ser lo contrario de la regla del sueño (mantener la bola viva) y de la adicción de Chepe (una más): ganar es no jugar.
+
+## D19 — Sueño 6: los recuerdos falsos se ven, no se adivinan
+- **Decisión**: en los brazos del río, el recuerdo verdadero brilla y el falso está opaco; las etiquetas («En la albarrada» / «En la estación») cuentan la vida de Efraín, pero elegir no exige saberla. En el Acto III el río corre al revés (los hilos de agua bajan) y se avanza remando con toques repetidos o manteniendo espacio.
+- **Por qué**: castigar al jugador por no recordar datos de un personaje con alzhéimer sería cruel y aburrido; distinguir el brillo de la plata vieja es justo y coherente con el oficio de filigranero. Remar contra la corriente es la única mecánica de fuerza del juego, y está reservada para la ruptura de la regla «todo río va para abajo».

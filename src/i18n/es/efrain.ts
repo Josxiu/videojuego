@@ -63,6 +63,43 @@ export const efrain = {
     secret:
       'Don Efraín se baja con el pescadito de cola torcida en el bolsillo. Le dice a la sobrina que nada mejor así.',
   },
+  // ----- Propios de este sueño -----
+  hintSteer: 'Arrastra a los lados para guiar el champán',
+  hintRow: 'Toca seguido (o mantén espacio) para remar contra la corriente',
+  necklace: 'Collar',
+  distance: 'Mompox: {n} m',
+  charms: {
+    anillo: 'Plata de ley. Lo hice tres veces hasta que me salió redondo.',
+    bocachico: 'Por un bocachico cambié mi primera pieza. Buen negocio: me lo comí.',
+    topitos: 'Los topitos. Los llevo en el pañuelo, ¿ve? Aquí. ¿Dónde los puse?',
+    iglesia: 'Santa Bárbara. Ahí la vi por primera vez, en la novena.',
+    flor: 'Una flor de la albarrada. Las momposinas se la ponen en la oreja.',
+    mariposa: 'Esta no sé quién la hizo. Tiene mi puntada, eso sí.',
+  },
+  junctions: [
+    { q: '¿Dónde le pedí la mano?', t: 'En la albarrada', f: 'En la estación' },
+    { q: '¿Cómo se llama nuestra hija?', t: 'Ruth', f: 'Carmenza' },
+    { q: '¿Cuántos años llevamos?', t: 'Cincuenta', f: 'Ninguno todavía' },
+    { q: '¿Dónde vivimos?', t: 'En Mompox', f: 'En Santa Marta' },
+    { q: '¿Quién me espera?', t: 'Carmenza, vieja', f: 'Carmenza, de quince' },
+  ],
+  wrong: 'Esa no es… ¿o sí?',
+  right: 'Eso. Eso sí me lo sé.',
+  whirl: 'El remolino lo marea.',
+  act2Lines: [
+    [
+      'efrain',
+      'El río se parte en brazos, niña. Como la memoria: uno coge por uno y el otro se seca.',
+    ],
+    ['celeste', 'Coja por el que brilla, don Efraín.'],
+  ] as Line[],
+  yearsLine: [['efrain', 'Mire los años en la orilla. Vamos para atrás.']] as Line[],
+  seaLines: [
+    ['efrain', 'El mar. Mil novecientos setenta y uno. Aquí me espera ella.'],
+    ['celeste', 'Aquí no hay nadie, don Efraín.'],
+    ['efrain', '…Entonces está en la casa. Hay que devolverse. Contra el río.'],
+  ] as Line[],
+  arriveLines: [['efrain', 'La albarrada. Y esa señora tiene mis topitos puestos.']] as Line[],
 };
 
 export const _efrainCheck: DreamTexts = efrain;

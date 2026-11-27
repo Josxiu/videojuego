@@ -275,6 +275,29 @@ export const TRACKS = {
       ),
     ],
   },
+  efrain: {
+    bpm: 84,
+    spb: 4,
+    steps: 64,
+    layers: [
+      D('tambora', 0.36, 0, 'X . . . . . o . X . . . o . . .'),
+      D('rim', 0.18, 0, '. . x . . . x . . . x . . . x .'),
+      L('bass', 0.3, 0, bars(['E2', 'E2', 'B1', 'B1', 'A1', 'A1', 'B1', 'E2'], 'C . . . . . . .')),
+      D('shaker', 0.16, 1, 'x . x x x . x x'),
+      L(
+        'gaita',
+        0.3,
+        1,
+        'B4~3 . . A4 G4~2 . E4~4 . . . . . . . G4~2 . A4 B4~3 . . D5~2 . B4~4 . . . . . A4~2 . G4 F#4~3 . . E4~2 . D4~6 . . . . . . . . E4~2 . G4 A4~3 . . B4~2 . G4 A4 G4 E4~4 . . .',
+      ),
+      L(
+        'pad',
+        0.2,
+        2,
+        'E3,G3,B3~16 . . . . . . . . . . . . . . . B2,D#3,F#3~16 . . . . . . . . . . . . . . . A2,C3,E3~16 . . . . . . . . . . . . . . . B2,D#3,F#3~16 . . . . . . . . . . . . . . .',
+      ),
+    ],
+  },
 } satisfies Record<string, Track>;
 
 export type TrackId = keyof typeof TRACKS;
